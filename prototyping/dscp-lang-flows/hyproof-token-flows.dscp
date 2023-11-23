@@ -38,6 +38,7 @@ pub fn process_initiate_cert || => |output: InitiatedCert| where {
 
 pub fn process_issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
   input.hydrogen_owner == output.hydrogen_owner,
+  input.proposed_energy_owner == output.energy_owner,
   output.hydrogen_owner != sender,
   output.energy_owner == sender,
   output.embodied_co2: Literal,
