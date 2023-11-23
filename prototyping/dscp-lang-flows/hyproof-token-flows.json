@@ -60,6 +60,17 @@
       },
       {
         "Restriction": {
+          "OutputHasRole": {
+            "index": 0,
+            "role_key": "proposed_energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
           "FixedOutputMetadataValueType": {
             "index": 0,
             "metadata_key": "hydrogen_amount",
@@ -77,6 +88,23 @@
             "role_key": "hydrogen_owner"
           }
         }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "SenderHasOutputRole": {
+            "index": 0,
+            "role_key": "proposed_energy_owner"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
       },
       {
         "Op": "And"
@@ -177,6 +205,17 @@
           "InputHasRole": {
             "index": 0,
             "role_key": "hydrogen_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "InputHasRole": {
+            "index": 0,
+            "role_key": "proposed_energy_owner"
           }
         }
       },
