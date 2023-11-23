@@ -283,6 +283,19 @@
       },
       {
         "Restriction": {
+          "MatchInputOutputRole": {
+            "input_index": 0,
+            "input_role_key": "proposed_energy_owner",
+            "output_index": 0,
+            "output_role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
           "SenderHasOutputRole": {
             "index": 0,
             "role_key": "hydrogen_owner"
