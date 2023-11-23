@@ -19,3 +19,17 @@ process-management create -h localhost -p 9944 -u //Alice -f hyproof-token-flows
 ```
 
 ---
+
+# DSCP Lang Flows: Description
+
+Available files:
+
+* The high-level version of the process flow written using the DSCP Lang can be found here:
+  - **[hyproof-token-flows.dscp](./hyproof-token-flows.dscp)**
+
+* The outputted json array here containing all the rules can be found here:
+  - **[hyproof-token-flows.json](./hyproof-token-flows.json)**
+
+For testing, one can use the **[PolkadotJsApp GUI](https://polkadot.js.org/apps/)** or use a NodeJs terminal to interact with the chain directly.
+
+---
