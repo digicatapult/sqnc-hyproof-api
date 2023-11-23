@@ -6,6 +6,20 @@ The **`dscp-lang`**, tool we use for parsing token flows, can be found in the **
 
 To differentiate documents with code that has a high-level of abstraction from other things, let's consider using the custom file extension **`*.dscp`**.
 
+## DSCP Lang Flows: Overview
+
+In terms of how the information that needs to be persisted in on-chain looks like, it is important explain the big picture.
+
+The process is currently designed in such a way so that certain users can mint out of nothing, burn-and-create and burn tokens. There are two token types - (1) the first one represents NFT tokens that have no Embodied CO2 data attached to them yet and only Hydrogen amount in g while (2) the second one has Embodied CO2 while the hydrogen amount is removed to avoid being redundant.
+
+Assuming a simple user flow made out of two steps (1) token **A** gets created from nothingness; (2) token **B** gets spawned from the previously one:
+
+* Token **A** will have two key-value pairs: (A1) hydrogen owner where the owner will be an address like the one owned by Heidi the H producer and (A2) the respective H amount.
+
+* Token **B** will have three key-value pairs: (B1) which is basically a clone of A1, (B2) energy owner where the owner will be an address like the one owned by Emma the energy maker or any other address different than the A1 address and (B3) the embodied CO2.
+
+## DSCP Lang Flows: Preparing and Testing
+
 To compile the final _token flow json_ using the _token dscp code_ as an input the **[dscp-lang](https://github.com/digicatapult/dscp-node/tree/main/tools/lang)** needs to be used, therefore a command like the following:
 
 ```sh
@@ -20,7 +34,7 @@ process-management create -h localhost -p 9944 -u //Alice -f hyproof-token-flows
 
 ---
 
-# DSCP Lang Flows: Description
+## DSCP Lang Flows: Structure
 
 Available files:
 
@@ -30,6 +44,6 @@ Available files:
 * The outputted json array here containing all the rules can be found here:
   - **[hyproof-token-flows.json](./hyproof-token-flows.json)**
 
-For testing, one can use the **[PolkadotJsApp GUI](https://polkadot.js.org/apps/)** or use a NodeJs terminal to interact with the chain directly.
+For testing, one can use the **[PolkadotJsApp GUI](https://polkadot.js.org/apps/)** or use a _NodeJs_ terminal to interact with the chain directly by making use of the Polkadot SDK or by making use of the **substrateApi.js** ( **`./app/util/substrateApi.js`** ) from the **`dscp-node`** repo.
 
 ---
