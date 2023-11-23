@@ -1,0 +1,9 @@
+ignores: [
+  "concurrently",
+  "pino-colada",
+  "nodemon",
+  "multer",
+  "pg",
+  "undici",
+  "supertest",
+]

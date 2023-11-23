@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "ESNext",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "moduleResolution": "node",
+    "typeRoots": ["types/*", "node_modules/@types"],
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "paths":{
+      "pino": ["node_modules/pino"],
+      "types": ["types"],
+    }
+  },
+  "exclude": [
+    "**/*.test.ts",
+    "test",
+    "**/__test__"
+  ]
+}
