@@ -40,36 +40,3 @@ pub fn process_issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
   output.energy_owner == sender,
   output.embodied_co2: Literal,
 }
-
-// Old
-
-// pub fn process_burn_draft | input: InitiatedCert | => || where {
-//   input.hydrogen_owner != sender,
-// }
-
-// pub fn process_burn_final | input: IssuedCert | => || where {
-//   input.hydrogen_owner != sender,
-//   input.energy_owner != sender,
-// }
-
-// pub fn process_final_cert => | input: InitiatedCert | => | output: IssuedCert | where {
-//   input.hydrogen_owner == output.hydrogen_owner,
-//   output.energy_owner == sender,
-//   output.hydrogen_owner != sender,
-// //   output.embodied_co2: Literal,
-// }
-
-// token Cert {
-//   owner: Role,
-//   e_co2: Literal | None
-// }
-
-// pub fn create || => | output: Cert | where {
-//   output.owner == sender,
-//   output.e_co2: None,
-// }
-
-// pub fn issue | input: Cert | => | output: Cert | where {
-//   // input.owner == sender,
-//   output.e_co2: Literal,
-// }
