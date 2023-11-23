@@ -1,4 +1,4 @@
-/**
+/*
  * ------------------
  * Token Declarations
  * ------------------
@@ -10,6 +10,7 @@
 
 token InitiatedCert {
   hydrogen_owner: Role,
+  proposed_energy_owner: Role,
   hydrogen_amount: Literal,
 }
 
@@ -19,7 +20,7 @@ token IssuedCert {
   embodied_co2: Literal,
 }
 
-/**
+/*
  * ---------------------
  * Function Declarations
  * ---------------------
@@ -31,6 +32,7 @@ token IssuedCert {
 
 pub fn process_initiate_cert || => |output: InitiatedCert| where {
   output.hydrogen_owner == sender,
+  output.proposed_energy_owner != sender,
   output.hydrogen_amount: Literal,
 }
 
