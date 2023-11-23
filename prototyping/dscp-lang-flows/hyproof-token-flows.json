@@ -270,11 +270,11 @@
       },
       {
         "Restriction": {
-          "MatchInputOutputMetadataValue": {
+          "MatchInputOutputRole": {
             "input_index": 0,
-            "input_metadata_key": "hydrogen_owner",
+            "input_role_key": "hydrogen_owner",
             "output_index": 0,
-            "output_metadata_key": "hydrogen_owner"
+            "output_role_key": "hydrogen_owner"
           }
         }
       },
