@@ -1,0 +1,45 @@
+/*
+ * ------------------
+ * Token Declarations
+ * ------------------
+ *
+ * Note that `token`s define formats that should be persisted in transitions.
+ * Fields can be of type Role, File, Literal, a specific literal, a token type
+ * or a union of any of these
+ */
+
+token InitiatedCert {
+  hydrogen_owner: Role,
+  energy_owner: Role,
+  hydrogen_quantity_mwh: Literal,
+  commitment: Literal,
+}
+
+token IssuedCert {
+  hydrogen_owner: Role,
+  energy_owner: Role,
+  embodied_co2: Literal,
+}
+
+/*
+ * ---------------------
+ * Function Declarations
+ * ---------------------
+ *
+ * Note that `fn`s define process flow restrictions and consist of a set of
+ * inputs, a set of outputs and a set of additional conditions.
+ * public `fn` will be published as a process flow (`fn`s can also be private)
+ */
+
+pub fn initiate_cert || => |output: InitiatedCert| where {
+  output.hydrogen_owner == sender,
+  output.energy_owner != sender,
+}
+
+pub fn issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
+  output == input,
+  input.hydrogen_owner == output.hydrogen_owner,
+  input.energy_owner == output.energy_owner,
+  output.hydrogen_owner != sender,
+  output.energy_owner == sender,
+}
