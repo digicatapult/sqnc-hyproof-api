@@ -10,8 +10,9 @@
 
 token InitiatedCert {
   hydrogen_owner: Role,
-  proposed_energy_owner: Role,
-  hydrogen_amount: Literal,
+  energy_owner: Role,
+  hydrogen_quantity_mwh: Literal,
+  commitment: Literal,
 }
 
 token IssuedCert {
@@ -30,16 +31,15 @@ token IssuedCert {
  * public `fn` will be published as a process flow (`fn`s can also be private)
  */
 
-pub fn process_initiate_cert || => |output: InitiatedCert| where {
+pub fn initiate_cert || => |output: InitiatedCert| where {
   output.hydrogen_owner == sender,
-  output.proposed_energy_owner != sender,
-  output.hydrogen_amount: Literal,
+  output.energy_owner != sender,
 }
 
-pub fn process_issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
+pub fn issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
+  output == input,
   input.hydrogen_owner == output.hydrogen_owner,
-  input.proposed_energy_owner == output.energy_owner,
+  input.energy_owner == output.energy_owner,
   output.hydrogen_owner != sender,
   output.energy_owner == sender,
-  output.embodied_co2: Literal,
 }
