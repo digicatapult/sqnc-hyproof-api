@@ -18,18 +18,21 @@ export async function up(knex: Knex): Promise<void> {
     def.primary(['id'])
   })
 
-  await knex.schema.createTable('example', (def) => {
+  await knex.schema.createTable('certificate', (def) => {
     def.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
+    def.integer('capacity').notNullable().index('capacity_index')
+    def.integer('co2e').notNullable().index('co2e_index')
     def.string('owner', 48).notNullable()
     def
-      .enum('state', ['created', 'allocated'], {
-        enumName: 'example_state',
+      .enum('state', ['initialized', 'issued', 'revoked'], {
+        enumName: 'certificate_state',
         useNative: true,
       })
       .notNullable()
-    def.uuid('parameters_attachment_id').notNullable()
-    def.integer('latest_token_id')
-    def.integer('original_token_id')
+      .defaultTo('initialized')
+    def.uuid('parameters_attachment_id').nullable().defaultTo(null)
+    def.integer('latest_token_id').defaultTo(null)
+    def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
     def.primary(['id'])
@@ -62,20 +65,23 @@ export async function up(knex: Knex): Promise<void> {
         useNative: true,
       })
       .notNullable()
+      .defaultTo('submitted')
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
     def.integer('token_id')
     def.primary(['id'])
     def.specificType('hash', 'CHAR(64)').notNullable()
-    def.enu('api_type', ['example_a', 'example_b'], { useNative: true, enumName: 'api_type' })
-    def.enu('transaction_type', ['creation', 'proposal', 'accept'], { useNative: true, enumName: 'transaction_type' })
+    def.enu('api_type', ['certificate', 'attachment'], { useNative: true, enumName: 'api_type' }).notNullable()
+    def
+      .enu('transaction_type', ['initialise', 'issue', 'revoke'], { useNative: true, enumName: 'transaction_type' })
+      .defaultTo('initialise')
     def.unique(['id', 'local_id'], { indexName: 'transaction-id-local-id' })
   })
 }
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('attachment')
-  await knex.schema.dropTable('example')
+  await knex.schema.dropTable('certificate')
   await knex.schema.dropTable('transaction')
   await knex.schema.dropTable('processed_blocks')
   await knex.raw('DROP EXTENSION "uuid-ossp"')

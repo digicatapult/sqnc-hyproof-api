@@ -37,7 +37,7 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(noInputsOutputs, {})
     expect(result).to.deep.equal({})
 
-    const stub = eventProcessors['example-create'] as SinonStub
+    const stub = eventProcessors['process_initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([1, tx, 'alice', [], []])
   })
@@ -59,7 +59,7 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(complexEvent, {})
     expect(result).to.deep.equal({})
 
-    const stub = eventProcessors['example-create'] as SinonStub
+    const stub = eventProcessors['process_initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
       1,
@@ -93,7 +93,7 @@ describe('EventHandler', function () {
     const eventHandler = new EventHandler({ db, logger, node, eventProcessors })
 
     const baseChangeSet: ChangeSet = {
-      examples: new Map([
+      certificates: new Map([
         ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'created' }],
         ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'created' }],
         ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'created' }],
@@ -103,7 +103,7 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(complexEvent, baseChangeSet)
     expect(result).to.deep.equal(baseChangeSet)
 
-    const stub = eventProcessors['example-create'] as SinonStub
+    const stub = eventProcessors['process_initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
       1,
@@ -133,7 +133,7 @@ describe('EventHandler', function () {
     const eventHandler = new EventHandler({ db, logger, node, eventProcessors })
 
     const baseChangeSet: ChangeSet = {
-      examples: new Map([
+      certificates: new Map([
         ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'created' }],
         ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'created' }],
         ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'created' }],

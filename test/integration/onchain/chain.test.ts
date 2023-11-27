@@ -10,6 +10,7 @@ import ChainNode from '../../../src/lib/chainNode'
 import { logger } from '../../../src/lib/logger'
 import env from '../../../src/env'
 import { pollTransactionState } from '../../helpers/poll'
+import type { UUID } from '../../../src/models/strings'
 
 describe('on-chain', function () {
   this.timeout(120000)
@@ -42,17 +43,17 @@ describe('on-chain', function () {
       const invalidProcess = { id: 'invalid', version: 1 }
       const extrinsic = await node.prepareRunProcess({ process: invalidProcess, inputs: [], outputs: [] })
       const [transaction] = await db.insert('transaction', {
-        api_type: 'example_b',
-        transaction_type: 'creation',
+        api_type: 'certificate',
+        transaction_type: 'initialise',
         local_id: '0f5af074-7d4d-40b4-86a5-17a2391303cb',
         state: 'submitted',
         hash: extrinsic.hash.toHex().slice(2),
       })
 
-      node.submitRunProcess(extrinsic, (state) => db.update('transaction', { id: transaction.id }, { state }))
+      node.submitRunProcess(extrinsic, (state) => db.update('transaction', { id: transaction as UUID }, { state }))
 
       // wait for dispatch error
-      const failedTransaction = await pollTransactionState(db, transaction.id, 'failed')
+      const failedTransaction = await pollTransactionState(db, transaction, 'failed')
       expect(failedTransaction.state).to.equal('failed')
     })
   })

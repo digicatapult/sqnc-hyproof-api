@@ -1,11 +1,11 @@
 import knex, { Knex } from 'knex'
 
 import { pgConfig } from './knexfile'
-import { HEX, UUID } from '../../models/strings'
+import { DATE, HEX, UUID } from '../../models/strings'
 import { TransactionApiType, TransactionState, TransactionType } from '../../models/transaction'
 import { NotFound } from '../error-handler'
 
-const tablesList = ['attachment', 'example', 'transaction', 'processed_blocks'] as const
+const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const
 type TABLES_TUPLE = typeof tablesList
 type TABLE = TABLES_TUPLE[number]
 
@@ -21,7 +21,7 @@ export interface AttachmentRow {
   filename: string | null
   size: number | null
   ipfs_hash: string
-  created_at: Date
+  created_at: DATE
 }
 
 export interface TransactionRow {
@@ -34,12 +34,12 @@ export interface TransactionRow {
   updated_at: Date
 }
 
-export interface ExampleRow {
+export interface CertificateRow {
   id: UUID
   createdAt: Date
 }
 
-export type Entities = ExampleRow | TransactionRow | AttachmentRow
+export type Entities = CertificateRow | TransactionRow | AttachmentRow
 
 function restore0x(input: ProcessedBlockTrimmed): ProcessedBlock {
   return {
@@ -73,13 +73,18 @@ export default class Database {
   }
 
   // generics methods
-  insert = async (model: keyof Models<() => QueryBuilder>, record: Record<string, string | number>) => {
+  insert = async (
+    model: keyof Models<() => QueryBuilder>,
+    record: Record<string, string | number | UUID>
+  ): Promise<keyof Entities> => {
     const query = this.db()[model]
+
+    // TODO address indexer (create a backlog item)
     if (model == 'processed_blocks') {
       return query().insert(trim0x(record as ProcessedBlock))
     }
 
-    return query().insert(record).returning('*')
+    return query().insert(record).returning('id')
   }
 
   delete = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number>) => {
@@ -115,7 +120,9 @@ export default class Database {
 
   // TODO some methods could be generic as well, e.g. insert/get for event processor indexer
   findLocalIdForToken = async (tokenId: number): Promise<UUID | null> => {
-    const result = (await Promise.all([this.db().example().select(['id']).where({ latest_token_id: tokenId })])) as {
+    const result = (await Promise.all([
+      this.db().certificate().select(['id']).where({ latest_token_id: tokenId }),
+    ])) as {
       id: UUID
     }[][]
     const flatten = result.reduce((acc, set) => [...acc, ...set], [])

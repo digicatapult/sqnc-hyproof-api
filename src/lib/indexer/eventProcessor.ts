@@ -2,9 +2,9 @@ import { v4 as UUIDv4 } from 'uuid'
 
 import { UUID } from '../../models/strings'
 import { TransactionRow } from '../db'
-import { AttachmentRecord, ChangeSet, ExampleRecord } from './changeSet'
+import { ChangeSet, CertificateRecord } from './changeSet'
 
-const processNames = ['example-create'] as const
+const processNames = ['process_initiate_cert'] as const
 type PROCESSES_TUPLE = typeof processNames
 type PROCESSES = PROCESSES_TUPLE[number]
 
@@ -30,46 +30,54 @@ const getOrError = <T>(map: Map<string, T>, key: string): T => {
   return val
 }
 
+/* TODO uncomment if we decided to use attachments
 const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRecord => ({
   type: 'insert',
   id: UUIDv4(),
   ipfs_hash: getOrError(map, key),
 })
+*/
 
 const DefaultEventProcessors: EventProcessors = {
-  'example-create': (version, transaction, _sender, _inputs, outputs) => {
-    if (version !== 1) throw new Error(`Incompatible version ${version} for example-create process`)
+  process_initiate_cert: (version, transaction, _sender, _inputs, outputs) => {
+    if (version !== 1) throw new Error(`Incompatible version ${version} for process_initiate_cert process`)
 
-    const newExampleId = outputs[0].id
-    const newExample = outputs[0]
+    const newCertificateId = outputs[0].id
+    const newCertificate = outputs[0]
 
     if (transaction) {
       const id = transaction.localId
       return {
-        examples: new Map([
+        certificates: new Map([
           [
             id,
-            { type: 'update', id, state: 'created', latest_token_id: newExampleId, original_token_id: newExampleId },
+            {
+              type: 'update',
+              id,
+              state: 'created',
+              latest_token_id: newCertificateId,
+              original_token_id: newCertificateId,
+            },
           ],
         ]),
       }
     }
 
-    const attachment: AttachmentRecord = attachmentPayload(newExample.metadata, 'parameters')
-    const example: ExampleRecord = {
+    // const attachment: AttachmentRecord = attachmentPayload(newCertificate.metadata, 'parameters')
+    const certificate: CertificateRecord = {
       type: 'insert',
       id: UUIDv4(),
-      owner: getOrError(newExample.roles, 'owner'),
-      subtype: getOrError(newExample.metadata, 'subtype'),
-      state: 'created',
-      parameters_attachment_id: attachment.id,
-      latest_token_id: newExample.id,
-      original_token_id: newExample.id,
+      owner: getOrError(newCertificate.roles, 'owner'),
+      state: 'initialized',
+      co2e: getOrError(newCertificate.metadata, 'co2e'),
+      capacity: getOrError(newCertificate.metadata, 'capacity'),
+      latest_token_id: newCertificate.id,
+      original_token_id: newCertificate.id,
+      parameters_attachment_id: '',
     }
 
     return {
-      attachments: new Map([[attachment.id, attachment]]),
-      examples: new Map([[example.id, example]]),
+      certificates: new Map([[certificate.id, certificate]]),
     }
   },
 }

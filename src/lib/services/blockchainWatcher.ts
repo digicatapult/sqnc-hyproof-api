@@ -11,8 +11,8 @@
 //   switch (tokenType) {
 //     case 'DEMAND':
 //       return 'demand'
-//     case 'example':
-//       return 'example'
+//     case 'certificate':
+//       return 'certificate'
 //   }
 // }
 

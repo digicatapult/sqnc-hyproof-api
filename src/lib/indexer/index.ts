@@ -198,15 +198,16 @@ export default class Indexer {
         }
       }
 
-      if (changeSet.examples) {
-        for (const [, examples] of changeSet.examples) {
-          const { type, id, ...record } = examples
+      // TODO we can do no if and just pass entity as arg?
+      if (changeSet.certificates) {
+        for (const [, certificates] of changeSet.certificates) {
+          const { type, id, ...record } = certificates
           switch (type) {
             case 'insert':
-              await db.insert('example', record)
+              await db.insert('certificate', record)
               break
             case 'update':
-              await db.update('example', { id: id }, record)
+              await db.update('certificate', { id: id }, record)
               break
           }
         }

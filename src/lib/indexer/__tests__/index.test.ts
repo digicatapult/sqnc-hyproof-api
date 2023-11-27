@@ -157,11 +157,11 @@ describe('Indexer', function () {
       expect(handleBlock.secondCall.args[0]).to.equal('3-hash')
     })
 
-    it('should upsert examples and example entries from changeset', async function () {
+    it('should upsert certificates and certificate entries from changeset', async function () {
       const db = withInitialLastProcessedBlock({ hash: '1-hash', parent: '0-hash', height: 1 })
       const node = withHappyChainNode()
       const handleBlock = sinon.stub().resolves({
-        examples: new Map([
+        certificates: new Map([
           ['123', { type: 'update', id: '42' }],
           ['456', { type: 'update', id: '43' }],
         ]),
@@ -176,19 +176,19 @@ describe('Indexer', function () {
       await indexer.processNextBlock('2-hash')
 
       expect((db.update as sinon.SinonStub).calledTwice).to.equal(true)
-      expect((db.update as sinon.SinonStub).firstCall.args).to.deep.equal(['example', { id: '42' }, {}])
-      expect((db.update as sinon.SinonStub).secondCall.args).to.deep.equal(['example', { id: '43' }, {}])
+      expect((db.update as sinon.SinonStub).firstCall.args).to.deep.equal(['certificate', { id: '42' }, {}])
+      expect((db.update as sinon.SinonStub).secondCall.args).to.deep.equal(['certificate', { id: '43' }, {}])
 
       expect((db.insert as sinon.SinonStub).calledTwice).to.equal(true)
       expect((db.insert as sinon.SinonStub).firstCall.args).to.deep.equal(['attachment', { id: '46' }])
       expect((db.insert as sinon.SinonStub).secondCall.args).to.deep.equal(['attachment', { id: '47' }])
     })
 
-    it('should insert examples and example entries from changeset', async function () {
+    it('should insert certificates and certificate entries from changeset', async function () {
       const db = withInitialLastProcessedBlock({ hash: '1-hash', parent: '0-hash', height: 1 })
       const node = withHappyChainNode()
       const handleBlock = sinon.stub().resolves({
-        examples: new Map([
+        certificates: new Map([
           ['123', { type: 'insert', id: '42' }],
           ['456', { type: 'insert', id: '43' }],
         ]),
@@ -205,8 +205,8 @@ describe('Indexer', function () {
       expect((db.insert as sinon.SinonStub).getCalls().length).to.equal(4)
       expect((db.insert as sinon.SinonStub).getCall(0).args).to.deep.equal(['attachment', { id: '46' }])
       expect((db.insert as sinon.SinonStub).getCall(1).args).to.deep.equal(['attachment', { id: '47' }])
-      expect((db.insert as sinon.SinonStub).getCall(2).args).to.deep.equal(['example', {}])
-      expect((db.insert as sinon.SinonStub).getCall(3).args).to.deep.equal(['example', {}])
+      expect((db.insert as sinon.SinonStub).getCall(2).args).to.deep.equal(['certificate', {}])
+      expect((db.insert as sinon.SinonStub).getCall(3).args).to.deep.equal(['certificate', {}])
     })
 
     describe('exception cases', function () {

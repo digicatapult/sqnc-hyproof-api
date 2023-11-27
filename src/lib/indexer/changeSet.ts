@@ -6,13 +6,14 @@ interface Change {
   type: ChangeOperation
 }
 
-export type ExampleRecord =
+export type CertificateRecord =
   | {
       type: 'insert'
       id: string
       owner: string
-      subtype: string
       state: string
+      co2e: string
+      capacity: string
       parameters_attachment_id: string
       latest_token_id: number
       original_token_id: number
@@ -35,7 +36,7 @@ export type AttachmentRecord = {
 
 export type ChangeSet = {
   attachments?: Map<string, AttachmentRecord>
-  examples?: Map<string, ExampleRecord>
+  certificates?: Map<string, CertificateRecord>
 }
 
 const mergeMaps = <T extends Change>(base?: Map<string, T>, update?: Map<string, T>) => {
@@ -58,19 +59,19 @@ const mergeMaps = <T extends Change>(base?: Map<string, T>, update?: Map<string,
 }
 
 export const mergeChangeSets = (base: ChangeSet, update: ChangeSet) => {
-  const examples = mergeMaps(base.examples, update.examples)
+  const certificates = mergeMaps(base.certificates, update.certificates)
   const attachments = mergeMaps(base.attachments, update.attachments)
 
   const result: ChangeSet = {
     ...(attachments ? { attachments } : {}),
-    ...(examples ? { examples } : {}),
+    ...(certificates ? { certificates } : {}),
   }
 
   return result
 }
 
 export const findLocalIdInChangeSet = (change: ChangeSet, tokenId: number): UUID | null => {
-  const matchRecordValues = [...(change.examples?.values() || [])]
+  const matchRecordValues = [...(change.certificates?.values() || [])]
   // idea to have multiple here
 
   const match = [...matchRecordValues].find((el) => el.latest_token_id === tokenId)
