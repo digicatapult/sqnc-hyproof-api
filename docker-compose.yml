@@ -2,7 +2,7 @@ version: '3'
 
 services:
   postgres-hyproof-api:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: postgres-hyproof-api
     ports:
       - 5432:5432
@@ -14,7 +14,7 @@ services:
       - POSTGRES_DB=dscp-hyproof-api
 
   postgres-identity-service:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: postgres-identity
     ports:
       - 5433:5432
@@ -61,7 +61,7 @@ services:
     restart: on-failure
 
   ipfs:
-    image: ipfs/go-ipfs:v0.23.0
+    image: ipfs/go-ipfs:v0.24.0
     container_name: ipfs
     environment:
       - |

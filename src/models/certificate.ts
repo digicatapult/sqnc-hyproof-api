@@ -61,5 +61,5 @@ export type RevokePayload = {
 }
 
 export type IssuancePayload = {
-  embodied_co2: number
+  embodied_co2?: number
 }

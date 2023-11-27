@@ -4,7 +4,7 @@ import { Express } from 'express'
 import { container } from 'tsyringe'
 
 import Indexer from '../../../src/lib/indexer'
-import { withIdentitySelfMock } from '../../helpers/mock'
+import { withExternalServicesMock } from '../../helpers/mock'
 import { withAppAndIndexer } from '../../helpers/chainTest'
 import Database from '../../../src/lib/db'
 import ChainNode from '../../../src/lib/chainNode'
@@ -18,7 +18,7 @@ describe('on-chain', function () {
 
   const context: { app: Express; indexer: Indexer } = {} as { app: Express; indexer: Indexer }
   withAppAndIndexer(context)
-  withIdentitySelfMock()
+  withExternalServicesMock()
 
   beforeEach(async function () {
     await db.delete('transaction', {})

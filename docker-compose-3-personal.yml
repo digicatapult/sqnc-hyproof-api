@@ -20,7 +20,7 @@ networks:
 services:
   # -------------------------------------------------------------------- energy-owner
   energy-owner-postgres-hyproof-api:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: energy-owner-postgres-hyproof-api
     ports:
       - 5432:5432
@@ -33,7 +33,7 @@ services:
     networks: ['energy-owner']
 
   energy-owner-postgres-identity:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: energy-owner-postgres-identity
     ports:
       - 5433:5432
@@ -123,7 +123,7 @@ services:
 
   # -------------------------------------------------------------------- hydrogen-owner
   hydrogen-owner-postgres-hyproof-api:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: hydrogen-owner-postgres-hyproof-api
     ports:
       - 5442:5432
@@ -136,7 +136,7 @@ services:
     networks: ['hydrogen-owner']
 
   hydrogen-owner-postgres-identity:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: hydrogen-owner-postgres-identity
     ports:
       - 5443:5432
@@ -227,7 +227,7 @@ services:
   # ------------------------------------------------------------------- regulator
 
   regulator-postgres-hyproof-api:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: regulator-postgres-hyproof-api
     ports:
       - 5452:5432
@@ -240,7 +240,7 @@ services:
     networks: ['regulator']
 
   regulator-postgres-identity:
-    image: postgres:16.0-alpine
+    image: postgres:16.1-alpine
     container_name: regulator-postgres-identity
     ports:
       - 5453:5432
@@ -330,7 +330,7 @@ services:
 
   # ------------------------------------------------------------------------ ipfs
   ipfs:
-    image: ipfs/go-ipfs:v0.23.0
+    image: ipfs/go-ipfs:v0.24.0
     container_name: ipfs
     environment:
       - |

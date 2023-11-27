@@ -95,12 +95,17 @@ const DefaultEventProcessors: EventProcessors = {
     const { local_id } = inputs[0]
     const { id: latest_token_id, ...cert } = outputs[0]
 
+    const embodied_co2 = parseFloat(getOrError(cert.metadata, 'embodied_co2'))
+    if (!Number.isFinite(embodied_co2)) {
+      throw new Error(`Invalid value for embodied co2 ${embodied_co2}`)
+    }
+
     const update: CertificateRecord = {
       id: local_id,
       type: 'update',
       latest_token_id,
       state: 'issued',
-      embodied_co2: parseFloat(getOrError(cert.metadata, 'embodied_co2')),
+      embodied_co2,
     }
 
     return {
