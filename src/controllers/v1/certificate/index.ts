@@ -26,6 +26,7 @@ import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
 import env from '../../../env'
 import { camelToSnakeJSObject } from '../../../lib/utils/shared'
+import { processInitiateCert } from 'src/lib/payload'
 
 @Route('v1/certificate')
 @injectable()
@@ -104,5 +105,70 @@ export class CertificateController extends Controller {
       message: 'ok',
       certificate: await this.db.get('certificate', { id }),
     }
+  }
+
+  /**
+   * @summary returns certificate transaction by certificate and transaction ids
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Get('{id}/initiation/{transactionId}')
+  public async getTransaction(@Path() id: UUID, transactionId: UUID): Promise<Certificate.Response> {
+    if (!id || !transactionId) throw new BadRequest()
+
+    return {
+      message: 'ok',
+      certificate: await this.db.get('transaction', {
+        local_id: id,
+        id: transactionId,
+        transaction_type: 'certificate',
+      }),
+    }
+  }
+
+  /**
+   * @summary returns transactions by certificate local id
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Get('{id}/initiation')
+  public async getTransactions(@Path() id: UUID): Promise<Certificate.Response> {
+    if (!id) throw new BadRequest()
+
+    return {
+      controller: 'certificte',
+      message: 'ok',
+      transactions: await this.db.get('transaction', { local_id: id, transaction_type: 'certificate' }),
+    }
+  }
+
+  /**
+   * A member creates the demandA {demandAId} on-chain. The demandA is now viewable to other members.
+   * @summary Create a new demandA on-chain
+   * @param demandAId The demandA's identifier
+   */
+  @Post('{demandAId}/creation')
+  @Response<NotFound>(404, 'Item not found')
+  @SuccessResponse('201')
+  public async createOnChain(@Path() id: UUID): Promise<Certificate.Response | string> {
+    const [certificate] = await this.db.get('certificate', { id })
+    if (certificate.state !== 'revoked') throw new BadRequest('certificate must not be revoked')
+
+    const extrinsic = await this.node.prepareRunProcess(processInitiateCert(certificate))
+    const [transaction] = await this.db.insert('certificate', {
+      api_type: 'certificate',
+      transaction_type: 'initialise',
+      local_id: certificate.id,
+      state: 'submitted',
+      hash: extrinsic.hash.toHex(),
+    })
+
+    this.node.submitRunProcess(extrinsic, (state) => this.db.update('transaction', { id }, { state }))
+
+    return transaction
   }
 }

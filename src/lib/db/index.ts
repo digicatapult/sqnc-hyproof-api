@@ -36,7 +36,12 @@ export interface TransactionRow {
 
 export interface CertificateRow {
   id: UUID
-  createdAt: Date
+  state: 'initialise' | 'issue' | 'revoke'
+  created_at: Date
+  updated_at: Date
+  owner: UUID
+  co2e: number
+  capacity: number
 }
 
 export type Entities = CertificateRow | TransactionRow | AttachmentRow

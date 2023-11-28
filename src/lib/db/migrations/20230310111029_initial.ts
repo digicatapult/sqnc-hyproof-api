@@ -24,12 +24,12 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('co2e').notNullable().index('co2e_index')
     def.string('owner', 48).notNullable()
     def
-      .enum('state', ['initialized', 'issued', 'revoked'], {
+      .enum('state', ['initialise', 'issue', 'revoke'], {
         enumName: 'certificate_state',
         useNative: true,
       })
       .notNullable()
-      .defaultTo('initialized')
+      .defaultTo('initialise')
     def.integer('latest_token_id').defaultTo(null)
     def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
