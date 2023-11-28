@@ -19,18 +19,28 @@ export interface MetadataFile {
 
 export type Metadata = Record<string, { type: string; value: string | number }>
 
+/*
+pub fn initiate_cert || => |output: InitiatedCert| where {
+  output.hydrogen_owner == sender,
+  output.energy_owner != sender,
+}
+'@version'
+'@type'
+TODO: identities
+- hydrogen_owner
+- hydrogen_producer
+*/
 export const processInitiateCert = (certificate: CertificateRow): Payload => ({
-  process: { id: 'process_initiate_cert', version: 1 },
+  process: { id: 'initiate_cert', version: 1 },
   inputs: [],
   outputs: [
     {
-      roles: { Owner: certificate.owner },
+      roles: { hydrogen_owner: certificate.hydrogen_owner, energy_owner: certificate.energy_owner },
       metadata: {
-        version: { type: 'LITERAL', value: '1' },
-        type: { type: 'LITERAL', value: 'CERTIFICATE' },
-        state: { type: 'LITERAL', value: certificate.state },
-        co2e: { type: 'LITERAL', value: certificate.co2e },
-        capacity: { type: 'LITERAL', value: certificate.capacity },
+        '@version': { type: 'LITERAL', value: '1' },
+        '@type': { type: 'LITERAL', value: 'CERTIFICATE' },
+        hydrogen_quantity_mwh: { type: 'LITERAL', value: certificate.hydrogen_quantity_mwh },
+        commitment: { type: 'LITERAL', value: ''}
       },
     },
   ],

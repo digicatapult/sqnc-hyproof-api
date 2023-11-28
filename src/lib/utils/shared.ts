@@ -1,18 +1,11 @@
-import * as Certificate from '../../models/certificate'
-import { UUID } from '../../models/strings'
-
-export function camelToSnakeJSObject(body: Certificate.Request): Record<string, string | UUID | number> {
-  const formatted = Object.keys(body).reduce(
-    (out, key) => ({
-      [key
-        .replace(/([a-z])([A-Z])/g, '$1_$2')
-        .trim()
-        .toLowerCase()]: body[key],
-      ...out,
-    }),
-    {}
-  )
-  return formatted
+// TODO sort types and unify helpers
+export function camelToSnake(str: string | number): string {
+  console.log({ str })
+  return str
+    .toString()
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .trim()
+    .toLowerCase()
 }
 
 export function snakeToCamel(str: string): string {

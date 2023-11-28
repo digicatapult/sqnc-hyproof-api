@@ -29,7 +29,7 @@ export const findIdTestSet: ChangeSet = {
       {
         type: 'update',
         id: '0x02',
-        state: 'initialized',
+        state: 'initialise',
         latest_token_id: 42,
       },
     ],

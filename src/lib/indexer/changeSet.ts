@@ -10,17 +10,18 @@ export type CertificateRecord =
   | {
       type: 'insert'
       id: string
-      owner: string
       state: string
-      co2e: string
-      capacity: string
+      hydrogen_owner: string
+      energy_owner: string
       latest_token_id: number
+      hydrogen_quantity_mwh: number
       original_token_id: number
     }
-  | {
+    | {
       type: 'update'
       id: string
       state: string
+      embodied_co2?: string
       original_token_id?: number
       latest_token_id: number
     }

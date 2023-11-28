@@ -4,7 +4,7 @@ import { UUID } from '../../models/strings'
 import { TransactionRow } from '../db'
 import { ChangeSet, CertificateRecord } from './changeSet'
 
-const processNames = ['process_initiate_cert'] as const
+const processNames = ['initiate_cert'] as const
 type PROCESSES_TUPLE = typeof processNames
 type PROCESSES = PROCESSES_TUPLE[number]
 
@@ -30,6 +30,14 @@ const getOrError = <T>(map: Map<string, T>, key: string): T => {
   return val
 }
 
+const parseIntegerOrThrow = (value: string): number => {
+  const result = parseInt(value, 10)
+  if (!Number.isSafeInteger(result)) { 
+    throw new Error("Expected an integer for field")
+  }
+  return result
+}
+
 /* TODO uncomment if we decided to use attachments
 const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRecord => ({
   type: 'insert',
@@ -39,8 +47,8 @@ const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRec
 */
 
 const DefaultEventProcessors: EventProcessors = {
-  process_initiate_cert: (version, transaction, _sender, _inputs, outputs) => {
-    if (version !== 1) throw new Error(`Incompatible version ${version} for process_initiate_cert process`)
+  initiate_cert: (version, transaction, _sender, _inputs, outputs) => {
+    if (version !== 1) throw new Error(`Incompatible version ${version} for initiate_cert process`)
 
     const newCertificateId = outputs[0].id
     const newCertificate = outputs[0]
@@ -63,14 +71,13 @@ const DefaultEventProcessors: EventProcessors = {
       }
     }
 
-    // const attachment: AttachmentRecord = attachmentPayload(newCertificate.metadata, 'parameters')
     const certificate: CertificateRecord = {
       type: 'insert',
       id: UUIDv4(),
-      owner: getOrError(newCertificate.roles, 'owner'),
       state: 'initialized',
-      co2e: getOrError(newCertificate.metadata, 'co2e'),
-      capacity: getOrError(newCertificate.metadata, 'capacity'),
+      hydrogen_owner: getOrError(newCertificate.roles, 'hydrogen_owner'),
+      energy_owner: getOrError(newCertificate.roles, 'energy_owner'),
+      hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(newCertificate.metadata, 'hydrogen_quantity_mwh')),
       latest_token_id: newCertificate.id,
       original_token_id: newCertificate.id,
     }

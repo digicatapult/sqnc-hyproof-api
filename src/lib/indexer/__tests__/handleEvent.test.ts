@@ -37,7 +37,7 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(noInputsOutputs, {})
     expect(result).to.deep.equal({})
 
-    const stub = eventProcessors['process_initiate_cert'] as SinonStub
+    const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([1, tx, 'alice', [], []])
   })
@@ -59,7 +59,7 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(complexEvent, {})
     expect(result).to.deep.equal({})
 
-    const stub = eventProcessors['process_initiate_cert'] as SinonStub
+    const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
       1,
@@ -103,7 +103,7 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(complexEvent, baseChangeSet)
     expect(result).to.deep.equal(baseChangeSet)
 
-    const stub = eventProcessors['process_initiate_cert'] as SinonStub
+    const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
       1,

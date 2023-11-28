@@ -1,6 +1,6 @@
 import { Logger } from 'pino'
 import ChainNode, { ProcessRanEvent } from '../chainNode'
-import Database from '../db'
+import Database, { TransactionRow } from '../db'
 import { ChangeSet, findLocalIdInChangeSet, mergeChangeSets } from './changeSet'
 import defaultEventProcessors, { EventProcessors, ValidateProcessName } from './eventProcessor'
 
@@ -33,7 +33,7 @@ export default class EventHandler {
     }
 
     // lookup transaction from call hash in db
-    const transaction = await this.db.get('transaction', { hash: event.callHash })
+    const [transaction]: TransactionRow[] = await this.db.get('transaction', { hash: event.callHash })
 
     // lookup inputs from db and merge with changeset
     const inputs = await Promise.all(

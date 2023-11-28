@@ -39,12 +39,13 @@ export interface CertificateRow {
   state: 'initialise' | 'issue' | 'revoke'
   created_at: Date
   updated_at: Date
-  owner: UUID
-  co2e: number
-  capacity: number
+  hydrogen_owner: string
+  energy_owner: string
+  embodied_co2?: number | null
+  hydrogen_quantity_mwh: number
 }
 
-export type Entities = CertificateRow | TransactionRow | AttachmentRow
+export type Entity = CertificateRow & TransactionRow & AttachmentRow
 
 function restore0x(input: ProcessedBlockTrimmed): ProcessedBlock {
   return {
@@ -81,7 +82,7 @@ export default class Database {
   insert = async (
     model: keyof Models<() => QueryBuilder>,
     record: Record<string, string | number | UUID>
-  ): Promise<keyof Entities> => {
+  ): Promise<Entity> => {
     const query = this.db()[model]
 
     // TODO address indexer (create a backlog item)
@@ -116,9 +117,10 @@ export default class Database {
 
   get = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number | Date> = {}) => {
     const query = this.db()[model]
-    const result = query().where(where)
+    const result = await query().where(where) as unknown as Entity[]
 
-    if (!result) throw new NotFound(model)
+    console.log({ result })
+    if (result.length === 0) throw new NotFound(model)
 
     return result
   }

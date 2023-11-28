@@ -1,7 +1,7 @@
 import { Controller, Get, Route, Path, Response, Tags, Security, Query } from 'tsoa'
 import type { Logger } from 'pino'
 import { logger } from '../../../lib/logger'
-import Database from '../../../lib/db'
+import Database, { TransactionRow } from '../../../lib/db'
 import { DATE, UUID } from '../../../models/strings'
 import { BadRequest, NotFound } from '../../../lib/error-handler/index'
 import { TransactionApiType, TransactionResponse, TransactionState } from '../../../models/transaction'
@@ -32,7 +32,7 @@ export class TransactionController extends Controller {
     @Query() apiType?: TransactionApiType,
     @Query() status?: TransactionState,
     @Query() updated_since?: DATE
-  ): Promise<void> {
+  ): Promise<TransactionRow[]> {
     const query: { state?: TransactionState; apiType?: TransactionApiType; updatedSince?: Date } = {
       state: status,
       apiType,

@@ -20,9 +20,10 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable('certificate', (def) => {
     def.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
-    def.integer('capacity').notNullable().index('capacity_index')
-    def.integer('co2e').notNullable().index('co2e_index')
-    def.string('owner', 48).notNullable()
+    def.integer('hydrogen_quantity_mwh').notNullable().index('hydrogen_quantity_mwh_index')
+    def.integer('embodied_co2').nullable().index('embodied_co2_index').defaultTo(null)
+    def.string('energy_owner', 48).notNullable()
+    def.string('hydrogen_owner', 48).notNullable()
     def
       .enum('state', ['initialise', 'issue', 'revoke'], {
         enumName: 'certificate_state',
