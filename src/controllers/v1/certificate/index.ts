@@ -26,7 +26,7 @@ import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
 import env from '../../../env'
 import { camelToSnakeJSObject } from '../../../lib/utils/shared'
-import { processInitiateCert } from 'src/lib/payload'
+import { processInitiateCert } from '../../../lib/payload'
 
 @Route('v1/certificate')
 @injectable()

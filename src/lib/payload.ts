@@ -1,6 +1,5 @@
 import { bs58ToHex } from '../utils/controller-helpers'
-import { CertificateRow } from './db';
-import { CertificateRecord } from './indexer/changeSet';
+import { CertificateRow } from './db'
 
 export interface Payload {
   process: { id: string; version: number }
@@ -30,8 +29,8 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
         version: { type: 'LITERAL', value: '1' },
         type: { type: 'LITERAL', value: 'CERTIFICATE' },
         state: { type: 'LITERAL', value: certificate.state },
-        co2e: { type: 'LITERAL', value: certificate.co2e},
-        capacity: { type: 'LITERAL', value: certificate.capacity}
+        co2e: { type: 'LITERAL', value: certificate.co2e },
+        capacity: { type: 'LITERAL', value: certificate.capacity },
       },
     },
   ],
