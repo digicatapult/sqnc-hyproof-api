@@ -25,7 +25,7 @@ import { DATE, UUID } from '../../../models/strings'
 // import { TransactionResponse, TransactionType } from '../../../models/transaction'
 import ChainNode from '../../../lib/chainNode'
 import env from '../../../env'
-import { camelToSnake } from '../../../lib/utils/shared'
+import { camelToSnakeJSObject } from '../../../lib/utils/shared'
 
 @Route('v1/certificate')
 @injectable()
@@ -63,14 +63,7 @@ export class CertificateController extends Controller {
   @SuccessResponse('201')
   public async post(@Body() body: Certificate.Request): Promise<Certificate.Response> {
     this.log.info({ identity: this.identity, body })
-
-    const formatted = Object.keys(body).reduce(
-      (out, key) => ({
-        [camelToSnake(key)]: body[key],
-        ...out,
-      }),
-      {}
-    )
+    const formatted = camelToSnakeJSObject(body)
 
     return {
       message: 'ok',
