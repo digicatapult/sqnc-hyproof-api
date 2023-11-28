@@ -1,6 +1,7 @@
 import * as Certificate from '../../models/certificate'
+import { UUID } from '../../models/strings'
 
-export function camelToSnakeJSObject(body: Certificate.Request): Record<string, any> {
+export function camelToSnakeJSObject(body: Certificate.Request): Record<string, string | UUID | number> {
   const formatted = Object.keys(body).reduce(
     (out, key) => ({
       [key
