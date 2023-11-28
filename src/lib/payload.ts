@@ -40,7 +40,7 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
         '@version': { type: 'LITERAL', value: '1' },
         '@type': { type: 'LITERAL', value: 'CERTIFICATE' },
         hydrogen_quantity_mwh: { type: 'LITERAL', value: certificate.hydrogen_quantity_mwh },
-        commitment: { type: 'LITERAL', value: ''}
+        commitment: { type: 'LITERAL', value: '' },
       },
     },
   ],

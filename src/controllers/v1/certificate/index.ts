@@ -58,18 +58,23 @@ export class CertificateController extends Controller {
   @Response<BadRequest>(400, 'Request was invalid')
   @Response<ValidateError>(422, 'Validation Failed')
   @SuccessResponse('201')
-  public async postDraft(@Body() { hydrogen_quantity_mwh, energy_owner }: Certificate.Payload): Promise<Certificate.Response> {
-    this.log.info({ identity: this.identity })
+  public async postDraft(
+    @Body() { hydrogen_quantity_mwh, energy_owner }: Certificate.Payload
+  ): Promise<Certificate.Response> {
+    this.log.info({ identity: this.identity, energy_owner })
 
     const { address: hydrogen_owner } = await this.identity.getMemberBySelf()
 
-    console.log({ hydrogen_owner, energy_owner })
     // TODO - handle error if alias not found
     // const { address: energy_owner_address } = await this.identity.getMemberByAlias(energy_owner)
 
     return {
       message: 'ok',
-      result: await this.db.insert('certificate', { hydrogen_quantity_mwh, hydrogen_owner, energy_owner: "FFrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" }),
+      result: await this.db.insert('certificate', {
+        hydrogen_quantity_mwh,
+        hydrogen_owner,
+        energy_owner: 'FFrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+      }),
     }
   }
 

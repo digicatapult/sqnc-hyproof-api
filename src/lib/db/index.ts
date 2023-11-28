@@ -117,9 +117,8 @@ export default class Database {
 
   get = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number | Date> = {}) => {
     const query = this.db()[model]
-    const result = await query().where(where) as unknown as Entity[]
+    const result = (await query().where(where)) as unknown as Entity[]
 
-    console.log({ result })
     if (result.length === 0) throw new NotFound(model)
 
     return result

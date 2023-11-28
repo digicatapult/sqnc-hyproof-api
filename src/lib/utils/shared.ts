@@ -1,6 +1,5 @@
 // TODO sort types and unify helpers
 export function camelToSnake(str: string | number): string {
-  console.log({ str })
   return str
     .toString()
     .replace(/([a-z])([A-Z])/g, '$1_$2')

@@ -32,8 +32,8 @@ const getOrError = <T>(map: Map<string, T>, key: string): T => {
 
 const parseIntegerOrThrow = (value: string): number => {
   const result = parseInt(value, 10)
-  if (!Number.isSafeInteger(result)) { 
-    throw new Error("Expected an integer for field")
+  if (!Number.isSafeInteger(result)) {
+    throw new Error('Expected an integer for field')
   }
   return result
 }

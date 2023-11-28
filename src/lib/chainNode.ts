@@ -156,15 +156,12 @@ export default class ChainNode {
 
   async prepareRunProcess({ process, inputs, outputs }: Payload) {
     const outputsAsMaps = await Promise.all(
-      outputs.map(async (output: Output) => { 
+      outputs.map(async (output: Output) => {
         console.log({ output })
-        return [
-        await this.processRoles(output.roles),
-        this.processMetadata(output.metadata),
-      ]})
+        return [await this.processRoles(output.roles), this.processMetadata(output.metadata)]
+      })
     )
 
-    console.log({ outputsAsMaps })
     this.logger.debug('Preparing Transaction inputs: %j outputs: %j', inputs, outputsAsMaps)
 
     await this.api.isReady
@@ -289,7 +286,6 @@ export default class ChainNode {
       const event = events[index]
       const extrinsicIndex = event.phase.asApplyExtrinsic
       const process = event.event.data[1] as { id: string; version: { toNumber: () => number } }
-      console.log(index, { event, process })
       return {
         callHash: block.block.extrinsics[extrinsicIndex].hash.toString() as HEX,
         blockHash: blockhash,

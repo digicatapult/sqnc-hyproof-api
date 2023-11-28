@@ -17,7 +17,7 @@ export type CertificateRecord =
       hydrogen_quantity_mwh: number
       original_token_id: number
     }
-    | {
+  | {
       type: 'update'
       id: string
       state: string
