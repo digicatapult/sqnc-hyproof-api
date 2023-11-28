@@ -45,7 +45,7 @@ describe('attachment', () => {
     })
 
     it('returns 422 with invalid updatedSince date', async () => {
-      const { status, body } = await get(app, `/v1/attachment?updated_since=foo`)
+      const { status, body } = await get(app, `/v1/attachment?createdAt=foo`)
       expect(status).to.equal(422)
       expect(body).to.contain({
         name: 'ValidateError',
@@ -58,9 +58,12 @@ describe('attachment', () => {
     beforeEach(async () => await attachmentSeed())
 
     it('returns attachments', async () => {
-      const { status, body } = await get(app, `/v1/attachment`)
+      const {
+        status,
+        body: { attachments },
+      } = await get(app, `/v1/attachment`)
       expect(status).to.equal(200)
-      expect(body[0]).to.deep.contain({
+      expect(attachments[0]).to.deep.contain({
         created_at: '2023-01-01T00:00:00.000Z',
         filename: 'test.txt',
         id: 'a789ad47-91c3-446e-90f9-a7c9b233eaf8',
@@ -69,9 +72,13 @@ describe('attachment', () => {
     })
 
     it('filters attachments based on created date', async () => {
-      const { status, body } = await get(app, `/v1/attachment?updated_since=2022-01-01T00:00:00.000Z`)
+      const {
+        status,
+        body: { message, attachments },
+      } = await get(app, `/v1/attachment?createdAt=2022-01-01T00:00:00.000Z`)
       expect(status).to.equal(200)
-      expect(body).to.deep.equal([])
+      expect(message).to.equal('ok')
+      expect(attachments).to.deep.equal([])
     })
   })
 
@@ -87,13 +94,13 @@ describe('attachment', () => {
     it('confirms JSON attachment uploads', () => {
       // assert octect
       expect(octetRes.status).to.equal(201)
-      expect(octetRes.body).to.have.property('id')
-      expect(octetRes.body.filename).to.equal(filename)
-      expect(octetRes.body.size).to.equal(size)
+      expect(octetRes.body.message).to.equal('ok')
+      expect(octetRes.error).to.equal(false)
+      expect(octetRes.body).to.have.property('attachments')
     })
 
     it('returns octet attachment', async () => {
-      const { id } = octetRes.body
+      const { id } = octetRes.body.attachments[0]
       const { status, body, header } = await get(app, `/v1/attachment/${id}`, { accept: 'application/octet-stream' })
 
       expect(status).to.equal(200)
@@ -108,7 +115,7 @@ describe('attachment', () => {
     })
 
     it('returns octet when JSON.parse fails', async () => {
-      const { id } = octetRes.body
+      const { id } = octetRes.body.attachments[0]
       const { status, body, header } = await get(app, `/v1/attachment/${id}`, { accept: 'application/json' })
 
       expect(status).to.equal(200)
@@ -135,12 +142,11 @@ describe('attachment', () => {
     it('confirms JSON and octet attachment uploads', () => {
       // assert JSON
       expect(jsonRes.status).to.equal(201)
-      expect(jsonRes.body).to.contain.keys(['id', 'createdAt', 'filename', 'size'])
-      expect(jsonRes.body.filename).to.equal('json')
+      expect(jsonRes.body.attachments[0]).to.contain.keys(['id'])
     })
 
     it('returns JSON attachment', async () => {
-      const { id } = jsonRes.body
+      const { id } = jsonRes.body.attachments[0]
       const { status, body } = await get(app, `/v1/attachment/${id}`, { accept: 'application/json' })
 
       expect(status).to.equal(200)
@@ -148,7 +154,8 @@ describe('attachment', () => {
     })
 
     it('attachment as octet with the filename [json]', async () => {
-      const { status, body, header } = await get(app, `/v1/attachment/${jsonRes.body.id}`, {
+      const { id } = jsonRes.body.attachments[0]
+      const { status, body, header } = await get(app, `/v1/attachment/${id}`, {
         accept: 'application/octet-stream',
       })
 

@@ -1,13 +1,13 @@
-import { AttachmentRecord, ChangeSet, ExampleRecord } from '../../changeSet'
+import { AttachmentRecord, CertificateRecord, ChangeSet } from '../../changeSet'
 
 export const changeSets2: ChangeSet[] = [
   {
-    examples: new Map([['1', { id: '1', type: 'update', latest_token_id: 1, state: 'created' }]]),
+    certificates: new Map([['1', { id: '1', type: 'update', latest_token_id: 1, state: 'initialized' }]]),
   },
   {
-    examples: new Map([
-      ['1', { id: '1', type: 'update', latest_token_id: 1, state: 'created' }],
-      ['3', { id: '3', type: 'update', latest_token_id: 3, state: 'created' }],
+    certificates: new Map([
+      ['1', { id: '1', type: 'update', latest_token_id: 1, state: 'initialized' }],
+      ['3', { id: '3', type: 'update', latest_token_id: 3, state: 'initialized' }],
     ]),
   },
 ]
@@ -23,13 +23,13 @@ export const findIdTestSet: ChangeSet = {
       },
     ],
   ]),
-  examples: new Map<string, ExampleRecord>([
+  certificates: new Map<string, CertificateRecord>([
     [
       '0x02',
       {
         type: 'update',
         id: '0x02',
-        state: 'created',
+        state: 'initialized',
         latest_token_id: 42,
       },
     ],

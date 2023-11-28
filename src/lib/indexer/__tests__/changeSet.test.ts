@@ -70,7 +70,7 @@ describe('changeSet', function () {
       expect(result).to.equal(null)
     })
 
-    it('should return id if token appears in examples', function () {
+    it('should return id if token appears in certificates', function () {
       const result = findLocalIdInChangeSet(findIdTestSet, 42)
       expect(result).to.equal('0x02')
     })

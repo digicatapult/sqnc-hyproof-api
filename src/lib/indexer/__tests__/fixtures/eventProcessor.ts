@@ -3,5 +3,5 @@ import { EventProcessors } from '../../eventProcessor'
 import sinon from 'sinon'
 
 export const withMockEventProcessors: (result?: ChangeSet) => EventProcessors = (result: ChangeSet = {}) => ({
-  'example-create': sinon.stub().returns(result),
+  process_initiate_cert: sinon.stub().returns(result),
 })

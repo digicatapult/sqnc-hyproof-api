@@ -1,5 +1,11 @@
 import { UUID } from './strings'
 
+import { AttachmentRow } from '../lib/db'
+import { Readable } from 'node:stream'
+
+export type Request = Record<string, Payload>
+export type Response = Record<string, string | AttachmentRow[]> | string | Readable
+
 /**
  * File or JSON attachment
  * @example [{
@@ -9,7 +15,7 @@ import { UUID } from './strings'
  *   "createdAt": "2023-03-16T13:18:42.357Z"
  * }]
  */
-export interface Attachment {
+export interface Payload {
   /**
    * uuid generated using knex
    */

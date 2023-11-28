@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-hyproof-api",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "An OpenAPI API service for DSCP",
   "main": "src/index.ts",
   "scripts": {
@@ -15,7 +15,7 @@
     "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json -r ts-node/register ./src/**/*.test.ts",
     "db:migrate": "npx knex migrate:latest --knexfile src/lib/db/knexfile.ts",
     "db:rollback": "npx knex migrate:rollback --knexfile src/lib/db/knexfile.ts",
-    "flows": "npx @digicatapult/dscp-process-management@latest create -h localhost -p 9944 -u //Alice -f ./processFlows.json"
+    "flows": "npx @digicatapult/dscp-process-management@latest create -h 127.0.0.1 -p 9944 -u //Alice -f ./processFlows.json"
   },
   "repository": {
     "type": "git",

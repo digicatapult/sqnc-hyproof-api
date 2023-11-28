@@ -18,18 +18,35 @@ export interface MetadataFile {
 
 export type Metadata = Record<string, { type: string; value: string | number }>
 
-export const processExample = (example: Record<string, string>): Payload => ({
-  process: { id: 'processExample', version: 1 },
+export const processInitiateCert = (certificate: Record<string, string>): Payload => ({
+  process: { id: 'process_initiate_cert', version: 1 },
   inputs: [],
   outputs: [
     {
-      roles: { Owner: example.owner },
+      roles: { Owner: certificate.owner },
       metadata: {
         version: { type: 'LITERAL', value: '1' },
         type: { type: 'LITERAL', value: 'EXAMPLE' },
         state: { type: 'LITERAL', value: 'created' },
-        subtype: { type: 'LITERAL', value: example.subtype },
-        parameters: { type: 'FILE', value: bs58ToHex(example.ipfs_hash) },
+        subtype: { type: 'LITERAL', value: certificate.subtype },
+        parameters: { type: 'FILE', value: bs58ToHex(certificate.ipfs_hash) },
+      },
+    },
+  ],
+})
+
+export const processIssueCert = (certificate: Record<string, string>): Payload => ({
+  process: { id: 'process_issue_cert', version: 1 },
+  inputs: [],
+  outputs: [
+    {
+      roles: { Owner: certificate.owner },
+      metadata: {
+        version: { type: 'LITERAL', value: '1' },
+        type: { type: 'LITERAL', value: 'EXAMPLE' },
+        state: { type: 'LITERAL', value: 'created' },
+        subtype: { type: 'LITERAL', value: certificate.subtype },
+        parameters: { type: 'FILE', value: bs58ToHex(certificate.ipfs_hash) },
       },
     },
   ],

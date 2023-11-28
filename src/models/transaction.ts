@@ -20,7 +20,7 @@ export interface TransactionResponse {
 /**
  * The type of the entity involved in the transaction
  */
-export type TransactionApiType = 'example' | 'example_a' | 'example_b'
+export type TransactionApiType = 'certificate' | 'example_a' | 'example_b'
 
 /**
  * Transaction type - matches the endpoint that initiates the transaction
