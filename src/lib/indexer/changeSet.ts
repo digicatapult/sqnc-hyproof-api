@@ -14,7 +14,6 @@ export type CertificateRecord =
       state: string
       co2e: string
       capacity: string
-      parameters_attachment_id: string
       latest_token_id: number
       original_token_id: number
     }

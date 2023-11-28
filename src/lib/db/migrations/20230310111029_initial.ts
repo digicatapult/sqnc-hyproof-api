@@ -30,18 +30,11 @@ export async function up(knex: Knex): Promise<void> {
       })
       .notNullable()
       .defaultTo('initialized')
-    def.uuid('parameters_attachment_id').nullable().defaultTo(null)
     def.integer('latest_token_id').defaultTo(null)
     def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
     def.primary(['id'])
-    def
-      .foreign('parameters_attachment_id')
-      .references('id')
-      .inTable('attachment')
-      .onDelete('CASCADE')
-      .onUpdate('CASCADE')
   })
 
   await knex.schema.createTable('processed_blocks', (def) => {
@@ -71,7 +64,7 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('token_id')
     def.primary(['id'])
     def.specificType('hash', 'CHAR(64)').notNullable()
-    def.enu('api_type', ['certificate', 'attachment'], { useNative: true, enumName: 'api_type' }).notNullable()
+    def.enu('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
     def
       .enu('transaction_type', ['initialise', 'issue', 'revoke'], { useNative: true, enumName: 'transaction_type' })
       .defaultTo('initialise')

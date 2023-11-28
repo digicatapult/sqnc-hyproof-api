@@ -60,7 +60,6 @@ describe('eventProcessor', function () {
         capacity: '1',
         latest_token_id: 1,
         original_token_id: 1,
-        parameters_attachment_id: '',
       })
     })
   })

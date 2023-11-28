@@ -73,7 +73,6 @@ const DefaultEventProcessors: EventProcessors = {
       capacity: getOrError(newCertificate.metadata, 'capacity'),
       latest_token_id: newCertificate.id,
       original_token_id: newCertificate.id,
-      parameters_attachment_id: '',
     }
 
     return {
