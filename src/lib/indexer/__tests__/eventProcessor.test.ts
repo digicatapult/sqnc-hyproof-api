@@ -51,7 +51,7 @@ describe('eventProcessor', function () {
         ]
       )
 
-      const [[_, certificate]] = [...(result.certificates || [])]
+      const [[, certificate]] = [...(result.certificates || [])]
       expect(certificate).to.deep.contain({
         type: 'insert',
         owner: 'heidi-hydrogen-producer',

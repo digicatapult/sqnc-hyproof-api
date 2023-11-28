@@ -96,7 +96,7 @@ export default class Database {
 
   update = async (
     model: keyof Models<() => QueryBuilder>,
-    where: Record<string, string | UUID | number>,
+    where: { [k: string]: string | number | UUID },
     updates: Record<string, string | number>
   ): Promise<Record<string, string>[]> => {
     const query = this.db()[model]
