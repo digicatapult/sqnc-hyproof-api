@@ -24,11 +24,6 @@ pub fn initiate_cert || => |output: InitiatedCert| where {
   output.hydrogen_owner == sender,
   output.energy_owner != sender,
 }
-'@version'
-'@type'
-TODO: identities
-- hydrogen_owner
-- hydrogen_producer
 */
 export const processInitiateCert = (certificate: CertificateRow): Payload => ({
   process: { id: 'initiate_cert', version: 1 },
@@ -38,9 +33,9 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
       roles: { hydrogen_owner: certificate.hydrogen_owner, energy_owner: certificate.energy_owner },
       metadata: {
         '@version': { type: 'LITERAL', value: '1' },
-        '@type': { type: 'LITERAL', value: 'CERTIFICATE' },
-        hydrogen_quantity_mwh: { type: 'LITERAL', value: certificate.hydrogen_quantity_mwh },
-        commitment: { type: 'LITERAL', value: '' },
+        '@type': { type: 'LITERAL', value: 'InitiatedCert' },
+        hydrogen_quantity_mwh: { type: 'LITERAL', value: certificate.hydrogen_quantity_mwh.toString() },
+        commitment: { type: 'LITERAL', value: 'Paulius\'s have been commited' } 
       },
     },
   ],

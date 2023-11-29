@@ -128,9 +128,7 @@ export default class Database {
   findLocalIdForToken = async (tokenId: number): Promise<UUID | null> => {
     const result = (await Promise.all([
       this.db().certificate().select(['id']).where({ latest_token_id: tokenId }),
-    ])) as {
-      id: UUID
-    }[][]
+    ])) as { id: UUID }[][]
     const flatten = result.reduce((acc, set) => [...acc, ...set], [])
     return flatten[0]?.id || null
   }

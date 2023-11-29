@@ -24,6 +24,7 @@ import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
 import env from '../../../env'
 import { processInitiateCert } from '../../../lib/payload'
+import { TransactionState } from '../../../models/transaction'
 
 // import { TransactionResponse, TransactionType } from '../../../models/transaction'
 // import { camelToSnake } from '../../../lib/utils/shared'
@@ -73,7 +74,7 @@ export class CertificateController extends Controller {
       result: await this.db.insert('certificate', {
         hydrogen_quantity_mwh,
         hydrogen_owner,
-        energy_owner: 'FFrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+        energy_owner: '5HpG9w8EBLe5XCrbczpwq5TSXvedjrBGCwqxK1iQ7qUsSWFc',
       }),
     }
   }
@@ -169,15 +170,14 @@ export class CertificateController extends Controller {
     if (certificate.state === 'revoke') throw new BadRequest('certificate must not be revoked')
 
     const extrinsic = await this.node.prepareRunProcess(processInitiateCert(certificate))
-    const transaction = await this.db.insert('certificate', {
+    const transaction = await this.db.insert('transaction', {
       api_type: 'certificate',
       transaction_type: 'initialise',
       local_id: certificate.id,
-      state: 'submitted',
-      hash: extrinsic.hash.toHex(),
+      hash: extrinsic.hash.toHex().slice(2),
     })
 
-    this.node.submitRunProcess(extrinsic, (state) => this.db.update('transaction', { id }, { state }))
+    this.node.submitRunProcess(extrinsic, (state: TransactionState) => this.db.update('transaction', { id }, { state }))
 
     // TODO - transform hydrogen_owner and energy_owner to aliases
     return transaction
