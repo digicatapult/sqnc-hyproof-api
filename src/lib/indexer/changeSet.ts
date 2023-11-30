@@ -9,7 +9,7 @@ interface Change {
 export type CertificateRecord =
   | {
       type: 'insert'
-      id: string
+      id: UUID 
       state: string
       hydrogen_owner: string
       energy_owner: string
@@ -19,8 +19,8 @@ export type CertificateRecord =
     }
   | {
       type: 'update'
-      id: string
-      state: string
+      id: UUID 
+      state?: string
       embodied_co2?: string
       original_token_id?: number
       latest_token_id: number
@@ -46,6 +46,7 @@ const mergeMaps = <T extends Change>(base?: Map<string, T>, update?: Map<string,
 
   const result = base || new Map<string, T>()
   for (const [key, value] of update) {
+    console.log({ key, value })
     const base = result.get(key) || { type: 'update' }
     const operation = base.type === 'insert' || value.type === 'insert' ? 'insert' : 'update'
     result.set(key, {

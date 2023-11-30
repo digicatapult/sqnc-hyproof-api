@@ -27,7 +27,7 @@ export interface AttachmentRow {
 export interface TransactionRow {
   id: UUID
   state: TransactionState
-  localId: UUID
+  local_id: UUID
   apiType: TransactionApiType
   transaction_type: TransactionType
   submitted_at: Date
@@ -106,6 +106,7 @@ export default class Database {
     updates: Record<string, string | number>
   ): Promise<Record<string, string>[]> => {
     const query = this.db()[model]
+    console.log({ model, where, updates })
     return query()
       .update({
         ...updates,

@@ -54,7 +54,7 @@ const DefaultEventProcessors: EventProcessors = {
     const newCertificate = outputs[0]
 
     if (transaction) {
-      const id = transaction.localId
+      const id = transaction.local_id
       return {
         certificates: new Map([
           [
@@ -62,7 +62,6 @@ const DefaultEventProcessors: EventProcessors = {
             {
               type: 'update',
               id,
-              state: 'created',
               latest_token_id: newCertificateId,
               original_token_id: newCertificateId,
             },
@@ -74,7 +73,7 @@ const DefaultEventProcessors: EventProcessors = {
     const certificate: CertificateRecord = {
       type: 'insert',
       id: UUIDv4(),
-      state: 'initialized',
+      state: 'initialise',
       hydrogen_owner: getOrError(newCertificate.roles, 'hydrogen_owner'),
       energy_owner: getOrError(newCertificate.roles, 'energy_owner'),
       hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(newCertificate.metadata, 'hydrogen_quantity_mwh')),

@@ -174,10 +174,10 @@ export class CertificateController extends Controller {
       api_type: 'certificate',
       transaction_type: 'initialise',
       local_id: certificate.id,
-      hash: extrinsic.hash.toHex().slice(2),
+      hash: extrinsic.hash.toHex(),
     })
 
-    this.node.submitRunProcess(extrinsic, (state: TransactionState) => this.db.update('transaction', { id }, { state }))
+    this.node.submitRunProcess(extrinsic, (state: TransactionState) => this.db.update('transaction', transaction[0], { state }))
 
     // TODO - transform hydrogen_owner and energy_owner to aliases
     return transaction
