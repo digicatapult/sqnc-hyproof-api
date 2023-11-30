@@ -25,12 +25,18 @@ export async function up(knex: Knex): Promise<void> {
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
     def
-      .enum('state', ['initialise', 'issue', 'revoke'], {
-        enumName: 'certificate_state',
+      .enu('status', ['initialised', 'issued', 'revoked', 'cancelled'], {
+        useNative: true,
+        enumName: 'certificate_status',
+      })
+      .defaultTo('initialised')
+    def
+      .enum('state', ['pending', 'created'], {
+        enumName: 'entity_chain_state',
         useNative: true,
       })
       .notNullable()
-      .defaultTo('initialise')
+      .defaultTo('pending')
     def.integer('latest_token_id').defaultTo(null)
     def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
@@ -64,11 +70,8 @@ export async function up(knex: Knex): Promise<void> {
     def.datetime('updated_at').notNullable().defaultTo(now())
     def.integer('token_id')
     def.primary(['id'])
-    def.specificType('hash', 'CHAR(64)').notNullable()
+    def.specificType('hash', 'CHAR(66)').notNullable()
     def.enu('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
-    def
-      .enu('transaction_type', ['initialise', 'issue', 'revoke'], { useNative: true, enumName: 'transaction_type' })
-      .defaultTo('initialise')
     def.unique(['id', 'local_id'], { indexName: 'transaction-id-local-id' })
   })
 }

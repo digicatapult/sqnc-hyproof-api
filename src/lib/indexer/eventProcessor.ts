@@ -13,13 +13,13 @@ const processNameSet: Set<string> = new Set(processNames)
 export const ValidateProcessName = (name: string): name is PROCESSES => processNameSet.has(name)
 
 export type EventProcessors = {
-  [key in PROCESSES]: (
-    version: number,
-    transaction: TransactionRow | null,
-    sender: string,
-    inputs: { id: number; localId: UUID }[],
+  [key in PROCESSES]: (args: {
+    version: number
+    transaction?: TransactionRow
+    sender?: string
+    inputs?: { id: number; local_id: UUID }[]
     outputs: { id: number; roles: Map<string, string>; metadata: Map<string, string> }[]
-  ) => ChangeSet
+  }) => ChangeSet
 }
 
 const getOrError = <T>(map: Map<string, T>, key: string): T => {
@@ -47,11 +47,9 @@ const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRec
 */
 
 const DefaultEventProcessors: EventProcessors = {
-  initiate_cert: (version, transaction, _sender, _inputs, outputs) => {
+  initiate_cert: ({ version, transaction, outputs }) => {
     if (version !== 1) throw new Error(`Incompatible version ${version} for initiate_cert process`)
-
-    const newCertificateId = outputs[0].id
-    const newCertificate = outputs[0]
+    const { id: latest_token_id, ...cert } = outputs[0]
 
     if (transaction) {
       const id = transaction.local_id
@@ -61,9 +59,10 @@ const DefaultEventProcessors: EventProcessors = {
             id,
             {
               type: 'update',
+              state: 'created',
               id,
-              latest_token_id: newCertificateId,
-              original_token_id: newCertificateId,
+              latest_token_id,
+              original_token_id: latest_token_id,
             },
           ],
         ]),
@@ -73,12 +72,12 @@ const DefaultEventProcessors: EventProcessors = {
     const certificate: CertificateRecord = {
       type: 'insert',
       id: UUIDv4(),
-      state: 'initialise',
-      hydrogen_owner: getOrError(newCertificate.roles, 'hydrogen_owner'),
-      energy_owner: getOrError(newCertificate.roles, 'energy_owner'),
-      hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(newCertificate.metadata, 'hydrogen_quantity_mwh')),
-      latest_token_id: newCertificate.id,
-      original_token_id: newCertificate.id,
+      state: 'created',
+      hydrogen_owner: getOrError(cert.roles, 'hydrogen_owner'),
+      energy_owner: getOrError(cert.roles, 'energy_owner'),
+      hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(cert.metadata, 'hydrogen_quantity_mwh')),
+      latest_token_id,
+      original_token_id: latest_token_id,
     }
 
     return {

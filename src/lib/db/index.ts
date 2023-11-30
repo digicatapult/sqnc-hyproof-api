@@ -2,7 +2,7 @@ import knex, { Knex } from 'knex'
 
 import { pgConfig } from './knexfile'
 import { DATE, HEX, UUID } from '../../models/strings'
-import { TransactionApiType, TransactionState, TransactionType } from '../../models/transaction'
+import { TransactionApiType, TransactionState } from '../../models/transaction'
 import { NotFound } from '../error-handler'
 
 const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const
@@ -29,14 +29,14 @@ export interface TransactionRow {
   state: TransactionState
   local_id: UUID
   apiType: TransactionApiType
-  transaction_type: TransactionType
   submitted_at: Date
   updated_at: Date
 }
 
 export interface CertificateRow {
   id: UUID
-  state: 'initialise' | 'issue' | 'revoke'
+  status: 'initialised' | 'issued' | 'revoked'
+  state: 'pending' | 'created'
   created_at: Date
   updated_at: Date
   hydrogen_owner: string
@@ -105,9 +105,8 @@ export default class Database {
     where: { [k: string]: string | number | UUID },
     updates: Record<string, string | number>
   ): Promise<Record<string, string>[]> => {
-    const query = this.db()[model]
-    console.log({ model, where, updates })
-    return query()
+    return this.db()
+      [model]()
       .update({
         ...updates,
         updated_at: this.client.fn.now(),
@@ -117,9 +116,7 @@ export default class Database {
   }
 
   get = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number | Date> = {}) => {
-    const query = this.db()[model]
-    const result = (await query().where(where)) as unknown as Entity[]
-
+    const result = await this.db()[model]().where(where)
     if (result.length === 0) throw new NotFound(model)
 
     return result

@@ -51,7 +51,7 @@ export const withInitialLastProcessedBlock = (initial: LastProcessBlockResult) =
 
 export const withTransactionMatchingTokensInDb = (tx: null | object, tokens: Map<number, string | null>) => {
   return {
-    get: sinon.stub().resolves(tx),
+    get: sinon.stub().resolves([tx]),
     findTransaction: sinon.stub().resolves(tx),
     findLocalIdForToken: sinon.stub().callsFake((id: number) => Promise.resolve(tokens.get(id))),
   } as unknown as Database

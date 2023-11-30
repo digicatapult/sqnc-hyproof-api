@@ -75,10 +75,25 @@ describe('attachment', () => {
       const {
         status,
         body: { message, attachments },
-      } = await get(app, `/v1/attachment?createdAt=2022-01-01T00:00:00.000Z`)
+      } = await get(app, `/v1/attachment?createdAt=2023-01-01T00:00:00.000Z`)
       expect(status).to.equal(200)
       expect(message).to.equal('ok')
-      expect(attachments).to.deep.equal([])
+      expect(attachments).to.deep.equal([
+        {
+          binary_blob: null,
+          created_at: '2023-01-01T00:00:00.000Z',
+          filename: 'test.txt',
+          id: 'a789ad47-91c3-446e-90f9-a7c9b233eaf8',
+          ipfs_hash: 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn',
+          size: '42',
+        },
+      ])
+    })
+
+    it('returns 404 if none found based on created date', async () => {
+      const { status, body } = await get(app, `/v1/attachment?createdAt=2010-01-01T00:00:00.000Z`)
+      expect(status).to.equal(404)
+      expect(body).to.equal('attachment not found')
     })
   })
 

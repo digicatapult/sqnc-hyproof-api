@@ -43,7 +43,6 @@ describe('on-chain', function () {
       const extrinsic = await node.prepareRunProcess({ process: invalidProcess, inputs: [], outputs: [] })
       const [transaction]: any = await db.insert('transaction', {
         api_type: 'certificate',
-        transaction_type: 'initialise',
         local_id: '0f5af074-7d4d-40b4-86a5-17a2391303cb',
         state: 'submitted',
         hash: extrinsic.hash.toHex().slice(2),

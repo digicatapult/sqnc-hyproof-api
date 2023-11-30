@@ -39,10 +39,12 @@ describe('EventHandler', function () {
 
     const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
-    expect(stub.firstCall.args).to.deep.equal([1, tx, 'alice', [], []])
+    expect(stub.firstCall.args).to.deep.equal([
+      { version: 1, transaction: tx, sender: 'alice', inputs: [], outputs: [] },
+    ])
   })
 
-  it('should map inputs to localId using the db', async function () {
+  it('should map inputs to local_id using the db', async function () {
     const db = withTransactionMatchingTokensInDb(
       null,
       new Map([
@@ -62,19 +64,21 @@ describe('EventHandler', function () {
     const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
-      1,
-      null,
-      'alice',
-      [
-        { id: 1, localId: '1' },
-        { id: 2, localId: '2' },
-        { id: 3, localId: '3' },
-      ],
-      [
-        { id: 4, roles: new Map(), metadata: new Map() },
-        { id: 5, roles: new Map(), metadata: new Map() },
-        { id: 6, roles: new Map(), metadata: new Map() },
-      ],
+      {
+        version: 1,
+        sender: 'alice',
+        inputs: [
+          { id: 1, local_id: '1' },
+          { id: 2, local_id: '2' },
+          { id: 3, local_id: '3' },
+        ],
+        transaction: null,
+        outputs: [
+          { id: 4, roles: new Map(), metadata: new Map() },
+          { id: 5, roles: new Map(), metadata: new Map() },
+          { id: 6, roles: new Map(), metadata: new Map() },
+        ],
+      },
     ])
   })
 
@@ -105,20 +109,23 @@ describe('EventHandler', function () {
 
     const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
+
     expect(stub.firstCall.args).to.deep.equal([
-      1,
-      null,
-      'alice',
-      [
-        { id: 1, localId: '7' },
-        { id: 2, localId: '8' },
-        { id: 3, localId: '9' },
-      ],
-      [
-        { id: 4, roles: new Map(), metadata: new Map() },
-        { id: 5, roles: new Map(), metadata: new Map() },
-        { id: 6, roles: new Map(), metadata: new Map() },
-      ],
+      {
+        version: 1,
+        transaction: null,
+        sender: 'alice',
+        inputs: [
+          { id: 1, local_id: '7' },
+          { id: 2, local_id: '8' },
+          { id: 3, local_id: '9' },
+        ],
+        outputs: [
+          { id: 4, roles: new Map(), metadata: new Map() },
+          { id: 5, roles: new Map(), metadata: new Map() },
+          { id: 6, roles: new Map(), metadata: new Map() },
+        ],
+      },
     ])
   })
 

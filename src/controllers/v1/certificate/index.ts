@@ -133,7 +133,7 @@ export class CertificateController extends Controller {
       certificate: await this.db.get('transaction', {
         local_id: id,
         id: transactionId,
-        transaction_type: 'certificate',
+        api_type: 'certificate',
       }),
     }
   }
@@ -153,7 +153,7 @@ export class CertificateController extends Controller {
       controller: 'certificte',
       message: 'ok',
       // TODO - transform hydrogen_owner and energy_owner to aliases
-      transactions: await this.db.get('transaction', { local_id: id, transaction_type: 'certificate' }),
+      transactions: await this.db.get('transaction', { local_id: id, api_type: 'certificate' }),
     }
   }
 
@@ -167,19 +167,19 @@ export class CertificateController extends Controller {
   @SuccessResponse('201')
   public async createOnChain(@Path() id: UUID): Promise<Certificate.Response> {
     const [certificate]: CertificateRow[] = await this.db.get('certificate', { id })
-    if (certificate.state === 'revoke') throw new BadRequest('certificate must not be revoked')
+    if (certificate.status === 'revoked') throw new BadRequest('certificate must not be revoked')
 
     const extrinsic = await this.node.prepareRunProcess(processInitiateCert(certificate))
     const transaction = await this.db.insert('transaction', {
       api_type: 'certificate',
-      transaction_type: 'initialise',
       local_id: certificate.id,
       hash: extrinsic.hash.toHex(),
     })
 
-    this.node.submitRunProcess(extrinsic, (state: TransactionState) => this.db.update('transaction', transaction[0], { state }))
+    this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
+      this.db.update('transaction', transaction[0], { state })
+    )
 
-    // TODO - transform hydrogen_owner and energy_owner to aliases
     return transaction
   }
 }
