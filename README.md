@@ -25,7 +25,7 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | LOG_LEVEL              |    N     |         `info`         | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
 | USER_URI               |    Y     |           -            | The Substrate `URI` representing the private key to use when making `dscp-node` transactions |
 | IPFS_HOST              |    Y     |           -            | Hostname of the `IPFS` node to use for metadata storage                                      |
-| IPFS_PORT              |    N     |         `5001`         | Port of the `IPFS` node to use for metadata storage                                          |
+| IPFS_PORT              |    N     |         `5002`         | Port of the `IPFS` node to use for metadata storage                                          |
 | WATCHER_POLL_PERIOD_MS |    N     |        `10000`         | Number of ms between polling of service state                                                |
 | WATCHER_TIMEOUT_MS     |    N     |         `2000`         | Timeout period in ms for service state                                                       |
 

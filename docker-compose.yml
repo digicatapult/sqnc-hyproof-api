@@ -71,7 +71,7 @@ services:
     ports:
       - 4001:4001
       - 8080:8080
-      - 5001:5001
+      - 5002:5002
 volumes:
   hyproof-api-storage:
   identity-storage:

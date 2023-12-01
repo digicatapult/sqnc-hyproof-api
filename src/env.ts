@@ -22,7 +22,7 @@ export default envalid.cleanEnv(process.env, {
   ENABLE_INDEXER: envalid.bool({ default: true }),
   USER_URI: envalid.str({ devDefault: '//Alice' }),
   IPFS_HOST: envalid.host({ devDefault: 'localhost' }),
-  IPFS_PORT: envalid.port({ default: 5001 }),
+  IPFS_PORT: envalid.port({ default: 5002 }),
   WATCHER_POLL_PERIOD_MS: envalid.num({ default: 10 * 1000 }),
   WATCHER_TIMEOUT_MS: envalid.num({ default: 2 * 1000 }),
 })
