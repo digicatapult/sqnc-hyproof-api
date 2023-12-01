@@ -34,11 +34,8 @@ describe('on-chain', function () {
     await db.delete('transaction', {})
   })
 
-  // TODO skipping because we have not process flows:
-  // Error: Node dispatch error: ProcessInvalid
   describe('chainNode', () => {
     it('should set transaction as failed if dispatch error', async () => {
-      // use invalid process to cause a dispatch error
       const invalidProcess = { id: 'invalid', version: 1 }
       const extrinsic = await node.prepareRunProcess({ process: invalidProcess, inputs: [], outputs: [] })
       const [transaction]: any = await db.insert('transaction', {

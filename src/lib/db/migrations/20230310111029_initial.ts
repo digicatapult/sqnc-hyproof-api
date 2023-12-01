@@ -1,6 +1,6 @@
 import { Knex } from 'knex'
 
-// TODO we shoyuld yse createSchema....
+// INFO we shoyuld use createSchema....
 export async function up(knex: Knex): Promise<void> {
   const [extInstalled] = await knex('pg_extension').select('*').where({ extname: 'uuid-ossp' })
 
@@ -25,7 +25,7 @@ export async function up(knex: Knex): Promise<void> {
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
     def
-      .enu('status', ['initialised', 'issued', 'revoked', 'cancelled'], {
+      .enu('state', ['initialised', 'issued', 'revoked', 'cancelled'], {
         useNative: true,
         enumName: 'certificate_status',
       })

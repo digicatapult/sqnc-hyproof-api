@@ -5,7 +5,6 @@ import Database, { TransactionRow } from '../../../lib/db'
 import { DATE, UUID } from '../../../models/strings'
 import { BadRequest, NotFound } from '../../../lib/error-handler/index'
 import { TransactionApiType, TransactionResponse, TransactionState } from '../../../models/transaction'
-import { parseDateParam } from '../../../lib/utils/queryParams'
 
 @Route('v1/transaction')
 @Tags('transaction')
@@ -23,25 +22,23 @@ export class TransactionController extends Controller {
   /**
    * Returns the details of all transactions.
    * @summary List transactions
-   * @Query apiType lists all transactions by that type
+   * @Query api_type lists all transactions by that type
    */
   @Response<BadRequest>(400, 'Request was invalid')
   @Response<NotFound>(404, 'Item not found')
   @Get('/')
   public async getAllTransactions(
-    @Query() apiType?: TransactionApiType,
-    @Query() status?: TransactionState,
+    @Query() api_type?: TransactionApiType,
+    @Query() state?: TransactionState,
     @Query() updated_since?: DATE
   ): Promise<TransactionRow[]> {
-    const query: { state?: TransactionState; apiType?: TransactionApiType; updatedSince?: Date } = {
-      state: status,
-      apiType,
-    }
-    if (updated_since) {
-      query.updatedSince = parseDateParam(updated_since)
+    const where: { state?: TransactionState; api_type?: TransactionApiType; updated_since?: DATE } = {
+      state,
+      api_type,
+      updated_since,
     }
 
-    return this.db.get('transaction', query)
+    return this.db.get('transaction', where)
   }
 
   /**

@@ -25,14 +25,17 @@ export type CertificateRecord =
       original_token_id?: number
       latest_token_id: number
     }
+  | never
 
-export type AttachmentRecord = {
-  type: 'insert'
-  id: string
-  filename?: string
-  ipfs_hash: string
-  size?: number
-}
+export type AttachmentRecord =
+  | {
+      type: 'insert'
+      id: string
+      filename?: string
+      ipfs_hash: string
+      size?: number
+    }
+  | never
 
 export type ChangeSet = {
   attachments?: Map<string, AttachmentRecord>

@@ -34,7 +34,7 @@ export default class BlockHandler {
     // loop over events and handle
     const changeSet = await events.reduce(async (accP: Promise<ChangeSet>, event) => {
       this.logger.debug('ProcessRan event from call %s', event.callHash)
-      this.logger.info('ProcessRan event from call %s details: %j', event.callHash, event)
+      this.logger.trace('ProcessRan event from call %s details: %j', event.callHash, event)
       const acc = await accP
       return await this.eventHandler.handleEvent(event, acc)
     }, Promise.resolve({}))

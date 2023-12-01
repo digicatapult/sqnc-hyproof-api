@@ -16,8 +16,8 @@ export type EventProcessors = {
   [key in PROCESSES]: (args: {
     version: number
     transaction?: TransactionRow
-    sender?: string
-    inputs?: { id: number; local_id: UUID }[]
+    sender: string
+    inputs: { id: number; local_id: UUID }[]
     outputs: { id: number; roles: Map<string, string>; metadata: Map<string, string> }[]
   }) => ChangeSet
 }
@@ -38,7 +38,7 @@ const parseIntegerOrThrow = (value: string): number => {
   return result
 }
 
-/* TODO uncomment if we decided to use attachments
+/* INFO uncomment if we decided to use attachments
 const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRecord => ({
   type: 'insert',
   id: UUIDv4(),

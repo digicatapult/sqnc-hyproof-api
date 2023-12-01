@@ -37,7 +37,7 @@ interface SubstrateToken {
     [key in string]: { literal: string } | { file: string } | { tokenId: number } | { None: null }
   }
   roles: {
-    [key in 'hydrogen_owner' | 'energy_owner' | 'owner']: string
+    [key in 'hydrogen_owner' | 'energy_owner']: string
   }
 }
 

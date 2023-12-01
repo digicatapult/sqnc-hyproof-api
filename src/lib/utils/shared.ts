@@ -1,4 +1,3 @@
-// TODO sort types and unify helpers
 export function camelToSnake(str: string | number): string {
   return str
     .toString()

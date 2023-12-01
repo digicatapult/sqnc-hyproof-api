@@ -30,7 +30,7 @@ export const withInitialLastProcessedBlock = (initial: LastProcessBlockResult) =
   const insertProcessedBlock = sinon.spy((block: LastProcessBlockResult) => {
     lastBlock = block
     return Promise.resolve()
-  }) // TODO refactor so it's insert, but might be complicated due to logic.
+  })
   const insert = sinon.stub().resolves()
   const update = sinon.stub().resolves()
 

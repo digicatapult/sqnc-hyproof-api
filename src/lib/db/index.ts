@@ -1,10 +1,11 @@
 import knex, { Knex } from 'knex'
 
-import { pgConfig } from './knexfile'
 import { DATE, HEX, UUID } from '../../models/strings'
 import { TransactionApiType, TransactionState } from '../../models/transaction'
 import { NotFound } from '../error-handler'
+import { pgConfig } from './knexfile'
 
+const clientSingleton: Knex = knex(pgConfig)
 const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const
 type TABLES_TUPLE = typeof tablesList
 type TABLE = TABLES_TUPLE[number]
@@ -14,38 +15,48 @@ export type Models<V> = {
 }
 export type QueryBuilder = Knex.QueryBuilder
 export type ProcessedBlock = { hash: HEX; parent: HEX; height: number }
-export type ProcessedBlockTrimmed = { hash: string; parent: string; height: number }
+export type ComginedStates = { state: 'pending' | 'created' | TransactionState }
+export interface ProcessedBlockTrimmed {
+  hash: string
+  parent: string
+  height: number
+}
+export type Where = Record<string, string | number | UUID> | string // string for knex queries like -gt, -lt
+export type Updates = Record<string, string | number | UUID> // string for knex queries like -gt, -lt
+export type IDB = Models<() => QueryBuilder>
+export type Model = keyof IDB
 
 export interface AttachmentRow {
   id: UUID
-  filename: string | null
+  filename: string | undefined | null
   size: number | null
   ipfs_hash: string
-  created_at: DATE
 }
 
 export interface TransactionRow {
   id: UUID
   state: TransactionState
   local_id: UUID
-  apiType: TransactionApiType
-  submitted_at: Date
-  updated_at: Date
+  api_type: TransactionApiType
+  submitted_at: DATE
+  updated_at: DATE
 }
 
 export interface CertificateRow {
   id: UUID
-  status: 'initialised' | 'issued' | 'revoked'
-  state: 'pending' | 'created'
-  created_at: Date
-  updated_at: Date
+  state: 'initialised' | 'issued' | 'revoked'
+  created_at: DATE
+  updated_at: DATE
   hydrogen_owner: string
   energy_owner: string
   embodied_co2?: number | null
-  hydrogen_quantity_mwh: number
+  hydrogen_quantity_mwh: number | never
 }
 
-export type Entity = CertificateRow & TransactionRow & AttachmentRow
+export type Entity = Record<
+  string,
+  string | number | HEX | UUID | AttachmentRow[] | TransactionRow[] | CertificateRow[]
+>
 
 function restore0x(input: ProcessedBlockTrimmed): ProcessedBlock {
   return {
@@ -63,48 +74,37 @@ function trim0x(input: ProcessedBlock): ProcessedBlockTrimmed {
   }
 }
 
-const clientSingleton: Knex = knex(pgConfig)
-
 export default class Database {
-  public db: () => Models<() => QueryBuilder>
-
+  public db: () => IDB
   constructor(private client: Knex = clientSingleton) {
-    const models = tablesList.reduce((acc, name) => {
+    const models: IDB = tablesList.reduce((acc, name) => {
       return {
         [name]: () => client(name),
         ...acc,
       }
-    }, {}) as Models<() => QueryBuilder>
+    }, {}) as IDB
     this.db = () => models
   }
 
-  // generics methods
-  insert = async (
-    model: keyof Models<() => QueryBuilder>,
-    record: Record<string, string | number | UUID>
-  ): Promise<Entity> => {
-    const query = this.db()[model]
-
-    // TODO address indexer (create a backlog item)
+  // backlog item for if statement model === logic has been added and returns etc
+  insert = async (model: Model, record: Entity): Promise<Entity> => {
     if (model == 'processed_blocks') {
-      return query().insert(trim0x(record as ProcessedBlock))
+      return this.db()
+        [model]()
+        .insert(trim0x(record as ProcessedBlock))
     }
 
-    return query().insert(record).returning('id')
+    return this.db()[model]().insert(record).returning('id')
   }
 
-  delete = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number>) => {
+  delete = async (model: keyof IDB, where: Where) => {
     return this.db()
       [model]()
       .where(where || {})
       .delete()
   }
 
-  update = async (
-    model: keyof Models<() => QueryBuilder>,
-    where: { [k: string]: string | number | UUID },
-    updates: Record<string, string | number>
-  ): Promise<Record<string, string>[]> => {
+  update = async (model: Model, where: Where, updates: Updates): Promise<Record<string, string>[]> => {
     return this.db()
       [model]()
       .update({
@@ -115,14 +115,13 @@ export default class Database {
       .returning('*')
   }
 
-  get = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number | Date> = {}) => {
+  get = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number | DATE> = {}) => {
     const result = await this.db()[model]().where(where)
     if (result.length === 0) throw new NotFound(model)
 
     return result
   }
 
-  // TODO some methods could be generic as well, e.g. insert/get for event processor indexer
   findLocalIdForToken = async (tokenId: number): Promise<UUID | null> => {
     const result = (await Promise.all([
       this.db().certificate().select(['id']).where({ latest_token_id: tokenId }),

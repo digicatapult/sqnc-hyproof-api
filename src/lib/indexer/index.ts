@@ -198,7 +198,7 @@ export default class Indexer {
         }
       }
 
-      // TODO we can do no if and just pass entity as arg?
+      // INFO we can do no if and just pass entity as arg?
       if (changeSet.certificates) {
         for (const [, certificates] of changeSet.certificates) {
           const { type, id, ...record } = certificates

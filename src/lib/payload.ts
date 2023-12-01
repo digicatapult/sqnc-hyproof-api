@@ -19,12 +19,6 @@ export interface MetadataFile {
 
 export type Metadata = Record<string, { type: string; value: string | number }>
 
-/*
-pub fn initiate_cert || => |output: InitiatedCert| where {
-  output.hydrogen_owner == sender,
-  output.energy_owner != sender,
-}
-*/
 export const processInitiateCert = (certificate: CertificateRow): Payload => ({
   process: { id: 'initiate_cert', version: 1 },
   inputs: [],
@@ -42,14 +36,7 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
 })
 
 // TODO this is not updated, please update as per above
-/**
-  pub fn issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
-  output == input,
-  input.hydrogen_owner == output.hydrogen_owner,
-  input.energy_owner == output.energy_owner,
-  output.hydrogen_owner != sender,
-  output.energy_owner == sender,
- */
+// when working on issue please refer to the process flow
 export const processIssueCert = (certificate: Record<string, string>): Payload => ({
   process: { id: 'process_issue_cert', version: 1 },
   inputs: [],
