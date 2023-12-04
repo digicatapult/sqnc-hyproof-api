@@ -98,9 +98,9 @@ describe('EventHandler', function () {
 
     const baseChangeSet: ChangeSet = {
       certificates: new Map([
-        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'created' }],
-        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'created' }],
-        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'created' }],
+        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'initiated' }],
+        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'initiated' }],
+        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'initiated' }],
       ]),
     }
 
@@ -141,9 +141,9 @@ describe('EventHandler', function () {
 
     const baseChangeSet: ChangeSet = {
       certificates: new Map([
-        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'created' }],
-        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'created' }],
-        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'created' }],
+        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'initiated' }],
+        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'initiated' }],
+        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'initiated' }],
       ]),
     }
 

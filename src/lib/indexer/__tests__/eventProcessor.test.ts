@@ -9,7 +9,7 @@ describe('eventProcessor', function () {
     it('should error with version != 1', function () {
       let error: Error | null = null
       try {
-        eventProcessors['initiate_cert']({ version: 0, sender: 'alice', outputs: [] })
+        eventProcessors['initiate_cert']({ version: 0, sender: 'alice', inputs: [], outputs: [] })
       } catch (err) {
         error = err instanceof Error ? err : null
       }
@@ -21,6 +21,7 @@ describe('eventProcessor', function () {
         version: 1,
         transaction: { local_id: '42' } as TransactionRow,
         sender: 'alice',
+        inputs: [],
         outputs: [{ id: 1, roles: new Map(), metadata: new Map() }],
       })
 
@@ -35,6 +36,7 @@ describe('eventProcessor', function () {
       const result = eventProcessors['initiate_cert']({
         version: 1,
         sender: 'alice',
+        inputs: [],
         outputs: [
           {
             id: 1,
@@ -65,6 +67,7 @@ describe('eventProcessor', function () {
         eventProcessors['initiate_cert']({
           version: 1,
           sender: 'alice',
+          inputs: [],
           outputs: [
             {
               id: 1,

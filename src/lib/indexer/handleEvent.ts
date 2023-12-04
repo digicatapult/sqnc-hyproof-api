@@ -40,9 +40,9 @@ export default class EventHandler {
           return { id: inputId, local_id: localIdFromChangeset }
         }
 
-        const localIdFromDb = await this.db.findLocalIdForToken(inputId)
+        const [localIdFromDb] = await this.db.get('certificate', { latest_token_id: inputId })
         if (localIdFromDb) {
-          return { id: inputId, local_id: localIdFromDb }
+          return { id: inputId, local_id: localIdFromDb.id }
         }
 
         throw new Error(`Unknown token with id ${inputId}`)
