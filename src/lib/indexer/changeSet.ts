@@ -13,15 +13,15 @@ export type CertificateRecord =
       hydrogen_owner: string
       energy_owner: string
       hydrogen_quantity_mwh: number
-      state: string
+      state: 'pending' | 'initiated' | 'issued' | 'revoked'
       latest_token_id?: number
       original_token_id?: number
     }
   | {
       type: 'update'
       id: UUID
-      state: string
-      embodied_co2?: string
+      state: 'pending' | 'initiated' | 'issued' | 'revoked'
+      embodied_co2?: number
       original_token_id?: number
       latest_token_id: number
     }

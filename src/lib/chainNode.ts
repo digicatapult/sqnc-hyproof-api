@@ -138,7 +138,7 @@ export default class ChainNode {
 
   async submitRunProcess(
     extrinsic: SubmittableExtrinsic<'promise', SubmittableResult>,
-    transactionDbUpdate: (state: TransactionState) => Promise<Record<string, string>[]>
+    transactionDbUpdate: (state: TransactionState) => Promise<unknown>
   ): Promise<void> {
     try {
       this.logger.debug('Submitting Transaction %j', extrinsic.hash.toHex())

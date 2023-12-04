@@ -1,81 +1,115 @@
 import knex, { Knex } from 'knex'
 
-import { DATE, HEX, UUID } from '../../models/strings'
-import { TransactionApiType, TransactionState } from '../../models/transaction'
-import { NotFound } from '../error-handler'
 import { pgConfig } from './knexfile'
+import { z } from 'zod'
 
 const clientSingleton: Knex = knex(pgConfig)
 const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const
 type TABLES_TUPLE = typeof tablesList
 type TABLE = TABLES_TUPLE[number]
 
-export type Models<V> = {
-  [key in TABLE]: V
-}
-export type QueryBuilder = Knex.QueryBuilder
-export type ProcessedBlock = { hash: HEX; parent: HEX; height: number }
-export type ComginedStates = { state: 'pending' | 'created' | TransactionState }
-export interface ProcessedBlockTrimmed {
-  hash: string
-  parent: string
-  height: number
-}
-export type Where = Record<string, string | number | UUID> | string // string for knex queries like -gt, -lt
-export type Updates = Record<string, string | number | UUID> // string for knex queries like -gt, -lt
-export type IDB = Models<() => QueryBuilder>
-export type Model = keyof IDB
-
-export interface AttachmentRow {
-  id: UUID
-  filename: string | undefined | null
-  size: number | null
-  ipfs_hash: string
+type IDB = {
+  [key in TABLE]: () => Knex.QueryBuilder
 }
 
-export interface TransactionRow {
-  id: UUID
-  state: TransactionState
-  local_id: UUID
-  api_type: TransactionApiType
-  submitted_at: DATE
-  updated_at: DATE
+const insertAttachmentRowZ = z.object({
+  filename: z.string().optional(),
+  size: z.number().optional(),
+  ipfs_hash: z.string(),
+})
+
+const attachmentRowZ = insertAttachmentRowZ.extend({
+  id: z.string(),
+})
+
+export type InsertAttachmentRow = z.infer<typeof insertAttachmentRowZ>
+export type AttachmentRow = z.infer<typeof attachmentRowZ>
+
+const insertTransactionRowZ = z.object({
+  api_type: z.union([z.literal('certificate'), z.literal('example_a'), z.literal('example_b')]),
+  local_id: z.string(),
+  hash: z.string(),
+})
+
+const transactionRowZ = insertTransactionRowZ.extend({
+  id: z.string(),
+  state: z.union([z.literal('submitted'), z.literal('inBlock'), z.literal('finalised'), z.literal('failed')]),
+  submitted_at: z.date(),
+  updated_at: z.date(),
+})
+
+export type InsertTransactionRow = z.infer<typeof insertTransactionRowZ>
+export type TransactionRow = z.infer<typeof transactionRowZ>
+
+const insertCertificateRowZ = z.object({
+  hydrogen_owner: z.string(),
+  energy_owner: z.string(),
+  hydrogen_quantity_mwh: z.number(),
+  original_token_id: z.number().optional(),
+  latest_token_id: z.number().optional(),
+})
+
+const certificateRowZ = insertCertificateRowZ.extend({
+  id: z.string(),
+  state: z.union([z.literal('pending'), z.literal('initiated'), z.literal('issued'), z.literal('revoked')]),
+  created_at: z.date(),
+  updated_at: z.date(),
+  embodied_co2: z.number().optional(),
+})
+
+export type InsertCertificateRow = z.infer<typeof insertCertificateRowZ>
+export type CertificateRow = z.infer<typeof certificateRowZ>
+
+const insertProcessedBlockRowZ = z.object({
+  hash: z.string().regex(/^[0-9a-z]{64}$/),
+  parent: z.string().regex(/^[0-9a-z]{64}$/),
+  height: z.number().int().min(0),
+})
+
+const processedBlockRowZ = insertProcessedBlockRowZ.extend({
+  created_at: z.date(),
+})
+
+export type InsertProcessedBlockRow = z.infer<typeof insertProcessedBlockRowZ>
+export type ProcessedBlockRow = z.infer<typeof processedBlockRowZ>
+
+const TestModelsValidation = {
+  attachment: {
+    insert: insertAttachmentRowZ,
+    get: attachmentRowZ,
+  },
+  certificate: {
+    insert: insertCertificateRowZ,
+    get: certificateRowZ,
+  },
+  transaction: {
+    insert: insertTransactionRowZ,
+    get: transactionRowZ,
+  },
+  processed_blocks: {
+    insert: insertProcessedBlockRowZ,
+    get: processedBlockRowZ,
+  },
 }
-
-export interface CertificateRow {
-  id: UUID
-  state: 'initialised' | 'issued' | 'revoked'
-  created_at: DATE
-  updated_at: DATE
-  hydrogen_owner: string
-  energy_owner: string
-  embodied_co2?: number | null
-  hydrogen_quantity_mwh: number | never
-}
-
-export type Entity = Record<
-  string,
-  string | number | HEX | UUID | AttachmentRow[] | TransactionRow[] | CertificateRow[]
->
-
-function restore0x(input: ProcessedBlockTrimmed): ProcessedBlock {
-  return {
-    hash: input.hash.startsWith('0x') ? (input.hash as HEX) : `0x${input.hash}`,
-    height: input.height,
-    parent: input.parent.startsWith('0x') ? (input.parent as HEX) : `0x${input.parent}`,
+export type TestModels = {
+  [key in TABLE]: {
+    get: z.infer<(typeof TestModelsValidation)[key]['get']>
+    insert: z.infer<(typeof TestModelsValidation)[key]['insert']>
   }
 }
+export type TestTable = keyof TestModels
 
-function trim0x(input: ProcessedBlock): ProcessedBlockTrimmed {
-  return {
-    hash: input.hash.startsWith('0x') ? input.hash.slice(2) : input.hash,
-    height: input.height,
-    parent: input.parent.startsWith('0x') ? input.parent.slice(2) : input.parent,
-  }
+export type Where<M extends TABLE> = {
+  [key in keyof TestModels[M]['get']]?:
+    | TestModels[M]['get'][key]
+    | { op: '=' | '>' | '>=' | '<' | '<=' | '<>'; value: TestModels[M]['get'][key] }
 }
+
+export type Order<M extends TABLE> = [keyof TestModels[M]['get'], 'asc' | 'desc'][]
+export type Update<M extends TABLE> = Partial<TestModels[M]['get']>
 
 export default class Database {
-  public db: () => IDB
+  private db: IDB
   constructor(private client: Knex = clientSingleton) {
     const models: IDB = tablesList.reduce((acc, name) => {
       return {
@@ -83,63 +117,53 @@ export default class Database {
         ...acc,
       }
     }, {}) as IDB
-    this.db = () => models
+    this.db = models
   }
 
   // backlog item for if statement model === logic has been added and returns etc
-  insert = async (model: Model, record: Entity): Promise<Entity> => {
-    if (model == 'processed_blocks') {
-      return this.db()
-        [model]()
-        .insert(trim0x(record as ProcessedBlock))
-    }
-
-    return this.db()[model]().insert(record).returning('id')
+  insert = async <M extends TestTable>(
+    model: M,
+    record: TestModels[typeof model]['insert']
+  ): Promise<TestModels[typeof model]['get'][]> => {
+    return z.array(TestModelsValidation[model].get).parse(await this.db[model]().insert(record).returning('*'))
   }
 
-  delete = async (model: keyof IDB, where: Where) => {
-    return this.db()
-      [model]()
+  delete = async <M extends TestTable>(model: M, where: Where<M>): Promise<void> => {
+    return this.db[model]()
       .where(where || {})
       .delete()
   }
 
-  update = async (model: Model, where: Where, updates: Updates): Promise<Record<string, string>[]> => {
-    return this.db()
-      [model]()
-      .update({
-        ...updates,
-        updated_at: this.client.fn.now(),
-      })
-      .where(where)
-      .returning('*')
+  update = async <M extends TestTable>(
+    model: M,
+    where: Where<M>,
+    updates: Update<M>
+  ): Promise<TestModels[typeof model]['get'][]> => {
+    return z.array(TestModelsValidation[model].get).parse(
+      await this.db[model]()
+        .update({
+          ...updates,
+          updated_at: this.client.fn.now(),
+        })
+        .where(where)
+        .returning('*')
+    )
   }
 
-  get = async (model: keyof Models<() => QueryBuilder>, where: Record<string, string | number | DATE> = {}) => {
-    const result = await this.db()[model]().where(where)
-    if (result.length === 0) throw new NotFound(model)
-
-    return result
-  }
-
-  findLocalIdForToken = async (tokenId: number): Promise<UUID | null> => {
-    const result = (await Promise.all([
-      this.db().certificate().select(['id']).where({ latest_token_id: tokenId }),
-    ])) as { id: UUID }[][]
-    const flatten = result.reduce((acc, set) => [...acc, ...set], [])
-    return flatten[0]?.id || null
-  }
-
-  getLastProcessedBlock = async (): Promise<ProcessedBlock | null> => {
-    return this.db()
-      .processed_blocks()
-      .orderBy('height', 'desc')
-      .limit(1)
-      .then((blocks) => (blocks.length !== 0 ? restore0x(blocks[0]) : null))
-  }
-
-  insertProcessedBlock = async (block: ProcessedBlock): Promise<void> => {
-    await this.db().processed_blocks().insert(trim0x(block))
+  get = async <M extends TestTable>(
+    model: M,
+    where?: Where<M>,
+    order?: Order<M>,
+    limit?: number
+  ): Promise<TestModels[typeof model]['get'][]> => {
+    let query = this.db[model]()
+    if (where) query = query.where(where)
+    if (order && order.length !== 0) {
+      query = order.reduce((acc, [key, direction]) => acc.orderBy(key, direction), query)
+    }
+    if (limit !== undefined) query = query.limit(limit)
+    const result = await query
+    return z.array(TestModelsValidation[model].get).parse(result)
   }
 
   withTransaction = (update: (db: Database) => Promise<void>) => {

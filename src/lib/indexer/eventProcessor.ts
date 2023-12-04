@@ -59,7 +59,7 @@ const DefaultEventProcessors: EventProcessors = {
             id,
             {
               type: 'update',
-              state: 'created',
+              state: 'initiated',
               id,
               latest_token_id,
               original_token_id: latest_token_id,
@@ -72,7 +72,7 @@ const DefaultEventProcessors: EventProcessors = {
     const certificate: CertificateRecord = {
       type: 'insert',
       id: UUIDv4(),
-      state: 'created',
+      state: 'initiated',
       hydrogen_owner: getOrError(cert.roles, 'hydrogen_owner'),
       energy_owner: getOrError(cert.roles, 'energy_owner'),
       hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(cert.metadata, 'hydrogen_quantity_mwh')),

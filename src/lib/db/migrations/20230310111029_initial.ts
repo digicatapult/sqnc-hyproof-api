@@ -25,17 +25,10 @@ export async function up(knex: Knex): Promise<void> {
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
     def
-      .enu('state', ['initialised', 'issued', 'revoked', 'cancelled'], {
+      .enu('state', ['pending', 'initiated', 'issued', 'revoked', 'cancelled'], {
         useNative: true,
         enumName: 'certificate_status',
       })
-      .defaultTo('initialised')
-    def
-      .enum('state', ['pending', 'created'], {
-        enumName: 'entity_chain_state',
-        useNative: true,
-      })
-      .notNullable()
       .defaultTo('pending')
     def.integer('latest_token_id').defaultTo(null)
     def.integer('original_token_id').defaultTo(null)

@@ -17,6 +17,14 @@ export interface IndexerCtorArgs {
   retryDelay?: number
 }
 
+function restore0x(input: string): HEX {
+  return input.startsWith('0x') ? (input as HEX) : `0x${input}`
+}
+
+function trim0x(input: HEX): string {
+  return input.startsWith('0x') ? input.slice(2) : input
+}
+
 export default class Indexer {
   private logger: Logger
   private db: Database
@@ -87,12 +95,12 @@ export default class Indexer {
   // main benefit of using a generator is it funnels all triggers from any source into a single
   // serialised async flow
   private async *nextBlockProcessor(): AsyncGenerator<string | null, void, HEX> {
-    const lastProcessedBlock = await this.db.getLastProcessedBlock()
+    const lastProcessedBlock = await this.getLastProcessedBlock()
     this.unprocessedBlocks = [lastProcessedBlock?.hash].filter((x): x is HEX => !!x)
 
     const loopFn = async (lastKnownFinalised: HEX): Promise<void> => {
       try {
-        const lastProcessedBlock = await this.db.getLastProcessedBlock()
+        const lastProcessedBlock = await this.getLastProcessedBlock()
         this.logger.debug('Last processed block: %s', lastProcessedBlock?.hash)
 
         await this.updateUnprocessedBlocks(lastProcessedBlock?.hash || null, lastKnownFinalised)
@@ -115,6 +123,18 @@ export default class Indexer {
     while (true) {
       const lastKnownFinalised = yield this.unprocessedBlocks.shift() || null
       await loopFn(lastKnownFinalised)
+    }
+  }
+
+  private async getLastProcessedBlock() {
+    const [lastProcessedBlock] = await this.db.get('processed_blocks', {}, [['height', 'desc']], 1)
+    if (!lastProcessedBlock) {
+      return undefined
+    }
+    return {
+      ...lastProcessedBlock,
+      hash: restore0x(lastProcessedBlock.hash),
+      parent: restore0x(lastProcessedBlock.parent),
     }
   }
 
@@ -179,13 +199,17 @@ export default class Indexer {
     const header = await this.node.getHeader(blockHash)
     await this.db.withTransaction(async (db) => {
       if (header.height === 1) {
-        await db.insertProcessedBlock({
-          hash: header.parent,
+        await db.insert('processed_blocks', {
+          hash: trim0x(header.parent),
           height: 0,
-          parent: header.parent,
+          parent: trim0x(header.parent),
         })
       }
-      await db.insertProcessedBlock(header)
+      await db.insert('processed_blocks', {
+        hash: trim0x(header.hash),
+        height: header.height,
+        parent: trim0x(header.parent),
+      })
 
       if (changeSet.attachments) {
         for (const [, example] of changeSet.attachments) {
@@ -200,15 +224,18 @@ export default class Indexer {
 
       // INFO we can do no if and just pass entity as arg?
       if (changeSet.certificates) {
-        for (const [, certificates] of changeSet.certificates) {
-          const { type, id, ...record } = certificates
-          switch (type) {
-            case 'insert':
+        for (const [, certificate] of changeSet.certificates) {
+          switch (certificate.type) {
+            case 'insert': {
+              const { type, id, ...record } = certificate
               await db.insert('certificate', record)
               break
-            case 'update':
+            }
+            case 'update': {
+              const { type, id, ...record } = certificate
               await db.update('certificate', { id: id }, record)
               break
+            }
           }
         }
       }

@@ -274,6 +274,7 @@ services:
       - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
     networks: ['regulator']
+
   regulator-node:
     image: digicatapult/dscp-node:latest
     container_name: regulator-node

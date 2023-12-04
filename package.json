@@ -16,7 +16,6 @@
     "db:migrate": "npx knex migrate:latest --knexfile src/lib/db/knexfile.ts",
     "db:rollback": "npx knex migrate:rollback --knexfile src/lib/db/knexfile.ts",
     "flows": "npx @digicatapult/dscp-process-management@latest create -h localhost -p 9944 -u //Alice -f ./processFlows.json"
-
   },
   "repository": {
     "type": "git",
@@ -82,6 +81,7 @@
     "swagger-ui-express": "^5.0.0",
     "tsoa": "^5.1.1",
     "tsyringe": "^4.8.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
   }
 }

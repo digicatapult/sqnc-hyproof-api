@@ -1,7 +1,10 @@
-import { CertificateRow, Entity } from '../../src/lib/db'
+import { CertificateRow, TransactionRow } from '../../src/lib/db'
 
 export type Request = Record<string | symbol | number, Payload>
-export type Response = Record<string, string | number | Entity | CertificateRow[]> | string
+export type GetCertificateResponse = CertificateRow
+export type ListCertificatesResponse = CertificateRow[]
+export type GetTransactionResponse = TransactionRow
+export type ListTransactionResponse = TransactionRow[]
 /**
  * Certificate Request Body example
  * @example {
