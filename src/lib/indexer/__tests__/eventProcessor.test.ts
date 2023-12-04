@@ -27,7 +27,7 @@ describe('eventProcessor', function () {
 
       expect(result).to.deep.equal({
         certificates: new Map([
-          ['42', { type: 'update', id: '42', state: 'created', latest_token_id: 1, original_token_id: 1 }],
+          ['42', { type: 'update', id: '42', state: 'initiated', latest_token_id: 1, original_token_id: 1 }],
         ]),
       })
     })
@@ -54,7 +54,7 @@ describe('eventProcessor', function () {
         type: 'insert',
         hydrogen_owner: 'heidi-hydrogen-producer',
         energy_owner: 'emma-energy-producer',
-        state: 'created',
+        state: 'initiated',
         hydrogen_quantity_mwh: 42,
         latest_token_id: 1,
         original_token_id: 1,

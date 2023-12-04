@@ -29,7 +29,7 @@ export default class Indexer {
   private logger: Logger
   private db: Database
   private node: ChainNode
-  private gen: AsyncGenerator<string | null, void, string>
+  private gen: AsyncGenerator<HEX | null, void, string>
   private handleBlock: BlockHandler
   private unprocessedBlocks: HEX[]
   private retryDelay: number
@@ -70,11 +70,11 @@ export default class Indexer {
     this.logger.info('Block Indexer Closed')
   }
 
-  public async processAllBlocks(latestFinalisedHash: string) {
+  public async processAllBlocks(latestFinalisedHash: string): Promise<HEX | null> {
     let done = false
-    let lastBlockProcessed: string | null = null
+    let lastBlockProcessed: HEX | null = null
     do {
-      const result = await this.gen.next(latestFinalisedHash)
+      const result = await this.gen.next(restore0x(latestFinalisedHash))
       if (result.value !== null && result.value) {
         lastBlockProcessed = result.value
       }
@@ -84,8 +84,8 @@ export default class Indexer {
     return lastBlockProcessed
   }
 
-  public async processNextBlock(latestFinalisedHash: string): Promise<string | null> {
-    const result = await this.gen.next(latestFinalisedHash)
+  public async processNextBlock(latestFinalisedHash: string): Promise<HEX | null> {
+    const result = await this.gen.next(restore0x(latestFinalisedHash))
     return result.value || null
   }
 
@@ -94,7 +94,7 @@ export default class Indexer {
   // yields the hash of the processed block
   // main benefit of using a generator is it funnels all triggers from any source into a single
   // serialised async flow
-  private async *nextBlockProcessor(): AsyncGenerator<string | null, void, HEX> {
+  private async *nextBlockProcessor(): AsyncGenerator<HEX | null, void, HEX> {
     const lastProcessedBlock = await this.getLastProcessedBlock()
     this.unprocessedBlocks = [lastProcessedBlock?.hash].filter((x): x is HEX => !!x)
 
