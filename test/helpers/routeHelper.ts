@@ -14,6 +14,15 @@ export const post = async (
   return request(app).post(endpoint).send(body).set(headers)
 }
 
+export const put = async (
+  app: express.Express,
+  endpoint: string,
+  body: object,
+  headers: object = {}
+): Promise<request.Test> => {
+  return request(app).put(endpoint).send(body).set(headers)
+}
+
 export const postFile = async (
   app: express.Express,
   endpoint: string,

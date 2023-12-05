@@ -11,6 +11,11 @@ export type GetCertificateResponse = {
   latest_token_id?: number | null
   created_at: Date
   updated_at: Date
+  commitment: string
+  commitment_salt?: string | null
+  production_start_time?: Date | null
+  production_end_time?: Date | null
+  energy_consumed_mwh?: number | null
 }
 export type ListCertificatesResponse = GetCertificateResponse[]
 export type GetTransactionResponse = {
@@ -27,10 +32,23 @@ export type ListTransactionResponse = GetTransactionResponse[]
  * Certificate Request Body example
  * @example {
  *   "hydrogen_quantity_mwh": 1,
- *   "energy_owner": "emma"
+ *   "energy_owner": "emma",
+ *   "production_start_time": "2023-01-01T00:00:00.000Z",
+ *   "production_end_time": "2023-01-01T12:00:00.000Z",
+ *   "energy_consumed_mwh": 1,
  * }
  */
 export type Payload = {
   hydrogen_quantity_mwh: number
   energy_owner: string
+  production_start_time: Date
+  production_end_time: Date
+  energy_consumed_mwh: number
+}
+
+export type UpdatePayload = {
+  production_start_time: Date
+  production_end_time: Date
+  energy_consumed_mwh: number
+  commitment_salt: string
 }

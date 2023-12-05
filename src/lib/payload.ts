@@ -29,7 +29,7 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
         '@version': { type: 'LITERAL', value: '1' },
         '@type': { type: 'LITERAL', value: 'InitiatedCert' },
         hydrogen_quantity_mwh: { type: 'LITERAL', value: certificate.hydrogen_quantity_mwh.toString() },
-        commitment: { type: 'LITERAL', value: "Paulius's have been commited" },
+        commitment: { type: 'LITERAL', value: certificate.commitment },
       },
     },
   ],

@@ -78,6 +78,11 @@ const DefaultEventProcessors: EventProcessors = {
       hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(cert.metadata, 'hydrogen_quantity_mwh')),
       latest_token_id,
       original_token_id: latest_token_id,
+      commitment: getOrError(cert.metadata, 'commitment'),
+      commitment_salt: null,
+      energy_consumed_mwh: null,
+      production_end_time: null,
+      production_start_time: null,
     }
 
     return {

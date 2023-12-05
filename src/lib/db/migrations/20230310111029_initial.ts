@@ -24,6 +24,11 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('embodied_co2').nullable().index('embodied_co2_index').defaultTo(null)
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
+    def.dateTime('production_start_time').nullable().defaultTo(null)
+    def.dateTime('production_end_time').nullable().defaultTo(null)
+    def.integer('energy_consumed_mwh').nullable().defaultTo(null)
+    def.string('commitment_salt', 32).nullable().defaultTo(null)
+    def.string('commitment', 32).notNullable()
     def
       .enum('state', ['pending', 'initiated', 'issued', 'revoked', 'cancelled'], {
         useNative: true,

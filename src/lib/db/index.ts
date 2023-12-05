@@ -64,6 +64,11 @@ const insertCertificateRowZ = z.object({
   hydrogen_quantity_mwh: z.number(),
   original_token_id: z.union([z.number(), z.null()]),
   latest_token_id: z.union([z.number(), z.null()]),
+  commitment: z.string(),
+  commitment_salt: z.union([z.string(), z.null()]),
+  production_start_time: z.union([z.date(), z.null()]),
+  production_end_time: z.union([z.date(), z.null()]),
+  energy_consumed_mwh: z.union([z.number(), z.null()]),
 })
 
 const certificateRowZ = insertCertificateRowZ.extend({

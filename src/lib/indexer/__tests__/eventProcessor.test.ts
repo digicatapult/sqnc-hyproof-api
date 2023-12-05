@@ -44,7 +44,10 @@ describe('eventProcessor', function () {
               ['hydrogen_owner', 'heidi-hydrogen-producer'],
               ['energy_owner', 'emma-energy-producer'],
             ]),
-            metadata: new Map([['hydrogen_quantity_mwh', '42']]),
+            metadata: new Map([
+              ['hydrogen_quantity_mwh', '42'],
+              ['commitment', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
+            ]),
           },
         ],
       })
@@ -58,6 +61,7 @@ describe('eventProcessor', function () {
         hydrogen_quantity_mwh: 42,
         latest_token_id: 1,
         original_token_id: 1,
+        commitment: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       })
     })
 

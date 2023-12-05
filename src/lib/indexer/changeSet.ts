@@ -16,6 +16,11 @@ export type CertificateRecord =
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
       latest_token_id: number
       original_token_id: number
+      commitment: string
+      commitment_salt: null
+      production_start_time: null
+      production_end_time: null
+      energy_consumed_mwh: null
     }
   | {
       type: 'update'
