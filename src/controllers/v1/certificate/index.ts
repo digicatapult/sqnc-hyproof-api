@@ -22,7 +22,6 @@ import Identity from '../../../lib/services/identity'
 import * as Certificate from '../../../models/certificate'
 import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
-import env from '../../../env'
 import { processInitiateCert } from '../../../lib/payload'
 import { TransactionState } from '../../../models/transaction'
 
@@ -32,19 +31,14 @@ import { TransactionState } from '../../../models/transaction'
 @Security('BearerAuth')
 export class CertificateController extends Controller {
   log: Logger
-  db: Database
-  node: ChainNode
 
-  constructor(private identity: Identity) {
+  constructor(
+    private identity: Identity,
+    private db: Database,
+    private node: ChainNode
+  ) {
     super()
     this.log = logger.child({ controller: '/certificate' })
-    this.db = new Database()
-    this.node = new ChainNode({
-      host: env.NODE_HOST,
-      port: env.NODE_PORT,
-      logger,
-      userUri: env.USER_URI,
-    })
   }
 
   private async mapIdentities(certs: CertificateRow[]): Promise<CertificateRow[]> {
@@ -91,6 +85,8 @@ export class CertificateController extends Controller {
       hydrogen_quantity_mwh,
       hydrogen_owner: identities.hydrogen_owner.address,
       energy_owner: identities.energy_owner.address,
+      latest_token_id: null,
+      original_token_id: null,
     })
     if (!certificate) throw new InternalServerError()
 
@@ -188,7 +184,7 @@ export class CertificateController extends Controller {
     if (!transaction) throw new BadRequest()
 
     this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
-      this.db.update('transaction', transaction, { state })
+      this.db.update('transaction', { id: transaction.id }, { state })
     )
 
     return transaction

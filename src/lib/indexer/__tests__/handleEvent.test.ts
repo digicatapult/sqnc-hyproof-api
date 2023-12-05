@@ -131,7 +131,7 @@ describe('EventHandler', function () {
 
   it('should return a merged ChangeSet', async function () {
     const resultChangeSet: ChangeSet = {
-      attachments: new Map([['10', { type: 'insert', id: '10', ipfs_hash: '42' }]]),
+      attachments: new Map([['10', { type: 'insert', id: '10', ipfs_hash: '42', filename: null, size: null }]]),
     }
     const db = withTransactionMatchingTokensInDb(null, new Map())
     const logger = withMockLogger()

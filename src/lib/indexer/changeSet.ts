@@ -14,8 +14,8 @@ export type CertificateRecord =
       energy_owner: string
       hydrogen_quantity_mwh: number
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
-      latest_token_id?: number
-      original_token_id?: number
+      latest_token_id: number
+      original_token_id: number
     }
   | {
       type: 'update'
@@ -31,9 +31,9 @@ export type AttachmentRecord =
   | {
       type: 'insert'
       id: string
-      filename?: string
+      filename: string | null
       ipfs_hash: string
-      size?: number
+      size: number | null
     }
   | never
 

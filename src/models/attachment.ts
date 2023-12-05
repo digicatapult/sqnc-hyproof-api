@@ -1,10 +1,14 @@
 import { UUID } from './strings'
 
-import { AttachmentRow } from '../lib/db'
-import { Readable } from 'node:stream'
-
 export type Request = Record<string, Payload>
-export type Response = Record<string, string | AttachmentRow[]> | string | Readable
+export type GetAttachmentResponse = {
+  id: UUID
+  filename: string | null
+  size: number | null
+  ipfs_hash: string
+  created_at: Date
+}
+export type ListAttachmentsResponse = GetAttachmentResponse[]
 
 /**
  * File or JSON attachment

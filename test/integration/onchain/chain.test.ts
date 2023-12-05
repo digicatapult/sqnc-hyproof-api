@@ -7,20 +7,13 @@ import { withIdentitySelfMock } from '../../helpers/mock'
 import { withAppAndIndexer } from '../../helpers/chainTest'
 import Database from '../../../src/lib/db'
 import ChainNode from '../../../src/lib/chainNode'
-import { logger } from '../../../src/lib/logger'
-import env from '../../../src/env'
 import { pollTransactionState } from '../../helpers/poll'
 
 describe('on-chain', function () {
   this.timeout(120000)
 
   const db = new Database()
-  const node = new ChainNode({
-    host: env.NODE_HOST,
-    port: env.NODE_PORT,
-    logger,
-    userUri: env.USER_URI,
-  })
+  const node = new ChainNode()
 
   const context: { app: Express; indexer: Indexer } = {} as { app: Express; indexer: Indexer }
   withAppAndIndexer(context)

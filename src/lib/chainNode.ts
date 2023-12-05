@@ -9,13 +9,15 @@ import { TransactionState } from '../models/transaction'
 import type { Payload, Output, Metadata } from './payload'
 import { HEX } from '../models/strings'
 import { hexToBs58 } from '../utils/controller-helpers'
+import { logger } from './logger'
+import env from '../env'
+import { singleton } from 'tsyringe'
 
 const processRanTopic = blake2AsHex('utxoNFT.ProcessRan')
 
 export interface NodeCtorConfig {
   host: string
   port: number
-  logger: Logger
   userUri: string
 }
 
@@ -47,6 +49,7 @@ type EventData =
     }
   | undefined
 
+@singleton()
 export default class ChainNode {
   private provider: WsProvider
   private api: ApiPromise
@@ -54,10 +57,10 @@ export default class ChainNode {
   private logger: Logger
   private userUri: string
 
-  constructor({ host, port, logger, userUri }: NodeCtorConfig) {
+  constructor() {
     this.logger = logger.child({ module: 'ChainNode' })
-    this.provider = new WsProvider(`ws://${host}:${port}`)
-    this.userUri = userUri
+    this.provider = new WsProvider(`ws://${env.NODE_HOST}:${env.NODE_PORT}`)
+    this.userUri = env.USER_URI
     this.api = new ApiPromise({ provider: this.provider })
     this.keyring = new Keyring({ type: 'sr25519' })
 
@@ -66,11 +69,11 @@ export default class ChainNode {
     })
 
     this.api.on('disconnected', () => {
-      this.logger.warn(`Disconnected from substrate node at ${host}:${port}`)
+      this.logger.warn(`Disconnected from substrate node at ${env.NODE_HOST}:${env.NODE_PORT}`)
     })
 
     this.api.on('connected', () => {
-      this.logger.info(`Connected to substrate node at ${host}:${port}`)
+      this.logger.info(`Connected to substrate node at ${env.NODE_HOST}:${env.NODE_PORT}`)
     })
 
     this.api.on('error', (err) => {
@@ -138,7 +141,7 @@ export default class ChainNode {
 
   async submitRunProcess(
     extrinsic: SubmittableExtrinsic<'promise', SubmittableResult>,
-    transactionDbUpdate: (state: TransactionState) => Promise<unknown>
+    transactionDbUpdate: (state: TransactionState) => void
   ): Promise<void> {
     try {
       this.logger.debug('Submitting Transaction %j', extrinsic.hash.toHex())

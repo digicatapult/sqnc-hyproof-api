@@ -1,22 +1,27 @@
 import { Controller, Get, Route, Path, Response, Tags, Security, Query } from 'tsoa'
 import type { Logger } from 'pino'
 import { logger } from '../../../lib/logger'
-import Database, { TransactionRow } from '../../../lib/db'
+import Database from '../../../lib/db'
 import { DATE, UUID } from '../../../models/strings'
 import { BadRequest, NotFound } from '../../../lib/error-handler/index'
-import { TransactionApiType, TransactionResponse, TransactionState } from '../../../models/transaction'
+import {
+  TransactionApiType,
+  GetTransactionResponse,
+  ListTransactionResponse,
+  TransactionState,
+} from '../../../models/transaction'
+import { injectable } from 'tsyringe'
 
+@injectable()
 @Route('v1/transaction')
 @Tags('transaction')
 @Security('BearerAuth')
 export class TransactionController extends Controller {
   log: Logger
-  db: Database
 
-  constructor() {
+  constructor(private db: Database) {
     super()
     this.log = logger.child({ controller: '/transaction' })
-    this.db = new Database()
   }
 
   /**
@@ -31,7 +36,7 @@ export class TransactionController extends Controller {
     @Query() api_type?: TransactionApiType,
     @Query() state?: TransactionState,
     @Query() updated_since?: DATE
-  ): Promise<TransactionRow[]> {
+  ): Promise<ListTransactionResponse> {
     const where: { state?: TransactionState; api_type?: TransactionApiType; updated_since?: DATE } = {
       state,
       api_type,
@@ -47,7 +52,7 @@ export class TransactionController extends Controller {
    */
   @Response<NotFound>(404, 'Item not found')
   @Get('{id}')
-  public async getTransaction(@Path() id: UUID): Promise<TransactionResponse> {
+  public async getTransaction(@Path() id: UUID): Promise<GetTransactionResponse> {
     const transaction = await this.db.get('transaction', { id }).then((transactions) => transactions[0])
 
     return transaction

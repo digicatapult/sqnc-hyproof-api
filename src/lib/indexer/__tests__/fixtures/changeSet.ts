@@ -20,6 +20,8 @@ export const findIdTestSet: ChangeSet = {
         id: '0x01',
         ipfs_hash: '01',
         type: 'insert',
+        filename: null,
+        size: null,
       },
     ],
   ]),

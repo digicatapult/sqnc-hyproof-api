@@ -25,9 +25,9 @@ export async function up(knex: Knex): Promise<void> {
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
     def
-      .enu('state', ['pending', 'initiated', 'issued', 'revoked', 'cancelled'], {
+      .enum('state', ['pending', 'initiated', 'issued', 'revoked', 'cancelled'], {
         useNative: true,
-        enumName: 'certificate_status',
+        enumName: 'certificate_state',
       })
       .defaultTo('pending')
     def.integer('latest_token_id').defaultTo(null)
@@ -64,7 +64,7 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('token_id')
     def.primary(['id'])
     def.specificType('hash', 'CHAR(66)').notNullable()
-    def.enu('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
+    def.enum('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
     def.unique(['id', 'local_id'], { indexName: 'transaction-id-local-id' })
   })
 }
@@ -74,5 +74,8 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('certificate')
   await knex.schema.dropTable('transaction')
   await knex.schema.dropTable('processed_blocks')
+  await knex.raw('DROP TYPE certificate_state')
+  await knex.raw('DROP TYPE transaction_state')
+  await knex.raw('DROP TYPE api_type')
   await knex.raw('DROP EXTENSION "uuid-ossp"')
 }
