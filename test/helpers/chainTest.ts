@@ -7,24 +7,18 @@ import Indexer from '../../src/lib/indexer'
 import Database from '../../src/lib/db'
 import ChainNode from '../../src/lib/chainNode'
 import { logger } from '../../src/lib/logger'
-import env from '../../src/env'
 
 const db = new Database()
 
 export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) => {
   before(async function () {
     context.app = await createHttpServer()
-    const node = new ChainNode({
-      host: env.NODE_HOST,
-      port: env.NODE_PORT,
-      logger,
-      userUri: env.USER_URI,
-    })
+    const node = new ChainNode()
 
     const blockHash = await node.getLastFinalisedBlockHash()
     const blockHeader = await node.getHeader(blockHash)
     await db
-      .insertProcessedBlock({
+      .insert('processed_blocks', {
         hash: blockHash,
         height: blockHeader.height,
         parent: blockHash,
