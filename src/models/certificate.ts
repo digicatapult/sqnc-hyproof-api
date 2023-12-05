@@ -1,6 +1,5 @@
 import { UUID } from './strings'
 
-export type Request = Record<string | symbol | number, Payload>
 export type GetCertificateResponse = {
   id: UUID
   state: 'pending' | 'initiated' | 'issued' | 'revoked'

@@ -1,6 +1,5 @@
 import { UUID } from './strings'
 
-export type Request = Record<string, Payload>
 export type GetAttachmentResponse = {
   id: UUID
   filename: string | null
