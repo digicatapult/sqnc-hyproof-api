@@ -2,8 +2,15 @@ import { NotFound, HttpResponse } from '../error-handler'
 import env from '../../env'
 import { Status, serviceState } from '../service-watcher/statusPoll'
 import { singleton } from 'tsyringe'
+import { z } from 'zod'
 
 const URL_PREFIX = `http://${env.IDENTITY_SERVICE_HOST}:${env.IDENTITY_SERVICE_PORT}`
+
+const identityResponseValidator = z.object({
+  address: z.string(),
+  alias: z.string(),
+})
+type IdentityResponse = z.infer<typeof identityResponseValidator>
 
 @singleton()
 export default class Identity {
@@ -38,11 +45,11 @@ export default class Identity {
       }
     }
   }
-  getMemberByAlias = async (alias: string) => {
+  getMemberByAlias = async (alias: string): Promise<IdentityResponse> => {
     const res = await fetch(`${URL_PREFIX}/v1/members/${encodeURIComponent(alias)}`)
 
     if (res.ok) {
-      return await res.json()
+      return identityResponseValidator.parse(await res.json())
     }
 
     if (res.status === 404) {
@@ -62,11 +69,11 @@ export default class Identity {
     throw new HttpResponse({})
   }
 
-  getMemberBySelf = async () => {
+  getMemberBySelf = async (): Promise<IdentityResponse> => {
     const res = await fetch(`${URL_PREFIX}/v1/self`)
 
     if (res.ok) {
-      return await res.json()
+      return identityResponseValidator.parse(await res.json())
     }
 
     throw new HttpResponse({})

@@ -52,6 +52,15 @@ export class BadRequest extends HttpResponse implements IBadRequest {
   }
 }
 
+/**
+ * indicates that an unknown error occurred
+ */
+export class InternalServerError extends HttpResponse {
+  constructor(message = 'unknown error') {
+    super({ code: 500, message })
+  }
+}
+
 export class ServiceUnavailable extends HttpResponse {
   public code: number
   public data: Health

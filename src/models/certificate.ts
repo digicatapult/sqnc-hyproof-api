@@ -1,23 +1,36 @@
-import { CertificateRow } from '../../src/lib/db'
 import { UUID } from './strings'
 
-export type Request = Record<string, Payload>
-export type Response = Record<string, string | CertificateRow[]>
+export type GetCertificateResponse = {
+  id: UUID
+  state: 'pending' | 'initiated' | 'issued' | 'revoked'
+  hydrogen_owner: string
+  energy_owner: string
+  hydrogen_quantity_mwh: number
+  embodied_co2?: number | null
+  original_token_id?: number | null
+  latest_token_id?: number | null
+  created_at: Date
+  updated_at: Date
+}
+export type ListCertificatesResponse = GetCertificateResponse[]
+export type GetTransactionResponse = {
+  id: UUID
+  api_type: 'certificate' | 'example_a' | 'example_b'
+  state: 'submitted' | 'inBlock' | 'finalised' | 'failed'
+  local_id: string
+  hash: string
+  created_at: Date
+  updated_at: Date
+}
+export type ListTransactionResponse = GetTransactionResponse[]
 /**
  * Certificate Request Body example
  * @example {
- *   "id": "52907745-7672-470e-a803-a2f8feb52944",
- *   "co2e": 20,
- *   "capacity": 1,
+ *   "hydrogen_quantity_mwh": 1,
+ *   "energy_owner": "emma"
  * }
  */
-export interface Payload {
-  co2e?: number
-  capacity?: number
-  /**
-   * uuid generated using knex
-   * this is normally what it would be returned
-   */
-  id?: UUID
-  commits?: Record<string, string>
+export type Payload = {
+  hydrogen_quantity_mwh: number
+  energy_owner: string
 }

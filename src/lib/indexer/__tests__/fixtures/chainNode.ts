@@ -1,5 +1,6 @@
 import sinon from 'sinon'
 import ChainNode, { ProcessRanEvent } from '../../../chainNode'
+import { HEX } from '../../../../models/strings'
 
 export const events2: ProcessRanEvent[] = [
   {
@@ -27,16 +28,16 @@ export const events2: ProcessRanEvent[] = [
 ]
 
 export const withHappyChainNode = () => {
-  const getHeader = sinon.spy(async (hash: string) => {
-    const number = parseInt(hash, 10)
+  const getHeader = sinon.spy(async (hash: HEX) => {
+    const number = parseInt(hash.substring(2), 10)
     return Promise.resolve({
-      hash: `${number}-hash`,
+      hash: `0x${number}-hash`,
       height: number,
-      parent: `${number - 1}-hash`,
+      parent: `0x${number - 1}-hash`,
     })
   })
 
-  const getLastFinalisedBlockHash = sinon.stub().resolves('1-hash')
+  const getLastFinalisedBlockHash = sinon.stub().resolves('0x1-hash')
 
   return {
     getHeader,
@@ -51,15 +52,15 @@ export const withGetHeaderBoom = (boomOnCallIndex: number) => {
       throw new Error('BOOM')
     }
 
-    const number = parseInt(hash, 10)
+    const number = parseInt(hash.substring(2), 10)
     return Promise.resolve({
-      hash: `${number}-hash`,
+      hash: `0x${number}-hash`,
       height: number,
-      parent: `${number - 1}-hash`,
+      parent: `0x${number - 1}-hash`,
     })
   })
 
-  const getLastFinalisedBlockHash = sinon.stub().resolves('1-hash')
+  const getLastFinalisedBlockHash = sinon.stub().resolves('0x1-hash')
 
   return {
     getHeader,

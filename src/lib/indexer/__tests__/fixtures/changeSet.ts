@@ -2,12 +2,12 @@ import { AttachmentRecord, CertificateRecord, ChangeSet } from '../../changeSet'
 
 export const changeSets2: ChangeSet[] = [
   {
-    certificates: new Map([['1', { id: '1', type: 'update', latest_token_id: 1, state: 'initialized' }]]),
+    certificates: new Map([['1', { id: '1', type: 'update', latest_token_id: 1, state: 'pending' }]]),
   },
   {
     certificates: new Map([
-      ['1', { id: '1', type: 'update', latest_token_id: 1, state: 'initialized' }],
-      ['3', { id: '3', type: 'update', latest_token_id: 3, state: 'initialized' }],
+      ['1', { id: '1', type: 'update', latest_token_id: 1, state: 'pending' }],
+      ['3', { id: '3', type: 'update', latest_token_id: 3, state: 'pending' }],
     ]),
   },
 ]
@@ -20,6 +20,8 @@ export const findIdTestSet: ChangeSet = {
         id: '0x01',
         ipfs_hash: '01',
         type: 'insert',
+        filename: null,
+        size: null,
       },
     ],
   ]),
@@ -29,7 +31,7 @@ export const findIdTestSet: ChangeSet = {
       {
         type: 'update',
         id: '0x02',
-        state: 'initialized',
+        state: 'issued',
         latest_token_id: 42,
       },
     ],

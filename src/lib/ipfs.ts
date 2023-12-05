@@ -1,7 +1,11 @@
-import { Logger } from 'pino'
+import type { Logger } from 'pino'
+
+import { logger } from './logger'
 import { serviceState } from './service-watcher/statusPoll'
 import type { MetadataFile } from './payload'
 import { HttpResponse } from './error-handler'
+import env from '../env'
+import { singleton } from 'tsyringe'
 
 interface FilestoreResponse {
   Name: string
@@ -9,6 +13,7 @@ interface FilestoreResponse {
   Size: string
 }
 
+@singleton()
 export default class Ipfs {
   private addUrl: string
   private dirUrl: (dirHash: string) => string
@@ -17,13 +22,13 @@ export default class Ipfs {
   private versionURL: string
   private peersURL: string
 
-  constructor({ host, port, logger }: { host: string; port: number; logger: Logger }) {
-    this.addUrl = `http://${host}:${port}/api/v0/add?cid-version=0&wrap-with-directory=true`
-    this.dirUrl = (dirHash) => `http://${host}:${port}/api/v0/ls?arg=${dirHash}`
-    this.fileUrl = (fileHash) => `http://${host}:${port}/api/v0/cat?arg=${fileHash}`
+  constructor() {
+    this.addUrl = `http://${env.IPFS_HOST}:${env.IPFS_PORT}/api/v0/add?cid-version=0&wrap-with-directory=true`
+    this.dirUrl = (dirHash) => `http://${env.IPFS_HOST}:${env.IPFS_PORT}/api/v0/ls?arg=${dirHash}`
+    this.fileUrl = (fileHash) => `http://${env.IPFS_HOST}:${env.IPFS_PORT}/api/v0/cat?arg=${fileHash}`
     this.logger = logger.child({ module: 'ipfs' })
-    this.versionURL = `http://${host}:${port}/api/v0/version`
-    this.peersURL = `http://${host}:${port}/api/v0/swarm/peers`
+    this.versionURL = `http://${env.IPFS_HOST}:${env.IPFS_PORT}/api/v0/version`
+    this.peersURL = `http://${env.IPFS_HOST}:${env.IPFS_PORT}/api/v0/swarm/peers`
   }
 
   async addFile({ blob, filename }: MetadataFile): Promise<string> {

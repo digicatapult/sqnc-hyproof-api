@@ -9,13 +9,16 @@ import { TransactionState } from '../models/transaction'
 import type { Payload, Output, Metadata } from './payload'
 import { HEX } from '../models/strings'
 import { hexToBs58 } from '../utils/controller-helpers'
+import { logger } from './logger'
+import env from '../env'
+import { singleton } from 'tsyringe'
+import { trim0x } from './utils/shared'
 
 const processRanTopic = blake2AsHex('utxoNFT.ProcessRan')
 
 export interface NodeCtorConfig {
   host: string
   port: number
-  logger: Logger
   userUri: string
 }
 
@@ -31,18 +34,13 @@ export interface ProcessRanEvent {
   outputs: number[]
 }
 
-interface RoleEnum {
-  name: string | undefined
-  index: number | undefined
-}
-
 interface SubstrateToken {
   id: number
   metadata: {
     [key in string]: { literal: string } | { file: string } | { tokenId: number } | { None: null }
   }
   roles: {
-    [key in 'Owner' | 'MemberA' | 'MemberB' | 'Optimiser']: string
+    [key in 'hydrogen_owner' | 'energy_owner']: string
   }
 }
 
@@ -52,32 +50,31 @@ type EventData =
     }
   | undefined
 
+@singleton()
 export default class ChainNode {
   private provider: WsProvider
   private api: ApiPromise
   private keyring: Keyring
   private logger: Logger
   private userUri: string
-  private roles: RoleEnum[]
 
-  constructor({ host, port, logger, userUri }: NodeCtorConfig) {
+  constructor() {
     this.logger = logger.child({ module: 'ChainNode' })
-    this.provider = new WsProvider(`ws://${host}:${port}`)
-    this.userUri = userUri
+    this.provider = new WsProvider(`ws://${env.NODE_HOST}:${env.NODE_PORT}`)
+    this.userUri = env.USER_URI
     this.api = new ApiPromise({ provider: this.provider })
     this.keyring = new Keyring({ type: 'sr25519' })
-    this.roles = []
 
     this.api.isReadyOrError.catch(() => {
       // prevent unhandled promise rejection errors
     })
 
     this.api.on('disconnected', () => {
-      this.logger.warn(`Disconnected from substrate node at ${host}:${port}`)
+      this.logger.warn(`Disconnected from substrate node at ${env.NODE_HOST}:${env.NODE_PORT}`)
     })
 
     this.api.on('connected', () => {
-      this.logger.info(`Connected to substrate node at ${host}:${port}`)
+      this.logger.info(`Connected to substrate node at ${env.NODE_HOST}:${env.NODE_PORT}`)
     })
 
     this.api.on('error', (err) => {
@@ -129,37 +126,9 @@ export default class ChainNode {
     }
   }
 
-  async getRoles(): Promise<RoleEnum[]> {
-    await this.api.isReady
-
-    const registry = this.api.registry
-    const lookup = registry.lookup
-    const lookupId = registry.getDefinition('DscpNodeRuntimeRole') as `Lookup${number}`
-
-    const rolesEnum = lookup.getTypeDef(lookupId).sub
-    if (Array.isArray(rolesEnum)) {
-      return rolesEnum.map((e) => ({ name: e.name, index: e.index }))
-    } else {
-      throw new Error('No roles found on-chain')
-    }
-  }
-
-  roleToIndex(role: string) {
-    const entry = this.roles.find((e) => e.name === role)
-
-    if (!entry || entry.index === undefined) {
-      throw new Error(`Invalid role: ${role}`)
-    }
-
-    return entry.index
-  }
-
   async prepareRunProcess({ process, inputs, outputs }: Payload) {
     const outputsAsMaps = await Promise.all(
-      outputs.map(async (output: Output) => [
-        await this.processRoles(output.roles),
-        this.processMetadata(output.metadata),
-      ])
+      outputs.map(async (output: Output) => [output.roles, this.processMetadata(output.metadata)])
     )
 
     this.logger.debug('Preparing Transaction inputs: %j outputs: %j', inputs, outputsAsMaps)
@@ -173,7 +142,7 @@ export default class ChainNode {
 
   async submitRunProcess(
     extrinsic: SubmittableExtrinsic<'promise', SubmittableResult>,
-    update: (state: TransactionState) => Promise<Record<string, string>[]>
+    transactionDbUpdate: (state: TransactionState) => void
   ): Promise<void> {
     try {
       this.logger.debug('Submitting Transaction %j', extrinsic.hash.toHex())
@@ -184,7 +153,7 @@ export default class ChainNode {
 
         if (dispatchError) {
           this.logger.warn('dispatch error %s', dispatchError)
-          update('failed')
+          transactionDbUpdate('failed')
           unsub()
           if (dispatchError.isModule) {
             const decoded = this.api.registry.findMetaError(dispatchError.asModule)
@@ -194,37 +163,25 @@ export default class ChainNode {
           throw new Error(`Unknown node dispatch error: ${dispatchError}`)
         }
 
-        if (status.isInBlock) update('inBlock')
+        if (status.isInBlock) transactionDbUpdate('inBlock')
         if (status.isFinalized) {
           const processRanEvent = result.events.find(({ event: { method } }) => method === 'ProcessRan')
           const data = processRanEvent?.event?.data as EventData
           const tokens = data?.outputs?.map((x) => x.toNumber())
 
           if (!tokens) {
-            update('failed')
+            transactionDbUpdate('failed')
             throw new Error('No token IDs returned')
           }
 
-          update('finalised')
+          transactionDbUpdate('finalised')
           unsub()
         }
       })
     } catch (err) {
-      update('failed')
+      transactionDbUpdate('failed')
       this.logger.warn(`Error in run process transaction: ${err}`)
     }
-  }
-
-  async processRoles(roles: Record<string, string>) {
-    if (this.roles.length === 0) {
-      this.roles = await this.getRoles()
-    }
-
-    return new Map(
-      Object.entries(roles).map(([key, v]) => {
-        return [this.roleToIndex(key), v]
-      })
-    )
   }
 
   processMetadata(metadata: Metadata) {
@@ -318,7 +275,9 @@ export default class ChainNode {
         return [key, value]
       })
     )
-    const roles = new Map(Object.entries(token.roles).map(([role, account]) => [role.toLowerCase(), account]))
+    const roles = new Map(
+      Object.entries(token.roles).map(([role, account]) => [Buffer.from(trim0x(role), 'hex').toString('utf8'), account])
+    )
 
     return {
       id: token.id,

@@ -1,0 +1,355 @@
+version: '3'
+
+networks:
+  chain:
+    ipam:
+      driver: default
+  ipfs:
+    ipam:
+      driver: default
+  energy-owner:
+    ipam:
+      driver: default
+  hydrogen-owner:
+    ipam:
+      driver: default
+  regulator:
+    ipam:
+      driver: default
+
+services:
+  # -------------------------------------------------------------------- energy-owner
+  energy-owner-postgres-hyproof-api:
+    image: postgres:16.0-alpine
+    container_name: energy-owner-postgres-hyproof-api
+    ports:
+      - 5432:5432
+    volumes:
+      - energy-owner-hyproof-api-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-hyproof-api
+    networks: ['energy-owner']
+
+  energy-owner-postgres-identity:
+    image: postgres:16.0-alpine
+    container_name: energy-owner-postgres-identity
+    ports:
+      - 5433:5432
+    volumes:
+      - energy-owner-identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-identity
+    networks: ['energy-owner']
+
+  energy-owner-identity:
+    image: digicatapult/dscp-identity-service:latest
+    container_name: energy-owner-identity
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 9000:9000
+    depends_on:
+      - energy-owner-node
+      - energy-owner-postgres-identity
+    environment:
+      - PORT=9000
+      - API_HOST=energy-owner-node
+      - API_PORT=9944
+      - DB_HOST=energy-owner-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=dscp-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+    networks: ['energy-owner']
+
+  energy-owner-node:
+    image: digicatapult/dscp-node:latest
+    container_name: energy-owner-node
+    command: --base-path /data
+      --alice
+      --unsafe-ws-external
+      --unsafe-rpc-external
+      --rpc-cors all
+      --node-key 0000000000000000000000000000000000000000000000000000000000000001
+    ports:
+      - 30333:30333
+      - 9944:9944
+      - 9933:9933
+    restart: on-failure
+    networks: ['energy-owner', 'chain']
+
+  energy-owner-hyproof-api:
+    container_name: energy-owner-hyproof-api
+    build:
+      context: './'
+      dockerfile: 'Dockerfile'
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest --knexfile build/lib/db/knexfile &&
+      npx @digicatapult/dscp-process-management@latest create -h energy-owner-node -p 9944 -u //Alice -f ./processFlows.json &&
+      npm start"
+    environment:
+      - PORT=8000
+      - LOG_LEVEL=debug
+      - NODE_HOST=energy-owner-node
+      - NODE_PORT=9944
+      - DB_HOST=energy-owner-postgres-hyproof-api
+      - DB_PORT=5432
+      - DB_NAME=dscp-hyproof-api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - IDENTITY_SERVICE_HOST=energy-owner-identity
+      - IDENTITY_SERVICE_PORT=9000
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+      - USER_URI=//Alice
+    ports:
+      - 8000:8000
+    depends_on:
+      - energy-owner-node
+      - energy-owner-identity
+      - energy-owner-postgres-hyproof-api
+      - ipfs
+    restart: on-failure
+    networks: ['energy-owner', 'ipfs']
+
+  # -------------------------------------------------------------------- hydrogen-owner
+  hydrogen-owner-postgres-hyproof-api:
+    image: postgres:16.0-alpine
+    container_name: hydrogen-owner-postgres-hyproof-api
+    ports:
+      - 5442:5432
+    volumes:
+      - hydrogen-owner-hyproof-api-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-hyproof-api
+    networks: ['hydrogen-owner']
+
+  hydrogen-owner-postgres-identity:
+    image: postgres:16.0-alpine
+    container_name: hydrogen-owner-postgres-identity
+    ports:
+      - 5443:5432
+    volumes:
+      - hydrogen-owner-identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-identity
+    networks: ['hydrogen-owner']
+
+  hydrogen-owner-identity:
+    image: digicatapult/dscp-identity-service:latest
+    container_name: hydrogen-owner-identity
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 9010:9010
+    depends_on:
+      - hydrogen-owner-node
+      - hydrogen-owner-postgres-identity
+    environment:
+      - PORT=9010
+      - API_HOST=hydrogen-owner-node
+      - API_PORT=9944
+      - DB_HOST=hydrogen-owner-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=dscp-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+    networks: ['hydrogen-owner']
+
+  hydrogen-owner-node:
+    image: digicatapult/dscp-node:latest
+    container_name: hydrogen-owner-node
+    command: --base-path /data/
+      --bob
+      --unsafe-ws-external
+      --unsafe-rpc-external
+      --rpc-cors all
+      --node-key 0000000000000000000000000000000000000000000000000000000000000002
+      --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+    ports:
+      - 31333:30333
+      - 10044:9944
+      - 10033:9933
+    restart: on-failure
+    networks: ['hydrogen-owner', 'chain']
+
+  hydrogen-owner-hyproof-api:
+    container_name: hydrogen-owner-hyproof-api
+    build:
+      context: './'
+      dockerfile: 'Dockerfile'
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest --knexfile build/lib/db/knexfile &&
+      npm start"
+    environment:
+      - PORT=8010
+      - LOG_LEVEL=debug
+      - NODE_HOST=hydrogen-owner-node
+      - NODE_PORT=9944
+      - DB_HOST=hydrogen-owner-postgres-hyproof-api
+      - DB_PORT=5432
+      - DB_NAME=dscp-hyproof-api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - IDENTITY_SERVICE_HOST=hydrogen-owner-identity
+      - IDENTITY_SERVICE_PORT=9010
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+      - USER_URI=//Bob
+    ports:
+      - 8010:8010
+    depends_on:
+      - hydrogen-owner-node
+      - hydrogen-owner-identity
+      - hydrogen-owner-postgres-hyproof-api
+      - ipfs
+    restart: on-failure
+    networks: ['hydrogen-owner', 'ipfs']
+
+  # ------------------------------------------------------------------- regulator
+
+  regulator-postgres-hyproof-api:
+    image: postgres:16.0-alpine
+    container_name: regulator-postgres-hyproof-api
+    ports:
+      - 5452:5432
+    volumes:
+      - regulator-hyproof-api-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-hyproof-api
+    networks: ['regulator']
+
+  regulator-postgres-identity:
+    image: postgres:16.0-alpine
+    container_name: regulator-postgres-identity
+    ports:
+      - 5453:5432
+    volumes:
+      - regulator-identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-identity
+    networks: ['regulator']
+
+  regulator-identity:
+    image: digicatapult/dscp-identity-service:latest
+    container_name: regulator-identity
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 9020:9020
+    depends_on:
+      - regulator-node
+      - regulator-postgres-identity
+    environment:
+      - PORT=9020
+      - API_HOST=regulator-node
+      - API_PORT=9944
+      - DB_HOST=regulator-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=dscp-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+    networks: ['regulator']
+
+  regulator-node:
+    image: digicatapult/dscp-node:latest
+    container_name: regulator-node
+    command: --base-path /data/
+      --charlie
+      --unsafe-ws-external
+      --unsafe-rpc-external
+      --rpc-cors all
+      --node-key 0000000000000000000000000000000000000000000000000000000000000003
+      --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+    ports:
+      - 32333:30333
+      - 10144:9944
+      - 10133:9933
+    restart: on-failure
+    networks: ['regulator', 'chain']
+
+  regulator-hyproof-api:
+    container_name: regulator-hyproof-api
+    build:
+      context: './'
+      dockerfile: 'Dockerfile'
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest --knexfile build/lib/db/knexfile &&
+      npm start"
+    environment:
+      - PORT=8020
+      - LOG_LEVEL=debug
+      - NODE_HOST=regulator-node
+      - NODE_PORT=9944
+      - DB_HOST=regulator-postgres-hyproof-api
+      - DB_PORT=5432
+      - DB_NAME=dscp-hyproof-api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - IDENTITY_SERVICE_HOST=regulator-identity
+      - IDENTITY_SERVICE_PORT=9020
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+      - USER_URI=//Charlie
+    ports:
+      - 8020:8020
+    depends_on:
+      - regulator-node
+      - regulator-identity
+      - regulator-postgres-hyproof-api
+      - ipfs
+    restart: on-failure
+    networks: ['regulator', 'ipfs']
+
+  # ------------------------------------------------------------------------ ipfs
+  ipfs:
+    image: ipfs/go-ipfs:v0.23.0
+    container_name: ipfs
+    environment:
+      - |
+        IPFS_SWARM_KEY=/key/swarm/psk/1.0.0/
+        /base16/
+        0000000000000000000000000000000000000000000000000000000000000000
+    ports:
+      - 4001:4001
+      - 8080:8080
+      - 5001:5001
+    networks: ['ipfs']
+    volumes:
+      - ipfs:/data/ipfs
+
+volumes:
+  energy-owner-hyproof-api-storage:
+  energy-owner-identity-storage:
+  hydrogen-owner-hyproof-api-storage:
+  hydrogen-owner-identity-storage:
+  regulator-hyproof-api-storage:
+  regulator-identity-storage:
+  ipfs:

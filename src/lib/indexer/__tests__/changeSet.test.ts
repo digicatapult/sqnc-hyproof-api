@@ -9,6 +9,8 @@ const mkAttachment: (i: number) => AttachmentRecord = (i) => ({
   type: 'insert',
   id: `${i}`,
   ipfs_hash: `${i}-hash`,
+  filename: null,
+  size: null,
 })
 
 describe('changeSet', function () {

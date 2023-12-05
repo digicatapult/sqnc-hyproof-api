@@ -32,40 +32,32 @@ export default class EventHandler {
       throw new Error(`Invalid process name ${event.process.id}`)
     }
 
-    // lookup transaction from call hash in db
-    const transaction = await this.db.get('transaction', { hash: event.callHash })
-
-    // lookup inputs from db and merge with changeset
+    const [transaction] = await this.db.get('transaction', { hash: event.callHash })
     const inputs = await Promise.all(
       event.inputs.map(async (inputId) => {
         const localIdFromChangeset = findLocalIdInChangeSet(currentChangeSet, inputId)
         if (localIdFromChangeset) {
-          return { id: inputId, localId: localIdFromChangeset }
+          return { id: inputId, local_id: localIdFromChangeset }
         }
 
-        const localIdFromDb = await this.db.findLocalIdForToken(inputId)
+        const [localIdFromDb] = await this.db.get('certificate', { latest_token_id: inputId })
         if (localIdFromDb) {
-          return { id: inputId, localId: localIdFromDb }
+          return { id: inputId, local_id: localIdFromDb.id }
         }
 
         throw new Error(`Unknown token with id ${inputId}`)
       })
     )
 
-    // get output tokens from node
-    const outputs = await Promise.all(event.outputs.map(async (id: number) => this.node.getToken(id, event.blockHash)))
-
-    const eventChangeSet = this.eventProcessors[event.process.id](
-      event.process.version,
+    const eventChangeSet = this.eventProcessors[event.process.id]({
+      version: event.process.version,
       transaction,
-      event.sender,
+      sender: event.sender,
       inputs,
-      outputs
-    )
+      outputs: await Promise.all(event.outputs.map(async (id: number) => this.node.getToken(id, event.blockHash))),
+    })
 
     // merge currentChangeSet with eventChangeSet
-    const changeSet = mergeChangeSets(currentChangeSet, eventChangeSet)
-
-    return changeSet
+    return mergeChangeSets(currentChangeSet, eventChangeSet)
   }
 }

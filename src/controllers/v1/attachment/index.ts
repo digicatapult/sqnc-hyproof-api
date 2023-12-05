@@ -21,10 +21,10 @@ import { Readable } from 'node:stream'
 import { logger } from '../../../lib/logger'
 import Database from '../../../lib/db'
 import type * as Attachment from '../../../models'
-import { BadRequest, NotFound } from '../../../lib/error-handler'
+import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler'
 import type { UUID, DATE } from '../../../models/strings'
 import Ipfs from '../../../lib/ipfs'
-import env from '../../../env'
+import { injectable } from 'tsyringe'
 
 const parseAccept = (acceptHeader: string) =>
   acceptHeader
@@ -56,19 +56,17 @@ const parseAccept = (acceptHeader: string) =>
     })
     .map(({ mimeType }) => mimeType)
 
+@injectable()
 @Route('v1/attachment')
 @Tags('attachment')
 @Security('BearerAuth')
 export class attachment extends Controller {
   log: Logger
-  db: Database = new Database()
-  ipfs: Ipfs = new Ipfs({
-    host: env.IPFS_HOST,
-    port: env.IPFS_PORT,
-    logger,
-  })
 
-  constructor() {
+  constructor(
+    private db: Database,
+    private ipfs: Ipfs
+  ) {
     super()
     this.log = logger.child({ controller: '/attachment' })
   }
@@ -86,15 +84,10 @@ export class attachment extends Controller {
 
   @Get('/')
   @SuccessResponse(200, 'returns all attachment')
-  public async getAll(@Query() createdAt?: DATE): Promise<Attachment.Response> {
+  public async getAll(@Query() createdAt?: DATE): Promise<Attachment.ListAttachmentsResponse> {
     this.log.debug('retrieving all attachments')
-    const where: Record<string, number | string | DATE> = {}
-    if (createdAt) where.created_at = createdAt
 
-    return {
-      message: 'ok',
-      attachments: await this.db.get('attachment', where),
-    }
+    return await this.db.get('attachment', createdAt ? [['created_at', '>=', new Date(createdAt)]] : undefined)
   }
 
   @Post('/')
@@ -104,7 +97,7 @@ export class attachment extends Controller {
   public async create(
     @Request() req: express.Request,
     @UploadedFile() file?: Express.Multer.File
-  ): Promise<Attachment.Response | string> {
+  ): Promise<Attachment.GetAttachmentResponse> {
     this.log.debug(`creating an attachment filename: ${file?.originalname || 'json'}`)
 
     if (!req.body && !file) throw new BadRequest('nothing to upload')
@@ -113,14 +106,13 @@ export class attachment extends Controller {
     const fileBlob = new Blob([Buffer.from(file?.buffer || JSON.stringify(req.body))])
     const ipfsHash = await this.ipfs.addFile({ blob: fileBlob, filename })
 
-    return {
-      message: 'ok',
-      attachments: await this.db.insert('attachment', {
-        filename,
-        ipfs_hash: ipfsHash,
-        size: fileBlob.size,
-      }),
-    }
+    const [attachment] = await this.db.insert('attachment', {
+      filename,
+      ipfs_hash: ipfsHash,
+      size: fileBlob.size,
+    })
+    if (!attachment) throw new InternalServerError()
+    return attachment
   }
 
   @Get('/{id}')
@@ -128,7 +120,7 @@ export class attachment extends Controller {
   @Produces('application/json')
   @Produces('application/octet-stream')
   @SuccessResponse(200)
-  public async getById(@Request() req: express.Request, @Path() id: UUID): Promise<Attachment.Response> {
+  public async getById(@Request() req: express.Request, @Path() id: UUID): Promise<unknown> {
     this.log.debug(`attempting to retrieve ${id} attachment`)
     const [attachment] = await this.db.get('attachment', { id })
     if (!attachment) throw new NotFound('attachment')

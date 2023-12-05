@@ -6,6 +6,7 @@ import ChainNode from '../chainNode'
 import DefaultBlockHandler from './handleBlock'
 import { ChangeSet } from './changeSet'
 import { HEX } from '../../models/strings'
+import { restore0x, trim0x } from '../utils/shared'
 
 export type BlockHandler = (blockHash: HEX) => Promise<ChangeSet>
 
@@ -21,7 +22,7 @@ export default class Indexer {
   private logger: Logger
   private db: Database
   private node: ChainNode
-  private gen: AsyncGenerator<string | null, void, string>
+  private gen: AsyncGenerator<HEX | null, void, string>
   private handleBlock: BlockHandler
   private unprocessedBlocks: HEX[]
   private retryDelay: number
@@ -62,11 +63,11 @@ export default class Indexer {
     this.logger.info('Block Indexer Closed')
   }
 
-  public async processAllBlocks(latestFinalisedHash: string) {
+  public async processAllBlocks(latestFinalisedHash: string): Promise<HEX | null> {
     let done = false
-    let lastBlockProcessed: string | null = null
+    let lastBlockProcessed: HEX | null = null
     do {
-      const result = await this.gen.next(latestFinalisedHash)
+      const result = await this.gen.next(restore0x(latestFinalisedHash))
       if (result.value !== null && result.value) {
         lastBlockProcessed = result.value
       }
@@ -76,8 +77,8 @@ export default class Indexer {
     return lastBlockProcessed
   }
 
-  public async processNextBlock(latestFinalisedHash: string): Promise<string | null> {
-    const result = await this.gen.next(latestFinalisedHash)
+  public async processNextBlock(latestFinalisedHash: string): Promise<HEX | null> {
+    const result = await this.gen.next(restore0x(latestFinalisedHash))
     return result.value || null
   }
 
@@ -86,13 +87,13 @@ export default class Indexer {
   // yields the hash of the processed block
   // main benefit of using a generator is it funnels all triggers from any source into a single
   // serialised async flow
-  private async *nextBlockProcessor(): AsyncGenerator<string | null, void, HEX> {
-    const lastProcessedBlock = await this.db.getLastProcessedBlock()
+  private async *nextBlockProcessor(): AsyncGenerator<HEX | null, void, HEX> {
+    const lastProcessedBlock = await this.getLastProcessedBlock()
     this.unprocessedBlocks = [lastProcessedBlock?.hash].filter((x): x is HEX => !!x)
 
     const loopFn = async (lastKnownFinalised: HEX): Promise<void> => {
       try {
-        const lastProcessedBlock = await this.db.getLastProcessedBlock()
+        const lastProcessedBlock = await this.getLastProcessedBlock()
         this.logger.debug('Last processed block: %s', lastProcessedBlock?.hash)
 
         await this.updateUnprocessedBlocks(lastProcessedBlock?.hash || null, lastKnownFinalised)
@@ -115,6 +116,18 @@ export default class Indexer {
     while (true) {
       const lastKnownFinalised = yield this.unprocessedBlocks.shift() || null
       await loopFn(lastKnownFinalised)
+    }
+  }
+
+  private async getLastProcessedBlock() {
+    const [lastProcessedBlock] = await this.db.get('processed_blocks', {}, [['height', 'desc']], 1)
+    if (!lastProcessedBlock) {
+      return undefined
+    }
+    return {
+      ...lastProcessedBlock,
+      hash: restore0x(lastProcessedBlock.hash),
+      parent: restore0x(lastProcessedBlock.parent),
     }
   }
 
@@ -179,13 +192,17 @@ export default class Indexer {
     const header = await this.node.getHeader(blockHash)
     await this.db.withTransaction(async (db) => {
       if (header.height === 1) {
-        await db.insertProcessedBlock({
-          hash: header.parent,
+        await db.insert('processed_blocks', {
+          hash: trim0x(header.parent),
           height: 0,
-          parent: header.parent,
+          parent: trim0x(header.parent),
         })
       }
-      await db.insertProcessedBlock(header)
+      await db.insert('processed_blocks', {
+        hash: trim0x(header.hash),
+        height: header.height,
+        parent: trim0x(header.parent),
+      })
 
       if (changeSet.attachments) {
         for (const [, example] of changeSet.attachments) {
@@ -198,17 +215,20 @@ export default class Indexer {
         }
       }
 
-      // TODO we can do no if and just pass entity as arg?
+      // INFO we can do no if and just pass entity as arg?
       if (changeSet.certificates) {
-        for (const [, certificates] of changeSet.certificates) {
-          const { type, id, ...record } = certificates
-          switch (type) {
-            case 'insert':
+        for (const [, certificate] of changeSet.certificates) {
+          switch (certificate.type) {
+            case 'insert': {
+              const { type, id, ...record } = certificate
               await db.insert('certificate', record)
               break
-            case 'update':
+            }
+            case 'update': {
+              const { type, id, ...record } = certificate
               await db.update('certificate', { id: id }, record)
               break
+            }
           }
         }
       }

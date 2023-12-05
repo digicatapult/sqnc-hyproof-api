@@ -34,7 +34,7 @@ describe('Indexer', function () {
 
       indexer = new Indexer({ db, node, logger, handleBlock })
       const result = await indexer.start()
-      expect(result).to.equal('1-hash')
+      expect(result).to.equal('0x1-hash')
     })
 
     it('should handle new blocks immediately', async function () {
@@ -71,9 +71,9 @@ describe('Indexer', function () {
       await indexer.start()
       const result = await indexer.processNextBlock('2-hash')
 
-      expect(result).to.equal('2-hash')
+      expect(result).to.equal('0x2-hash')
       expect(handleBlock.calledOnce).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
     })
 
     it("should process next block and return it's hash if there's more than one block to process", async function () {
@@ -85,9 +85,9 @@ describe('Indexer', function () {
       await indexer.start()
       const result = await indexer.processNextBlock('3-hash')
 
-      expect(result).to.equal('2-hash')
+      expect(result).to.equal('0x2-hash')
       expect(handleBlock.calledOnce).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
     })
 
     it("should process successive blocks on each call if there's two block to process", async function () {
@@ -100,10 +100,10 @@ describe('Indexer', function () {
       await indexer.processNextBlock('3-hash')
       const result = await indexer.processNextBlock('3-hash')
 
-      expect(result).to.equal('3-hash')
+      expect(result).to.equal('0x3-hash')
       expect(handleBlock.calledTwice).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
-      expect(handleBlock.secondCall.args[0]).to.equal('3-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
+      expect(handleBlock.secondCall.args[0]).to.equal('0x3-hash')
     })
 
     it("should do nothing if we're up to date after processing blocks", async function () {
@@ -118,14 +118,14 @@ describe('Indexer', function () {
 
       expect(result).to.equal(null)
       expect(handleBlock.calledOnce).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
     })
 
     it('should skip over blocks if another instance processes them', async function () {
       const db = withLastProcessedBlocksByCall([
-        { hash: '1-hash', parent: '0-hash', height: 1 },
-        { hash: '1-hash', parent: '0-hash', height: 1 },
-        { hash: '4-hash', parent: '1-hash', height: 2 },
+        [{ hash: '1-hash', parent: '0-hash', height: 1 }],
+        [{ hash: '1-hash', parent: '0-hash', height: 1 }],
+        [{ hash: '4-hash', parent: '1-hash', height: 2 }],
       ])
       const node = withHappyChainNode()
       const handleBlock = sinon.stub().resolves({})
@@ -133,12 +133,12 @@ describe('Indexer', function () {
       indexer = new Indexer({ db, node, logger, handleBlock })
       await indexer.start()
       await indexer.processNextBlock('5-hash')
-      const result = await indexer.processNextBlock('5-hash')
+      const result = await indexer.processNextBlock('0x5-hash')
 
-      expect(result).to.equal('5-hash')
+      expect(result).to.equal('0x5-hash')
       expect(handleBlock.calledTwice).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
-      expect(handleBlock.secondCall.args[0]).to.equal('5-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
+      expect(handleBlock.secondCall.args[0]).to.equal('0x5-hash')
     })
 
     it('should continue to process blocks if last finalised block goes backwards', async function () {
@@ -151,10 +151,10 @@ describe('Indexer', function () {
       await indexer.processNextBlock('3-hash')
       const result = await indexer.processNextBlock('2-hash')
 
-      expect(result).to.equal('3-hash')
+      expect(result).to.equal('0x3-hash')
       expect(handleBlock.calledTwice).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
-      expect(handleBlock.secondCall.args[0]).to.equal('3-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
+      expect(handleBlock.secondCall.args[0]).to.equal('0x3-hash')
     })
 
     it('should upsert certificates and certificate entries from changeset', async function () {
@@ -179,9 +179,13 @@ describe('Indexer', function () {
       expect((db.update as sinon.SinonStub).firstCall.args).to.deep.equal(['certificate', { id: '42' }, {}])
       expect((db.update as sinon.SinonStub).secondCall.args).to.deep.equal(['certificate', { id: '43' }, {}])
 
-      expect((db.insert as sinon.SinonStub).calledTwice).to.equal(true)
-      expect((db.insert as sinon.SinonStub).firstCall.args).to.deep.equal(['attachment', { id: '46' }])
-      expect((db.insert as sinon.SinonStub).secondCall.args).to.deep.equal(['attachment', { id: '47' }])
+      expect((db.insert as sinon.SinonStub).calledThrice).to.equal(true)
+      expect((db.insert as sinon.SinonStub).firstCall.args).to.deep.equal([
+        'processed_blocks',
+        { hash: '2-hash', height: 2, parent: '1-hash' },
+      ])
+      expect((db.insert as sinon.SinonStub).secondCall.args).to.deep.equal(['attachment', { id: '46' }])
+      expect((db.insert as sinon.SinonStub).thirdCall.args).to.deep.equal(['attachment', { id: '47' }])
     })
 
     it('should insert certificates and certificate entries from changeset', async function () {
@@ -202,11 +206,15 @@ describe('Indexer', function () {
       await indexer.start()
       await indexer.processNextBlock('2-hash')
 
-      expect((db.insert as sinon.SinonStub).getCalls().length).to.equal(4)
-      expect((db.insert as sinon.SinonStub).getCall(0).args).to.deep.equal(['attachment', { id: '46' }])
-      expect((db.insert as sinon.SinonStub).getCall(1).args).to.deep.equal(['attachment', { id: '47' }])
-      expect((db.insert as sinon.SinonStub).getCall(2).args).to.deep.equal(['certificate', {}])
+      expect((db.insert as sinon.SinonStub).getCalls().length).to.equal(5)
+      expect((db.insert as sinon.SinonStub).getCall(0).args).to.deep.equal([
+        'processed_blocks',
+        { hash: '2-hash', height: 2, parent: '1-hash' },
+      ])
+      expect((db.insert as sinon.SinonStub).getCall(1).args).to.deep.equal(['attachment', { id: '46' }])
+      expect((db.insert as sinon.SinonStub).getCall(2).args).to.deep.equal(['attachment', { id: '47' }])
       expect((db.insert as sinon.SinonStub).getCall(3).args).to.deep.equal(['certificate', {}])
+      expect((db.insert as sinon.SinonStub).getCall(4).args).to.deep.equal(['certificate', {}])
     })
 
     describe('exception cases', function () {
@@ -231,9 +239,9 @@ describe('Indexer', function () {
 
         const result = await p
 
-        expect(result).to.equal('2-hash')
+        expect(result).to.equal('0x2-hash')
         expect(handleBlock.calledOnce).to.equal(true)
-        expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
+        expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
       })
 
       it('should retry if handler goes boom', async function () {
@@ -248,9 +256,9 @@ describe('Indexer', function () {
 
         const result = await p
 
-        expect(result).to.equal('2-hash')
+        expect(result).to.equal('0x2-hash')
         expect(handleBlock.calledTwice).to.equal(true)
-        expect(handleBlock.secondCall.args[0]).to.equal('2-hash')
+        expect(handleBlock.secondCall.args[0]).to.equal('0x2-hash')
       })
     })
   })
@@ -265,10 +273,10 @@ describe('Indexer', function () {
       await indexer.start()
       const result = await indexer.processAllBlocks('3-hash')
 
-      expect(result).to.equal('3-hash')
+      expect(result).to.equal('0x3-hash')
       expect(handleBlock.calledTwice).to.equal(true)
-      expect(handleBlock.firstCall.args[0]).to.equal('2-hash')
-      expect(handleBlock.secondCall.args[0]).to.equal('3-hash')
+      expect(handleBlock.firstCall.args[0]).to.equal('0x2-hash')
+      expect(handleBlock.secondCall.args[0]).to.equal('0x3-hash')
     })
 
     it('should return null if no blocks to process', async function () {
@@ -278,7 +286,7 @@ describe('Indexer', function () {
 
       indexer = new Indexer({ db, node, logger, handleBlock })
       await indexer.start()
-      const result = await indexer.processAllBlocks('1-hash')
+      const result = await indexer.processAllBlocks('0x1-hash')
 
       expect(result).to.equal(null)
       expect(handleBlock.called).to.equal(false)

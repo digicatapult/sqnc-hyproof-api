@@ -9,29 +9,33 @@ interface Change {
 export type CertificateRecord =
   | {
       type: 'insert'
-      id: string
-      owner: string
-      state: string
-      co2e: string
-      capacity: string
+      id: UUID
+      hydrogen_owner: string
+      energy_owner: string
+      hydrogen_quantity_mwh: number
+      state: 'pending' | 'initiated' | 'issued' | 'revoked'
       latest_token_id: number
       original_token_id: number
     }
   | {
       type: 'update'
-      id: string
-      state: string
+      id: UUID
+      state: 'pending' | 'initiated' | 'issued' | 'revoked'
+      embodied_co2?: number
       original_token_id?: number
       latest_token_id: number
     }
+  | never
 
-export type AttachmentRecord = {
-  type: 'insert'
-  id: string
-  filename?: string
-  ipfs_hash: string
-  size?: number
-}
+export type AttachmentRecord =
+  | {
+      type: 'insert'
+      id: string
+      filename: string | null
+      ipfs_hash: string
+      size: number | null
+    }
+  | never
 
 export type ChangeSet = {
   attachments?: Map<string, AttachmentRecord>

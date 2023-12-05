@@ -1,5 +1,5 @@
-import Database from '../../src/lib/db'
-import { TransactionState, TransactionResponse } from '../../src/models/transaction'
+import Database, { TransactionRow } from '../../src/lib/db'
+import { TransactionState } from '../../src/models/transaction'
 import { UUID } from '../../src/models/strings'
 
 export const pollTransactionState = async (
@@ -8,17 +8,17 @@ export const pollTransactionState = async (
   targetState: TransactionState,
   delay = 1000,
   maxRetry = 30
-): Promise<TransactionResponse> => {
+): Promise<TransactionRow> => {
   let retry = 0
 
-  const poll = async (): Promise<TransactionResponse> => {
+  const poll = async (): Promise<TransactionRow> => {
     if (retry >= maxRetry) {
       throw new Error(
         `Maximum number of retries exceeded while waiting for transaction ${transactionId} to reach state ${targetState}`
       )
     }
 
-    const [transaction] = await db.get('transaction', { id: transactionId })
+    const [transaction]: TransactionRow[] = await db.get('transaction', { id: transactionId })
     if (transaction.state === targetState) {
       return transaction
     }

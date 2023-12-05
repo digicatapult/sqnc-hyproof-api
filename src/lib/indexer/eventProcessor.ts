@@ -4,7 +4,7 @@ import { UUID } from '../../models/strings'
 import { TransactionRow } from '../db'
 import { ChangeSet, CertificateRecord } from './changeSet'
 
-const processNames = ['process_initiate_cert'] as const
+const processNames = ['initiate_cert'] as const
 type PROCESSES_TUPLE = typeof processNames
 type PROCESSES = PROCESSES_TUPLE[number]
 
@@ -13,13 +13,13 @@ const processNameSet: Set<string> = new Set(processNames)
 export const ValidateProcessName = (name: string): name is PROCESSES => processNameSet.has(name)
 
 export type EventProcessors = {
-  [key in PROCESSES]: (
-    version: number,
-    transaction: TransactionRow | null,
-    sender: string,
-    inputs: { id: number; localId: UUID }[],
+  [key in PROCESSES]: (args: {
+    version: number
+    transaction?: TransactionRow
+    sender: string
+    inputs: { id: number; local_id: UUID }[]
     outputs: { id: number; roles: Map<string, string>; metadata: Map<string, string> }[]
-  ) => ChangeSet
+  }) => ChangeSet
 }
 
 const getOrError = <T>(map: Map<string, T>, key: string): T => {
@@ -30,7 +30,15 @@ const getOrError = <T>(map: Map<string, T>, key: string): T => {
   return val
 }
 
-/* TODO uncomment if we decided to use attachments
+const parseIntegerOrThrow = (value: string): number => {
+  const result = parseInt(value, 10)
+  if (!Number.isSafeInteger(result)) {
+    throw new Error('Expected an integer for field')
+  }
+  return result
+}
+
+/* INFO uncomment if we decided to use attachments
 const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRecord => ({
   type: 'insert',
   id: UUIDv4(),
@@ -39,40 +47,37 @@ const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRec
 */
 
 const DefaultEventProcessors: EventProcessors = {
-  process_initiate_cert: (version, transaction, _sender, _inputs, outputs) => {
-    if (version !== 1) throw new Error(`Incompatible version ${version} for process_initiate_cert process`)
-
-    const newCertificateId = outputs[0].id
-    const newCertificate = outputs[0]
+  initiate_cert: ({ version, transaction, outputs }) => {
+    if (version !== 1) throw new Error(`Incompatible version ${version} for initiate_cert process`)
+    const { id: latest_token_id, ...cert } = outputs[0]
 
     if (transaction) {
-      const id = transaction.localId
+      const id = transaction.local_id
       return {
         certificates: new Map([
           [
             id,
             {
               type: 'update',
+              state: 'initiated',
               id,
-              state: 'created',
-              latest_token_id: newCertificateId,
-              original_token_id: newCertificateId,
+              latest_token_id,
+              original_token_id: latest_token_id,
             },
           ],
         ]),
       }
     }
 
-    // const attachment: AttachmentRecord = attachmentPayload(newCertificate.metadata, 'parameters')
     const certificate: CertificateRecord = {
       type: 'insert',
       id: UUIDv4(),
-      owner: getOrError(newCertificate.roles, 'owner'),
-      state: 'initialized',
-      co2e: getOrError(newCertificate.metadata, 'co2e'),
-      capacity: getOrError(newCertificate.metadata, 'capacity'),
-      latest_token_id: newCertificate.id,
-      original_token_id: newCertificate.id,
+      state: 'initiated',
+      hydrogen_owner: getOrError(cert.roles, 'hydrogen_owner'),
+      energy_owner: getOrError(cert.roles, 'energy_owner'),
+      hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(cert.metadata, 'hydrogen_quantity_mwh')),
+      latest_token_id,
+      original_token_id: latest_token_id,
     }
 
     return {

@@ -37,12 +37,14 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(noInputsOutputs, {})
     expect(result).to.deep.equal({})
 
-    const stub = eventProcessors['process_initiate_cert'] as SinonStub
+    const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
-    expect(stub.firstCall.args).to.deep.equal([1, tx, 'alice', [], []])
+    expect(stub.firstCall.args).to.deep.equal([
+      { version: 1, transaction: tx, sender: 'alice', inputs: [], outputs: [] },
+    ])
   })
 
-  it('should map inputs to localId using the db', async function () {
+  it('should map inputs to local_id using the db', async function () {
     const db = withTransactionMatchingTokensInDb(
       null,
       new Map([
@@ -59,22 +61,24 @@ describe('EventHandler', function () {
     const result = await eventHandler.handleEvent(complexEvent, {})
     expect(result).to.deep.equal({})
 
-    const stub = eventProcessors['process_initiate_cert'] as SinonStub
+    const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
-      1,
-      null,
-      'alice',
-      [
-        { id: 1, localId: '1' },
-        { id: 2, localId: '2' },
-        { id: 3, localId: '3' },
-      ],
-      [
-        { id: 4, roles: new Map(), metadata: new Map() },
-        { id: 5, roles: new Map(), metadata: new Map() },
-        { id: 6, roles: new Map(), metadata: new Map() },
-      ],
+      {
+        version: 1,
+        sender: 'alice',
+        inputs: [
+          { id: 1, local_id: '1' },
+          { id: 2, local_id: '2' },
+          { id: 3, local_id: '3' },
+        ],
+        transaction: null,
+        outputs: [
+          { id: 4, roles: new Map(), metadata: new Map() },
+          { id: 5, roles: new Map(), metadata: new Map() },
+          { id: 6, roles: new Map(), metadata: new Map() },
+        ],
+      },
     ])
   })
 
@@ -94,37 +98,40 @@ describe('EventHandler', function () {
 
     const baseChangeSet: ChangeSet = {
       certificates: new Map([
-        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'created' }],
-        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'created' }],
-        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'created' }],
+        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'initiated' }],
+        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'initiated' }],
+        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'initiated' }],
       ]),
     }
 
     const result = await eventHandler.handleEvent(complexEvent, baseChangeSet)
     expect(result).to.deep.equal(baseChangeSet)
 
-    const stub = eventProcessors['process_initiate_cert'] as SinonStub
+    const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
+
     expect(stub.firstCall.args).to.deep.equal([
-      1,
-      null,
-      'alice',
-      [
-        { id: 1, localId: '7' },
-        { id: 2, localId: '8' },
-        { id: 3, localId: '9' },
-      ],
-      [
-        { id: 4, roles: new Map(), metadata: new Map() },
-        { id: 5, roles: new Map(), metadata: new Map() },
-        { id: 6, roles: new Map(), metadata: new Map() },
-      ],
+      {
+        version: 1,
+        transaction: null,
+        sender: 'alice',
+        inputs: [
+          { id: 1, local_id: '7' },
+          { id: 2, local_id: '8' },
+          { id: 3, local_id: '9' },
+        ],
+        outputs: [
+          { id: 4, roles: new Map(), metadata: new Map() },
+          { id: 5, roles: new Map(), metadata: new Map() },
+          { id: 6, roles: new Map(), metadata: new Map() },
+        ],
+      },
     ])
   })
 
   it('should return a merged ChangeSet', async function () {
     const resultChangeSet: ChangeSet = {
-      attachments: new Map([['10', { type: 'insert', id: '10', ipfs_hash: '42' }]]),
+      attachments: new Map([['10', { type: 'insert', id: '10', ipfs_hash: '42', filename: null, size: null }]]),
     }
     const db = withTransactionMatchingTokensInDb(null, new Map())
     const logger = withMockLogger()
@@ -134,9 +141,9 @@ describe('EventHandler', function () {
 
     const baseChangeSet: ChangeSet = {
       certificates: new Map([
-        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'created' }],
-        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'created' }],
-        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'created' }],
+        ['7', { type: 'update', id: '7', latest_token_id: 1, state: 'initiated' }],
+        ['8', { type: 'update', id: '8', latest_token_id: 2, state: 'initiated' }],
+        ['9', { type: 'update', id: '9', latest_token_id: 3, state: 'initiated' }],
       ]),
     }
 

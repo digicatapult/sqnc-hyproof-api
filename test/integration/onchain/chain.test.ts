@@ -7,20 +7,13 @@ import { withIdentitySelfMock } from '../../helpers/mock'
 import { withAppAndIndexer } from '../../helpers/chainTest'
 import Database from '../../../src/lib/db'
 import ChainNode from '../../../src/lib/chainNode'
-import { logger } from '../../../src/lib/logger'
-import env from '../../../src/env'
 import { pollTransactionState } from '../../helpers/poll'
 
 describe('on-chain', function () {
   this.timeout(120000)
 
   const db = new Database()
-  const node = new ChainNode({
-    host: env.NODE_HOST,
-    port: env.NODE_PORT,
-    logger,
-    userUri: env.USER_URI,
-  })
+  const node = new ChainNode()
 
   const context: { app: Express; indexer: Indexer } = {} as { app: Express; indexer: Indexer }
   withAppAndIndexer(context)
@@ -34,16 +27,12 @@ describe('on-chain', function () {
     await db.delete('transaction', {})
   })
 
-  // TODO skipping because we have not process flows:
-  // Error: Node dispatch error: ProcessInvalid
   describe('chainNode', () => {
     it('should set transaction as failed if dispatch error', async () => {
-      // use invalid process to cause a dispatch error
       const invalidProcess = { id: 'invalid', version: 1 }
       const extrinsic = await node.prepareRunProcess({ process: invalidProcess, inputs: [], outputs: [] })
       const [transaction]: any = await db.insert('transaction', {
         api_type: 'certificate',
-        transaction_type: 'initialise',
         local_id: '0f5af074-7d4d-40b4-86a5-17a2391303cb',
         state: 'submitted',
         hash: extrinsic.hash.toHex().slice(2),
