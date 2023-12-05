@@ -46,6 +46,17 @@ export function withIdentitySelfMock() {
         address: notSelfAddress,
       })
       .persist()
+
+    mockIdentity
+      .intercept({
+        path: `/v1/members/${notSelfAlias}`,
+        method: 'GET',
+      })
+      .reply(200, {
+        alias: notSelfAlias,
+        address: notSelfAddress,
+      })
+      .persist()
   })
 
   afterEach(function () {
