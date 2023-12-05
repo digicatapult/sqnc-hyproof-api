@@ -53,12 +53,12 @@ services:
       npx knex migrate:latest &&
       node app/index.js"
     ports:
-      - 8001:8001
+      - 9000:9000
     depends_on:
       - energy-owner-node
       - energy-owner-postgres-identity
     environment:
-      - PORT=8001
+      - PORT=9000
       - API_HOST=energy-owner-node
       - API_PORT=9944
       - DB_HOST=energy-owner-postgres-identity
@@ -94,10 +94,11 @@ services:
     command: /bin/sh -c "
       sleep 10 &&
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
-      npx @digicatapult/dscp-process-management@latest create -h energy-owner-node -p 9944 -u //Alice \"$(cat processFlows.json)\" &&
+      npx @digicatapult/dscp-process-management@latest create -h energy-owner-node -p 9944 -u //Alice -f ./processFlows.json &&
       npm start"
     environment:
       - PORT=8000
+      - LOG_LEVEL=debug
       - NODE_HOST=energy-owner-node
       - NODE_PORT=9944
       - DB_HOST=energy-owner-postgres-hyproof-api
@@ -106,7 +107,7 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - IDENTITY_SERVICE_HOST=energy-owner-identity
-      - IDENTITY_SERVICE_PORT=8001
+      - IDENTITY_SERVICE_PORT=9000
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
       - USER_URI=//Alice
@@ -155,12 +156,12 @@ services:
       npx knex migrate:latest &&
       node app/index.js"
     ports:
-      - 8011:8011
+      - 9010:9010
     depends_on:
       - hydrogen-owner-node
       - hydrogen-owner-postgres-identity
     environment:
-      - PORT=8011
+      - PORT=9010
       - API_HOST=hydrogen-owner-node
       - API_PORT=9944
       - DB_HOST=hydrogen-owner-postgres-identity
@@ -200,6 +201,7 @@ services:
       npm start"
     environment:
       - PORT=8010
+      - LOG_LEVEL=debug
       - NODE_HOST=hydrogen-owner-node
       - NODE_PORT=9944
       - DB_HOST=hydrogen-owner-postgres-hyproof-api
@@ -208,7 +210,7 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - IDENTITY_SERVICE_HOST=hydrogen-owner-identity
-      - IDENTITY_SERVICE_PORT=8011
+      - IDENTITY_SERVICE_PORT=9010
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
       - USER_URI=//Bob
@@ -258,12 +260,12 @@ services:
       npx knex migrate:latest &&
       node app/index.js"
     ports:
-      - 8021:8021
+      - 9020:9020
     depends_on:
       - regulator-node
       - regulator-postgres-identity
     environment:
-      - PORT=8021
+      - PORT=9020
       - API_HOST=regulator-node
       - API_PORT=9944
       - DB_HOST=regulator-postgres-identity
@@ -303,6 +305,7 @@ services:
       npm start"
     environment:
       - PORT=8020
+      - LOG_LEVEL=debug
       - NODE_HOST=regulator-node
       - NODE_PORT=9944
       - DB_HOST=regulator-postgres-hyproof-api
@@ -311,7 +314,7 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - IDENTITY_SERVICE_HOST=regulator-identity
-      - IDENTITY_SERVICE_PORT=8021
+      - IDENTITY_SERVICE_PORT=9020
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
       - USER_URI=//Charlie
