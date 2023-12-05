@@ -12,6 +12,7 @@ import { hexToBs58 } from '../utils/controller-helpers'
 import { logger } from './logger'
 import env from '../env'
 import { singleton } from 'tsyringe'
+import { trim0x } from './utils/shared'
 
 const processRanTopic = blake2AsHex('utxoNFT.ProcessRan')
 
@@ -274,7 +275,9 @@ export default class ChainNode {
         return [key, value]
       })
     )
-    const roles = new Map(Object.entries(token.roles).map(([role, account]) => [role.toLowerCase(), account]))
+    const roles = new Map(
+      Object.entries(token.roles).map(([role, account]) => [Buffer.from(trim0x(role), 'hex').toString('utf8'), account])
+    )
 
     return {
       id: token.id,

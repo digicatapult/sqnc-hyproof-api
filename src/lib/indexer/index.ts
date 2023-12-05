@@ -6,6 +6,7 @@ import ChainNode from '../chainNode'
 import DefaultBlockHandler from './handleBlock'
 import { ChangeSet } from './changeSet'
 import { HEX } from '../../models/strings'
+import { restore0x, trim0x } from '../utils/shared'
 
 export type BlockHandler = (blockHash: HEX) => Promise<ChangeSet>
 
@@ -15,14 +16,6 @@ export interface IndexerCtorArgs {
   node: ChainNode
   handleBlock?: BlockHandler
   retryDelay?: number
-}
-
-function restore0x(input: string): HEX {
-  return input.startsWith('0x') ? (input as HEX) : `0x${input}`
-}
-
-function trim0x(input: HEX): string {
-  return input.startsWith('0x') ? input.slice(2) : input
 }
 
 export default class Indexer {
