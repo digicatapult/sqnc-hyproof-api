@@ -23,7 +23,11 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
   inputs: [],
   outputs: [
     {
-      roles: { hydrogen_owner: certificate.hydrogen_owner, energy_owner: certificate.energy_owner },
+      roles: {
+        regulator: certificate.regulator,
+        hydrogen_owner: certificate.hydrogen_owner,
+        energy_owner: certificate.energy_owner,
+      },
       metadata: {
         '@version': { type: 'LITERAL', value: '1' },
         '@type': { type: 'LITERAL', value: 'InitiatedCert' },
@@ -39,7 +43,11 @@ export const processIssueCert = (certificate: CertificateRow): Payload => ({
   inputs: [certificate.latest_token_id || Number.NaN],
   outputs: [
     {
-      roles: { hydrogen_owner: certificate.hydrogen_owner, energy_owner: certificate.energy_owner },
+      roles: {
+        regulator: certificate.regulator,
+        hydrogen_owner: certificate.hydrogen_owner,
+        energy_owner: certificate.energy_owner,
+      },
       metadata: {
         '@version': { type: 'LITERAL', value: '1' },
         '@type': { type: 'LITERAL', value: 'IssuedCert' },

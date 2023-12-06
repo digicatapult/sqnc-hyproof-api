@@ -5,6 +5,7 @@ export type GetCertificateResponse = {
   state: 'pending' | 'initiated' | 'issued' | 'revoked'
   hydrogen_owner: string
   energy_owner: string
+  regulator: string
   hydrogen_quantity_mwh: number
   embodied_co2?: number | null
   original_token_id?: number | null
@@ -42,6 +43,7 @@ export type ListTransactionResponse = GetTransactionResponse[]
 export type Payload = {
   hydrogen_quantity_mwh: number
   energy_owner: string
+  regulator: string
   production_start_time: Date
   production_end_time: Date
   energy_consumed_mwh: number

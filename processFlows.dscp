@@ -11,6 +11,7 @@
 token InitiatedCert {
   hydrogen_owner: Role,
   energy_owner: Role,
+  regulator: Role,
   hydrogen_quantity_mwh: Literal,
   commitment: Literal,
 }
@@ -18,7 +19,15 @@ token InitiatedCert {
 token IssuedCert {
   hydrogen_owner: Role,
   energy_owner: Role,
+  regulator: Role,
   embodied_co2: Literal,
+}
+
+token RevokedCert {
+  hydrogen_owner: Role,
+  energy_owner: Role,
+  regulator: Role,
+  reason: File,
 }
 
 /*
@@ -34,12 +43,26 @@ token IssuedCert {
 pub fn initiate_cert || => |output: InitiatedCert| where {
   output.hydrogen_owner == sender,
   output.energy_owner != sender,
+  output.regulator != sender,
 }
 
 pub fn issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
   output == input,
   input.hydrogen_owner == output.hydrogen_owner,
   input.energy_owner == output.energy_owner,
+  input.regulator == output.regulator,
+  input.energy_owner != output.regulator,
   output.hydrogen_owner != sender,
+  output.regulator != sender,
   output.energy_owner == sender,
+}
+
+pub fn revoke_cert |input: IssuedCert| => |output: RevokedCert| where {
+  output == input,
+  input.hydrogen_owner == output.hydrogen_owner,
+  input.energy_owner == output.energy_owner,
+  input.regulator == output.regulator,
+  output.energy_owner != sender,
+  output.hydrogen_owner != sender,
+  output.regulator == sender,
 }

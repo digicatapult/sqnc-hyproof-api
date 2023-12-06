@@ -9,7 +9,14 @@ import Indexer from '../../../src/lib/indexer'
 import { post } from '../../helpers/routeHelper'
 import { seed, cleanup } from '../../seeds/certificate'
 
-import { selfAddress, notSelfAddress, notSelfAlias, withIdentitySelfMock } from '../../helpers/mock'
+import {
+  selfAddress,
+  notSelfAddress,
+  notSelfAlias,
+  withIdentitySelfMock,
+  regulatorAlias,
+  regulatorAddress,
+} from '../../helpers/mock'
 import Database, { CertificateRow } from '../../../src/lib/db'
 import ChainNode from '../../../src/lib/chainNode'
 import { pollTransactionState } from '../../helpers/poll'
@@ -45,6 +52,7 @@ describe('on-chain', function () {
           body: { id: certId },
         } = await post(context.app, '/v1/certificate', {
           energy_owner: notSelfAlias,
+          regulator: regulatorAlias,
           hydrogen_quantity_mwh: 1,
           production_start_time: new Date('2023-12-01T00:00:00.000Z'),
           production_end_time: new Date('2023-12-02T00:00:00.000Z'),
@@ -68,6 +76,7 @@ describe('on-chain', function () {
           id: certId,
           energy_owner: notSelfAddress,
           hydrogen_owner: selfAddress,
+          regulator: regulatorAddress,
           hydrogen_quantity_mwh: 1,
           state: 'initiated',
           embodied_co2: null,

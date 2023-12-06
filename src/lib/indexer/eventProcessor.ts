@@ -75,6 +75,7 @@ const DefaultEventProcessors: EventProcessors = {
       state: 'initiated',
       hydrogen_owner: getOrError(cert.roles, 'hydrogen_owner'),
       energy_owner: getOrError(cert.roles, 'energy_owner'),
+      regulator: getOrError(cert.roles, 'regulator'),
       hydrogen_quantity_mwh: parseIntegerOrThrow(getOrError(cert.metadata, 'hydrogen_quantity_mwh')),
       latest_token_id,
       original_token_id: latest_token_id,

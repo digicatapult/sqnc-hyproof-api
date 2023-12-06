@@ -6,6 +6,8 @@ export const selfAlias = 'test-self'
 export const selfAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
 export const notSelfAlias = 'test-not-self'
 export const notSelfAddress = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty'
+export const regulatorAlias = 'test-regulator'
+export const regulatorAddress = '5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y'
 
 const env = container.resolve(Env)
 
@@ -58,6 +60,28 @@ export function withIdentitySelfMock() {
       .reply(200, {
         alias: notSelfAlias,
         address: notSelfAddress,
+      })
+      .persist()
+
+    mockIdentity
+      .intercept({
+        path: `/v1/members/${regulatorAddress}`,
+        method: 'GET',
+      })
+      .reply(200, {
+        alias: regulatorAlias,
+        address: regulatorAddress,
+      })
+      .persist()
+
+    mockIdentity
+      .intercept({
+        path: `/v1/members/${regulatorAlias}`,
+        method: 'GET',
+      })
+      .reply(200, {
+        alias: regulatorAlias,
+        address: regulatorAddress,
       })
       .persist()
   })

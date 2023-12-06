@@ -12,6 +12,7 @@ export type CertificateRecord =
       id: UUID
       hydrogen_owner: string
       energy_owner: string
+      regulator: string
       hydrogen_quantity_mwh: number
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
       latest_token_id: number

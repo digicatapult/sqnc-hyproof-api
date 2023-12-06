@@ -78,16 +78,18 @@ export class CertificateController extends Controller {
     {
       hydrogen_quantity_mwh,
       energy_owner,
+      regulator,
       production_start_time,
       production_end_time,
       energy_consumed_mwh,
     }: Certificate.Payload
   ): Promise<Certificate.GetCertificateResponse> {
-    this.log.trace({ identity: this.identity, energy_owner })
+    this.log.trace({ identity: this.identity, energy_owner, regulator })
 
     const identities = {
       hydrogen_owner: await this.identity.getMemberBySelf(),
       energy_owner: await this.identity.getMemberByAlias(energy_owner),
+      regulator: await this.identity.getMemberByAlias(regulator),
     }
 
     const { salt, digest } = await this.commitment.build({
@@ -101,6 +103,7 @@ export class CertificateController extends Controller {
       hydrogen_quantity_mwh,
       hydrogen_owner: identities.hydrogen_owner.address,
       energy_owner: identities.energy_owner.address,
+      regulator: identities.regulator.address,
       latest_token_id: null,
       original_token_id: null,
       production_start_time,
@@ -115,6 +118,7 @@ export class CertificateController extends Controller {
       ...certificate,
       hydrogen_owner: identities.hydrogen_owner.alias,
       energy_owner: identities.energy_owner.alias,
+      regulator: identities.regulator.alias,
       production_start_time: production_start_time,
       production_end_time: production_end_time,
       energy_consumed_mwh,

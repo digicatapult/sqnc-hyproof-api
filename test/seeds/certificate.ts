@@ -18,6 +18,7 @@ export const updateSeed = async () => {
   const [cert] = await db.insert('certificate', {
     hydrogen_owner: 'heidi',
     energy_owner: 'emma',
+    regulator: 'reginald',
     hydrogen_quantity_mwh: 1,
     latest_token_id: 1,
     original_token_id: 1,

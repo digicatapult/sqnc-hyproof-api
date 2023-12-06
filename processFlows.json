@@ -71,6 +71,17 @@
       },
       {
         "Restriction": {
+          "OutputHasRole": {
+            "index": 0,
+            "role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
           "FixedOutputMetadataValueType": {
             "index": 0,
             "metadata_key": "hydrogen_quantity_mwh",
@@ -109,6 +120,23 @@
           "SenderHasOutputRole": {
             "index": 0,
             "role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "SenderHasOutputRole": {
+            "index": 0,
+            "role_key": "regulator"
           }
         }
       },
@@ -224,6 +252,17 @@
       },
       {
         "Restriction": {
+          "InputHasRole": {
+            "index": 0,
+            "role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
           "FixedInputMetadataValueType": {
             "index": 0,
             "metadata_key": "hydrogen_quantity_mwh",
@@ -262,6 +301,17 @@
           "OutputHasRole": {
             "index": 0,
             "role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "OutputHasRole": {
+            "index": 0,
+            "role_key": "regulator"
           }
         }
       },
@@ -344,6 +394,38 @@
       },
       {
         "Restriction": {
+          "MatchInputOutputRole": {
+            "input_index": 0,
+            "input_role_key": "regulator",
+            "output_index": 0,
+            "output_role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "MatchInputOutputRole": {
+            "input_index": 0,
+            "input_role_key": "energy_owner",
+            "output_index": 0,
+            "output_role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
           "SenderHasOutputRole": {
             "index": 0,
             "role_key": "hydrogen_owner"
@@ -363,7 +445,313 @@
         "Restriction": {
           "SenderHasOutputRole": {
             "index": 0,
+            "role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "SenderHasOutputRole": {
+            "index": 0,
             "role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      }
+    ],
+    "version": 1
+  },
+  {
+    "name": "revoke_cert",
+    "program": [
+      {
+        "Restriction": {
+          "FixedNumberOfInputs": {
+            "num_inputs": 1
+          }
+        }
+      },
+      {
+        "Restriction": {
+          "FixedNumberOfOutputs": {
+            "num_outputs": 1
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedInputMetadataValue": {
+            "index": 0,
+            "metadata_key": "@type",
+            "metadata_value": {
+              "Literal": "IssuedCert"
+            }
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedInputMetadataValue": {
+            "index": 0,
+            "metadata_key": "@version",
+            "metadata_value": {
+              "Literal": "1"
+            }
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedOutputMetadataValue": {
+            "index": 0,
+            "metadata_key": "@type",
+            "metadata_value": {
+              "Literal": "RevokedCert"
+            }
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedOutputMetadataValue": {
+            "index": 0,
+            "metadata_key": "@version",
+            "metadata_value": {
+              "Literal": "1"
+            }
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "InputHasRole": {
+            "index": 0,
+            "role_key": "hydrogen_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "InputHasRole": {
+            "index": 0,
+            "role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "InputHasRole": {
+            "index": 0,
+            "role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedInputMetadataValueType": {
+            "index": 0,
+            "metadata_key": "embodied_co2",
+            "metadata_value_type": "Literal"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "OutputHasRole": {
+            "index": 0,
+            "role_key": "hydrogen_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "OutputHasRole": {
+            "index": 0,
+            "role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "OutputHasRole": {
+            "index": 0,
+            "role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedOutputMetadataValueType": {
+            "index": 0,
+            "metadata_key": "reason",
+            "metadata_value_type": "File"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "MatchInputOutputMetadataValue": {
+            "input_index": 0,
+            "input_metadata_key": "@original_id",
+            "output_index": 0,
+            "output_metadata_key": "@original_id"
+          }
+        }
+      },
+      {
+        "Restriction": {
+          "InputHasMetadata": {
+            "index": 0,
+            "metadata_key": "@original_id"
+          }
+        }
+      },
+      {
+        "Restriction": {
+          "MatchInputIdOutputMetadataValue": {
+            "input_index": 0,
+            "output_index": 0,
+            "output_metadata_key": "@original_id"
+          }
+        }
+      },
+      {
+        "Op": "InhibitionR"
+      },
+      {
+        "Op": "Xor"
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "MatchInputOutputRole": {
+            "input_index": 0,
+            "input_role_key": "hydrogen_owner",
+            "output_index": 0,
+            "output_role_key": "hydrogen_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "MatchInputOutputRole": {
+            "input_index": 0,
+            "input_role_key": "energy_owner",
+            "output_index": 0,
+            "output_role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "MatchInputOutputRole": {
+            "input_index": 0,
+            "input_role_key": "regulator",
+            "output_index": 0,
+            "output_role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "SenderHasOutputRole": {
+            "index": 0,
+            "role_key": "energy_owner"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "SenderHasOutputRole": {
+            "index": 0,
+            "role_key": "hydrogen_owner"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "SenderHasOutputRole": {
+            "index": 0,
+            "role_key": "regulator"
           }
         }
       },
