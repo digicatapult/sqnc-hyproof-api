@@ -43,6 +43,7 @@ describe('eventProcessor', function () {
             roles: new Map([
               ['hydrogen_owner', 'heidi-hydrogen-producer'],
               ['energy_owner', 'emma-energy-producer'],
+              ['regulator', 'raynold-regulator'],
             ]),
             metadata: new Map([
               ['hydrogen_quantity_mwh', '42'],
@@ -78,6 +79,7 @@ describe('eventProcessor', function () {
               roles: new Map([
                 ['hydrogen_owner', 'heidi-hydrogen-producer'],
                 ['energy_owner', 'emma-emma-producer'],
+                ['regulator', 'raynold-regulator'],
               ]),
               metadata: new Map([['hydrogen_quantity_mwh', 'not a number']]),
             },

@@ -61,6 +61,7 @@ export type TransactionRow = z.infer<typeof transactionRowZ>
 const insertCertificateRowZ = z.object({
   hydrogen_owner: z.string(),
   energy_owner: z.string(),
+  regulator: z.string(),
   hydrogen_quantity_mwh: z.number(),
   original_token_id: z.union([z.number(), z.null()]),
   latest_token_id: z.union([z.number(), z.null()]),
