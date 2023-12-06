@@ -17,7 +17,7 @@ import {
   regulatorAlias,
   regulatorAddress,
 } from '../../helpers/mock'
-import Database from '../../../src/lib/db'
+import Database, { CertificateRow } from '../../../src/lib/db'
 import ChainNode from '../../../src/lib/chainNode'
 import { pollTransactionState } from '../../helpers/poll'
 import { withAppAndIndexer, withInitialisedCertFromNotSelf } from '../../helpers/chainTest'

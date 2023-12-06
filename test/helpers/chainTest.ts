@@ -9,7 +9,7 @@ import Database, { CertificateRow } from '../../src/lib/db'
 import ChainNode from '../../src/lib/chainNode'
 import { logger } from '../../src/lib/logger'
 import { put } from './routeHelper'
-import { mockEnv, notSelfAddress, selfAddress } from './mock'
+import { mockEnv, notSelfAddress, regulatorAddress, selfAddress } from './mock'
 import { processInitiateCert } from '../../src/lib/payload'
 
 const db = new Database()
@@ -56,6 +56,7 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; ce
     processInitiateCert({
       hydrogen_owner: notSelfAddress,
       energy_owner: selfAddress,
+      regulator: regulatorAddress,
       hydrogen_quantity_mwh: 1,
       commitment: 'ffb693f99a5aca369539a90b6978d0eb',
     } as CertificateRow)
