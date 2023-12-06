@@ -1,10 +1,9 @@
 import { NotFound, HttpResponse } from '../error-handler'
-import env from '../../env'
 import { Status, serviceState } from '../service-watcher/statusPoll'
-import { singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-const URL_PREFIX = `http://${env.IDENTITY_SERVICE_HOST}:${env.IDENTITY_SERVICE_PORT}`
+import { Env } from '../../env'
 
 const identityResponseValidator = z.object({
   address: z.string(),
@@ -13,8 +12,13 @@ const identityResponseValidator = z.object({
 type IdentityResponse = z.infer<typeof identityResponseValidator>
 
 @singleton()
+@injectable()
 export default class Identity {
-  constructor() {}
+  private URL_PREFIX: string
+
+  constructor(private env: Env) {
+    this.URL_PREFIX = `http://${this.env.get('IDENTITY_SERVICE_HOST')}:${this.env.get('IDENTITY_SERVICE_PORT')}`
+  }
 
   getStatus = async (): Promise<Status> => {
     try {
@@ -46,7 +50,7 @@ export default class Identity {
     }
   }
   getMemberByAlias = async (alias: string): Promise<IdentityResponse> => {
-    const res = await fetch(`${URL_PREFIX}/v1/members/${encodeURIComponent(alias)}`)
+    const res = await fetch(`${this.URL_PREFIX}/v1/members/${encodeURIComponent(alias)}`)
 
     if (res.ok) {
       return identityResponseValidator.parse(await res.json())
@@ -60,7 +64,7 @@ export default class Identity {
   }
 
   getHealth = async () => {
-    const res = await fetch(`${URL_PREFIX}/health`)
+    const res = await fetch(`${this.URL_PREFIX}/health`)
 
     if (res.ok) {
       return await res.json()
@@ -70,7 +74,7 @@ export default class Identity {
   }
 
   getMemberBySelf = async (): Promise<IdentityResponse> => {
-    const res = await fetch(`${URL_PREFIX}/v1/self`)
+    const res = await fetch(`${this.URL_PREFIX}/v1/self`)
 
     if (res.ok) {
       return identityResponseValidator.parse(await res.json())

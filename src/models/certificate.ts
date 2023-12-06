@@ -22,6 +22,7 @@ export type ListCertificatesResponse = GetCertificateResponse[]
 export type GetTransactionResponse = {
   id: UUID
   api_type: 'certificate' | 'example_a' | 'example_b'
+  transaction_type: 'issue_cert' | 'initiate_cert'
   state: 'submitted' | 'inBlock' | 'finalised' | 'failed'
   local_id: string
   hash: string
@@ -53,4 +54,8 @@ export type UpdatePayload = {
   production_end_time: Date
   energy_consumed_mwh: number
   commitment_salt: string
+}
+
+export type IssuancePayload = {
+  embodied_co2: number
 }

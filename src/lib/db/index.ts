@@ -41,6 +41,7 @@ export type AttachmentRow = z.infer<typeof attachmentRowZ>
 
 const insertTransactionRowZ = z.object({
   api_type: z.union([z.literal('certificate'), z.literal('example_a'), z.literal('example_b')]),
+  transaction_type: z.union([z.literal('initiate_cert'), z.literal('issue_cert')]),
   local_id: z.string(),
   hash: z.string(),
   state: z
@@ -120,29 +121,28 @@ const TestModelsValidation = {
     get: processedBlockRowZ,
   },
 }
-export type TestModels = {
+export type Models = {
   [key in TABLE]: {
     get: z.infer<(typeof TestModelsValidation)[key]['get']>
     insert: z.infer<(typeof TestModelsValidation)[key]['insert']>
   }
 }
-export type TestTable = keyof TestModels
 
 type WhereComparison<M extends TABLE> = {
-  [key in keyof TestModels[M]['get']]: [
+  [key in keyof Models[M]['get']]: [
     Extract<key, string>,
     '=' | '>' | '>=' | '<' | '<=' | '<>',
-    Extract<TestModels[M]['get'][key], Knex.Value>,
+    Extract<Models[M]['get'][key], Knex.Value>,
   ]
 }
 type WhereMatch<M extends TABLE> = {
-  [key in keyof TestModels[M]['get']]?: TestModels[M]['get'][key]
+  [key in keyof Models[M]['get']]?: Models[M]['get'][key]
 }
 
-export type Where<M extends TABLE> = WhereMatch<M> | (WhereMatch<M> | WhereComparison<M>[keyof TestModels[M]['get']])[]
+export type Where<M extends TABLE> = WhereMatch<M> | (WhereMatch<M> | WhereComparison<M>[keyof Models[M]['get']])[]
 
-export type Order<M extends TABLE> = [keyof TestModels[M]['get'], 'asc' | 'desc'][]
-export type Update<M extends TABLE> = Partial<TestModels[M]['get']>
+export type Order<M extends TABLE> = [keyof Models[M]['get'], 'asc' | 'desc'][]
+export type Update<M extends TABLE> = Partial<Models[M]['get']>
 
 const clientSingleton = knex(pgConfig)
 @singleton()
@@ -161,41 +161,42 @@ export default class Database {
   }
 
   // backlog item for if statement model === logic has been added and returns etc
-  insert = async <M extends TestTable>(
+  insert = async <M extends TABLE>(
     model: M,
-    record: TestModels[typeof model]['insert']
-  ): Promise<TestModels[typeof model]['get'][]> => {
+    record: Models[typeof model]['insert']
+  ): Promise<Models[typeof model]['get'][]> => {
     return z.array(TestModelsValidation[model].get).parse(await this.db[model]().insert(record).returning('*'))
   }
 
-  delete = async <M extends TestTable>(model: M, where: Where<M>): Promise<void> => {
+  delete = async <M extends TABLE>(model: M, where: Where<M>): Promise<void> => {
     return this.db[model]()
       .where(where || {})
       .delete()
   }
 
-  update = async <M extends TestTable>(
+  update = async <M extends TABLE>(
     model: M,
     where: Where<M>,
     updates: Update<M>
-  ): Promise<TestModels[typeof model]['get'][]> => {
-    return z.array(TestModelsValidation[model].get).parse(
-      await this.db[model]()
-        .update({
-          ...updates,
-          updated_at: this.client.fn.now(),
-        })
-        .where(where)
-        .returning('*')
-    )
+  ): Promise<Models[typeof model]['get'][]> => {
+    let query = this.db[model]().update({
+      ...updates,
+      updated_at: this.client.fn.now(),
+    })
+    if (!Array.isArray(where)) {
+      where = [where]
+    }
+    query = where.reduce((acc, w) => (Array.isArray(w) ? acc.where(w[0], w[1], w[2]) : acc.where(w)), query)
+
+    return z.array(TestModelsValidation[model].get).parse(await query.returning('*'))
   }
 
-  get = async <M extends TestTable>(
+  get = async <M extends TABLE>(
     model: M,
     where?: Where<M>,
     order?: Order<M>,
     limit?: number
-  ): Promise<TestModels[typeof model]['get'][]> => {
+  ): Promise<Models[typeof model]['get'][]> => {
     let query = this.db[model]()
     if (where) {
       if (!Array.isArray(where)) {

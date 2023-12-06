@@ -1,12 +1,15 @@
 import pino, { Logger } from 'pino'
+import { container } from 'tsyringe'
 
-import env from '../env'
+import { Env } from '../env'
+
+const env = container.resolve(Env)
 
 export const logger: Logger = pino(
   {
     name: 'dscp-hyproof-api',
     timestamp: true,
-    level: env.LOG_LEVEL,
+    level: env.get('LOG_LEVEL'),
   },
   process.stdout
 )

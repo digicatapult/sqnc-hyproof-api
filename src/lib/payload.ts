@@ -1,4 +1,3 @@
-import { bs58ToHex } from '../utils/controller-helpers'
 import { CertificateRow } from './db'
 
 export interface Payload {
@@ -39,20 +38,17 @@ export const processInitiateCert = (certificate: CertificateRow): Payload => ({
   ],
 })
 
-// TODO this is not updated, please update as per above
-// when working on issue please refer to the process flow
-export const processIssueCert = (certificate: Record<string, string>): Payload => ({
-  process: { id: 'process_issue_cert', version: 1 },
-  inputs: [],
+export const processIssueCert = (certificate: CertificateRow): Payload => ({
+  process: { id: 'issue_cert', version: 1 },
+  inputs: [certificate.latest_token_id || Number.NaN],
   outputs: [
     {
-      roles: { Owner: certificate.owner },
+      roles: { hydrogen_owner: certificate.hydrogen_owner, energy_owner: certificate.energy_owner },
       metadata: {
-        version: { type: 'LITERAL', value: '1' },
-        type: { type: 'LITERAL', value: 'EXAMPLE' },
-        state: { type: 'LITERAL', value: 'created' },
-        subtype: { type: 'LITERAL', value: certificate.subtype },
-        parameters: { type: 'FILE', value: bs58ToHex(certificate.ipfs_hash) },
+        '@version': { type: 'LITERAL', value: '1' },
+        '@type': { type: 'LITERAL', value: 'IssuedCert' },
+        '@original_id': { type: 'TOKEN_ID', value: certificate.original_token_id || Number.NaN },
+        embodied_co2: { type: 'LITERAL', value: `${certificate.embodied_co2}` },
       },
     },
   ],

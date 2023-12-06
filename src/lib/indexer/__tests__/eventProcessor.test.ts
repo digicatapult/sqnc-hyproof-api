@@ -91,4 +91,46 @@ describe('eventProcessor', function () {
       expect(error).instanceOf(Error)
     })
   })
+
+  describe('issue_cert', function () {
+    it('should error with version != 1', function () {
+      let error: Error | null = null
+      try {
+        eventProcessors['issue_cert']({ version: 0, sender: 'alice', inputs: [], outputs: [] })
+      } catch (err) {
+        error = err instanceof Error ? err : null
+      }
+      expect(error).instanceOf(Error)
+    })
+
+    it('should update the certificate', function () {
+      const result = eventProcessors['issue_cert']({
+        version: 1,
+        sender: 'alice',
+        inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
+        outputs: [
+          {
+            id: 2,
+            metadata: new Map([['embodied_co2', '42']]),
+            roles: new Map(),
+          },
+        ],
+      })
+
+      expect(result).to.deep.equal({
+        certificates: new Map([
+          [
+            'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
+            {
+              id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
+              type: 'update',
+              latest_token_id: 2,
+              state: 'issued',
+              embodied_co2: 42,
+            },
+          ],
+        ]),
+      })
+    })
+  })
 })
