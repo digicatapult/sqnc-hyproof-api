@@ -37,7 +37,13 @@ describe('on-chain', function () {
       const lastTokenId = await node.getLastTokenId()
       const {
         body: { id: certId },
-      } = await post(context.app, '/v1/certificate', { energy_owner: notSelfAlias, hydrogen_quantity_mwh: 1 })
+      } = await post(context.app, '/v1/certificate', {
+        energy_owner: notSelfAlias,
+        hydrogen_quantity_mwh: 1,
+        production_start_time: new Date('2023-12-01T00:00:00.000Z'),
+        production_end_time: new Date('2023-12-02T00:00:00.000Z'),
+        energy_consumed_mwh: 2,
+      })
 
       // submit to chain
       const response = await post(context.app, `/v1/certificate/${certId}/initiation`, {})
@@ -52,7 +58,7 @@ describe('on-chain', function () {
       await pollTransactionState(db, transactionId, 'finalised')
 
       const [cert] = await db.get('certificate', { id: certId })
-      expect(cert).to.contain({
+      expect(cert).to.deep.contain({
         id: certId,
         energy_owner: notSelfAddress,
         hydrogen_owner: selfAddress,
@@ -61,7 +67,12 @@ describe('on-chain', function () {
         embodied_co2: null,
         latest_token_id: lastTokenId + 1,
         original_token_id: lastTokenId + 1,
+        production_start_time: new Date('2023-12-01T00:00:00.000Z'),
+        production_end_time: new Date('2023-12-02T00:00:00.000Z'),
+        energy_consumed_mwh: 2,
       })
+      expect(cert.commitment).to.match(/^[0-9a-f]{32}$/)
+      expect(cert.commitment_salt).to.match(/^[0-9a-f]{32}$/)
     })
   })
 })

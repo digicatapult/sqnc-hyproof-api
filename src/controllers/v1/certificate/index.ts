@@ -11,6 +11,7 @@ import {
   Security,
   Path,
   Query,
+  Put,
 } from 'tsoa'
 import type { Logger } from 'pino'
 import { injectable } from 'tsyringe'
@@ -24,6 +25,7 @@ import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
 import { processInitiateCert } from '../../../lib/payload'
 import { TransactionState } from '../../../models/transaction'
+import Commitment from '../../../lib/services/commitment'
 
 @Route('v1/certificate')
 @injectable()
@@ -35,7 +37,8 @@ export class CertificateController extends Controller {
   constructor(
     private identity: Identity,
     private db: Database,
-    private node: ChainNode
+    private node: ChainNode,
+    private commitment: Commitment
   ) {
     super()
     this.log = logger.child({ controller: '/certificate' })
@@ -71,7 +74,14 @@ export class CertificateController extends Controller {
   @Response<ValidateError>(422, 'Validation Failed')
   @SuccessResponse('201')
   public async postDraft(
-    @Body() { hydrogen_quantity_mwh, energy_owner }: Certificate.Payload
+    @Body()
+    {
+      hydrogen_quantity_mwh,
+      energy_owner,
+      production_start_time,
+      production_end_time,
+      energy_consumed_mwh,
+    }: Certificate.Payload
   ): Promise<Certificate.GetCertificateResponse> {
     this.log.trace({ identity: this.identity, energy_owner })
 
@@ -80,6 +90,12 @@ export class CertificateController extends Controller {
       energy_owner: await this.identity.getMemberByAlias(energy_owner),
     }
 
+    const { salt, digest } = await this.commitment.build({
+      production_start_time,
+      production_end_time,
+      energy_consumed_mwh,
+    })
+
     // errors: handled by middlewar, thrown by the library e.g. this.lib.fn()
     const [certificate] = await this.db.insert('certificate', {
       hydrogen_quantity_mwh,
@@ -87,6 +103,11 @@ export class CertificateController extends Controller {
       energy_owner: identities.energy_owner.address,
       latest_token_id: null,
       original_token_id: null,
+      production_start_time,
+      production_end_time,
+      energy_consumed_mwh,
+      commitment_salt: salt,
+      commitment: digest,
     })
     if (!certificate) throw new InternalServerError()
 
@@ -94,6 +115,11 @@ export class CertificateController extends Controller {
       ...certificate,
       hydrogen_owner: identities.hydrogen_owner.alias,
       energy_owner: identities.energy_owner.alias,
+      production_start_time: production_start_time,
+      production_end_time: production_end_time,
+      energy_consumed_mwh,
+      commitment_salt: salt,
+      commitment: digest,
     }
   }
 
@@ -128,6 +154,36 @@ export class CertificateController extends Controller {
     const certificate = certificates[0]
     if (!certificate) throw new NotFound(id)
     return certificate
+  }
+
+  /**
+   * @summary updates certificate by id
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Put('{id}')
+  public async updateById(
+    @Path() id: UUID,
+    @Body() { commitment_salt, ...update }: Certificate.UpdatePayload
+  ): Promise<Certificate.GetCertificateResponse> {
+    if (!id) throw new BadRequest()
+
+    const [certificate]: CertificateRow[] = await this.db.get('certificate', { id })
+    if (!certificate) throw new NotFound(id)
+    if (certificate.commitment_salt) throw new BadRequest('Commitment has already been applied')
+
+    if (!this.commitment.validate(update, commitment_salt, certificate.commitment))
+      throw new BadRequest('Commitment did not match update')
+
+    const [{ updated_at }] = await this.db.update('certificate', { id }, { commitment_salt, ...update })
+    return {
+      ...certificate,
+      ...update,
+      commitment_salt,
+      updated_at: updated_at as Date,
+    }
   }
 
   /**
@@ -172,8 +228,12 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
   public async createOnChain(@Path() id: UUID): Promise<Certificate.GetTransactionResponse> {
-    const [certificate]: CertificateRow[] = await this.db.get('certificate', { id })
-    if (certificate.state === 'revoked') throw new BadRequest('certificate must not be revoked')
+    const { address: self_address } = await this.identity.getMemberBySelf()
+
+    const [certificate] = await this.db.get('certificate', { id })
+    if (certificate.state !== 'pending') throw new BadRequest('certificate must not be issued or revoked')
+    if (certificate.hydrogen_owner !== self_address)
+      throw new BadRequest('can only initialise certificates owned by self')
 
     const extrinsic = await this.node.prepareRunProcess(processInitiateCert(certificate))
     const [transaction] = await this.db.insert('transaction', {
