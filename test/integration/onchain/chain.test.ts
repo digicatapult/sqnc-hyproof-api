@@ -1,6 +1,7 @@
 import { describe } from 'mocha'
 import { expect } from 'chai'
 import { Express } from 'express'
+import { container } from 'tsyringe'
 
 import Indexer from '../../../src/lib/indexer'
 import { withIdentitySelfMock } from '../../helpers/mock'
@@ -13,7 +14,7 @@ describe('on-chain', function () {
   this.timeout(120000)
 
   const db = new Database()
-  const node = new ChainNode()
+  const node = container.resolve(ChainNode)
 
   const context: { app: Express; indexer: Indexer } = {} as { app: Express; indexer: Indexer }
   withAppAndIndexer(context)
@@ -36,6 +37,7 @@ describe('on-chain', function () {
         local_id: '0f5af074-7d4d-40b4-86a5-17a2391303cb',
         state: 'submitted',
         hash: extrinsic.hash.toHex().slice(2),
+        transaction_type: 'initiate_cert',
       })
 
       node.submitRunProcess(extrinsic, (state) => db.update('transaction', { id: transaction.id }, { state }))

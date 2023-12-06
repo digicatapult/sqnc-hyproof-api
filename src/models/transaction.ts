@@ -9,6 +9,7 @@ export type TransactionApiType = 'certificate' | 'example_a' | 'example_b'
 export type GetTransactionResponse = {
   id: UUID
   api_type: TransactionApiType
+  transaction_type: TransactionType
   state: TransactionState
   local_id: string
   hash: string
@@ -24,4 +25,4 @@ export type ListTransactionResponse = GetTransactionResponse[]
 /**
  * Transaction type - matches the endpoint that initiates the transaction
  */
-export type TransactionType = 'creation' | 'proposal' | 'accept' | 'comment' | 'rejection' | 'cancellation'
+export type TransactionType = 'issue_cert' | 'initiate_cert'

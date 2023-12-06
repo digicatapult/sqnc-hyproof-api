@@ -23,7 +23,7 @@ import Identity from '../../../lib/services/identity'
 import * as Certificate from '../../../models/certificate'
 import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
-import { processInitiateCert } from '../../../lib/payload'
+import { processInitiateCert, processIssueCert } from '../../../lib/payload'
 import { TransactionState } from '../../../models/transaction'
 import Commitment from '../../../lib/services/commitment'
 
@@ -194,13 +194,17 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/initiation/{transactionId}')
-  public async getTransaction(@Path() id: UUID, transactionId: UUID): Promise<Certificate.GetTransactionResponse> {
+  public async getInitiationTransaction(
+    @Path() id: UUID,
+    transactionId: UUID
+  ): Promise<Certificate.GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
 
     const [transaction] = await this.db.get('transaction', {
       local_id: id,
       id: transactionId,
       api_type: 'certificate',
+      transaction_type: 'initiate_cert',
     })
     if (!transaction) throw new NotFound(id)
     return transaction
@@ -214,13 +218,17 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/initiation')
-  public async getTransactions(@Path() id: UUID): Promise<Certificate.ListTransactionResponse> {
+  public async getInitiationTransactions(@Path() id: UUID): Promise<Certificate.ListTransactionResponse> {
     if (!id) throw new BadRequest()
-    return await this.db.get('transaction', { local_id: id, api_type: 'certificate' })
+    return await this.db.get('transaction', {
+      local_id: id,
+      api_type: 'certificate',
+      transaction_type: 'initiate_cert',
+    })
   }
 
   /**
-   * A member creates the demandA {demandAId} on-chain. The demandA is now viewable to other members.
+   * Create a initiated version of the certificate on-chain
    * @summary Create a new demandA on-chain
    * @param demandAId The demandA's identifier
    */
@@ -240,8 +248,88 @@ export class CertificateController extends Controller {
       api_type: 'certificate',
       local_id: certificate.id,
       hash: extrinsic.hash.toHex(),
+      transaction_type: 'initiate_cert',
     })
-    if (!transaction) throw new BadRequest()
+    if (!transaction) throw new InternalServerError('Transaction must exist')
+
+    this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
+      this.db.update('transaction', { id: transaction.id }, { state })
+    )
+
+    return transaction
+  }
+
+  /**
+   * @summary returns certificate transaction by certificate and transaction ids
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Get('{id}/issuance/{transactionId}')
+  public async getIssuanceTransaction(
+    @Path() id: UUID,
+    transactionId: UUID
+  ): Promise<Certificate.GetTransactionResponse> {
+    if (!id || !transactionId) throw new BadRequest()
+
+    const [transaction] = await this.db.get('transaction', {
+      local_id: id,
+      id: transactionId,
+      api_type: 'certificate',
+      transaction_type: 'issue_cert',
+    })
+    if (!transaction) throw new NotFound(id)
+    return transaction
+  }
+
+  /**
+   * @summary returns transactions by certificate local id
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Get('{id}/issuance')
+  public async getIssuanceTransactions(@Path() id: UUID): Promise<Certificate.ListTransactionResponse> {
+    if (!id) throw new BadRequest()
+    return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'issue_cert' })
+  }
+
+  /**
+   * Update a certificate on-chain to include
+   * @summary Create a new demandA on-chain
+   * @param demandAId The demandA's identifier
+   */
+  @Post('{id}/issuance')
+  @Response<NotFound>(404, 'Item not found')
+  @SuccessResponse('201')
+  public async issueOnChain(
+    @Path() id: UUID,
+    @Body() { embodied_co2 }: Certificate.IssuancePayload
+  ): Promise<Certificate.GetTransactionResponse> {
+    const { address: self_address } = await this.identity.getMemberBySelf()
+
+    const [certificate] = await this.db.get('certificate', { id })
+    if (!certificate) throw new NotFound(id)
+    if (certificate.state !== 'initiated') throw new BadRequest('certificate must be initiated to issue')
+    if (certificate.energy_owner !== self_address)
+      throw new BadRequest('can only issue certificates where self is the energy_owner')
+    if (!certificate.commitment) throw new BadRequest('can only issue certificates with a valid commitment')
+
+    const extrinsic = await this.node.prepareRunProcess(
+      processIssueCert({
+        ...certificate,
+        embodied_co2,
+      })
+    )
+    const [transaction] = await this.db.insert('transaction', {
+      api_type: 'certificate',
+      local_id: certificate.id,
+      hash: extrinsic.hash.toHex(),
+      transaction_type: 'issue_cert',
+    })
+    if (!transaction) throw new InternalServerError('Transaction must exist')
 
     this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
       this.db.update('transaction', { id: transaction.id }, { state })

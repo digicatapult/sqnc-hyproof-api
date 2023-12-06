@@ -1,10 +1,15 @@
+import { container } from 'tsyringe'
+
 import { startStatusHandler } from './statusPoll'
-import env from '../../env'
+import { Env } from '../../env'
 import Identity from '../services/identity'
 
-const { WATCHER_POLL_PERIOD_MS, WATCHER_TIMEOUT_MS } = env
+const env = container.resolve(Env)
 
-const identity = new Identity()
+const WATCHER_POLL_PERIOD_MS = env.get('WATCHER_POLL_PERIOD_MS')
+const WATCHER_TIMEOUT_MS = env.get('WATCHER_TIMEOUT_MS')
+
+const identity = container.resolve(Identity)
 
 const startIdentityStatus = () =>
   startStatusHandler({

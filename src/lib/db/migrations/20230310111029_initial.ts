@@ -70,6 +70,9 @@ export async function up(knex: Knex): Promise<void> {
     def.primary(['id'])
     def.specificType('hash', 'CHAR(66)').notNullable()
     def.enum('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
+    def
+      .enum('transaction_type', ['initiate_cert', 'issue_cert'], { useNative: true, enumName: 'transaction_type' })
+      .notNullable()
     def.unique(['id', 'local_id'], { indexName: 'transaction-id-local-id' })
   })
 }
@@ -81,6 +84,7 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('processed_blocks')
   await knex.raw('DROP TYPE certificate_state')
   await knex.raw('DROP TYPE transaction_state')
+  await knex.raw('DROP TYPE transaction_type')
   await knex.raw('DROP TYPE api_type')
   await knex.raw('DROP EXTENSION "uuid-ossp"')
 }

@@ -1,5 +1,6 @@
 import * as envalid from 'envalid'
 import dotenv from 'dotenv'
+import { singleton } from 'tsyringe'
 
 if (process.env.NODE_ENV === 'test') {
   dotenv.config({ path: 'test/test.env' })
@@ -7,7 +8,7 @@ if (process.env.NODE_ENV === 'test') {
   dotenv.config()
 }
 
-export default envalid.cleanEnv(process.env, {
+const envConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
   DB_HOST: envalid.str({ devDefault: 'localhost' }),
@@ -25,4 +26,20 @@ export default envalid.cleanEnv(process.env, {
   IPFS_PORT: envalid.port({ default: 5001 }),
   WATCHER_POLL_PERIOD_MS: envalid.num({ default: 10 * 1000 }),
   WATCHER_TIMEOUT_MS: envalid.num({ default: 2 * 1000 }),
-})
+}
+
+export type ENV_CONFIG = typeof envConfig
+export type ENV_KEYS = keyof ENV_CONFIG
+
+@singleton()
+export class Env {
+  private vals: envalid.CleanedEnv<typeof envConfig>
+
+  constructor() {
+    this.vals = envalid.cleanEnv(process.env, envConfig)
+  }
+
+  get<K extends ENV_KEYS>(key: K) {
+    return this.vals[key]
+  }
+}
