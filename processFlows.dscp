@@ -50,6 +50,7 @@ pub fn issue_cert |input: InitiatedCert| => |output: IssuedCert| where {
   output == input,
   input.hydrogen_owner == output.hydrogen_owner,
   input.energy_owner == output.energy_owner,
+  input.regulator == output.regulator,
   output.hydrogen_owner != sender,
   output.regulator != sender,
   output.energy_owner == sender,
