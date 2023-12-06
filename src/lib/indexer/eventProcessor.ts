@@ -4,7 +4,7 @@ import { UUID } from '../../models/strings'
 import { TransactionRow } from '../db'
 import { ChangeSet, CertificateRecord } from './changeSet'
 
-const processNames = ['initiate_cert'] as const
+const processNames = ['initiate_cert', 'issue_cert'] as const
 type PROCESSES_TUPLE = typeof processNames
 type PROCESSES = PROCESSES_TUPLE[number]
 
@@ -87,6 +87,23 @@ const DefaultEventProcessors: EventProcessors = {
 
     return {
       certificates: new Map([[certificate.id, certificate]]),
+    }
+  },
+  issue_cert: ({ version, inputs, outputs }) => {
+    if (version !== 1) throw new Error(`Incompatible version ${version} for issue_cert process`)
+    const { local_id } = inputs[0]
+    const { id: latest_token_id, ...cert } = outputs[0]
+
+    const update: CertificateRecord = {
+      id: local_id,
+      type: 'update',
+      latest_token_id,
+      state: 'issued',
+      embodied_co2: parseFloat(getOrError(cert.metadata, 'embodied_co2')),
+    }
+
+    return {
+      certificates: new Map([[local_id, update]]),
     }
   },
 }

@@ -1,10 +1,13 @@
 import { MockAgent, setGlobalDispatcher, getGlobalDispatcher, Dispatcher } from 'undici'
-import env from '../../src/env'
+import { container } from 'tsyringe'
+import { Env, ENV_KEYS } from '../../src/env'
 
 export const selfAlias = 'test-self'
 export const selfAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
 export const notSelfAlias = 'test-not-self'
 export const notSelfAddress = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty'
+
+const env = container.resolve(Env)
 
 export function withIdentitySelfMock() {
   let originalDispatcher: Dispatcher
@@ -13,7 +16,7 @@ export function withIdentitySelfMock() {
     originalDispatcher = getGlobalDispatcher()
     mockAgent = new MockAgent()
     setGlobalDispatcher(mockAgent)
-    const mockIdentity = mockAgent.get(`http://${env.IDENTITY_SERVICE_HOST}:${env.IDENTITY_SERVICE_PORT}`)
+    const mockIdentity = mockAgent.get(`http://${env.get('IDENTITY_SERVICE_HOST')}:${env.get('IDENTITY_SERVICE_PORT')}`)
     mockIdentity
       .intercept({
         path: '/v1/self',
@@ -72,7 +75,7 @@ export const withIpfsMock = (fileContent?: string | object | Buffer) => {
     originalDispatcher = getGlobalDispatcher()
     mockAgent = new MockAgent()
     setGlobalDispatcher(mockAgent)
-    const mockIpfs = mockAgent.get(`http://${env.IPFS_HOST}:${env.IPFS_PORT}`)
+    const mockIpfs = mockAgent.get(`http://${env.get('IPFS_HOST')}:${env.get('IPFS_PORT')}`)
 
     mockIpfs
       .intercept({
@@ -112,7 +115,7 @@ export const withIpfsMockError = () => {
     originalDispatcher = getGlobalDispatcher()
     mockAgent = new MockAgent()
     setGlobalDispatcher(mockAgent)
-    const mockIpfs = mockAgent.get(`http://${env.IPFS_HOST}:${env.IPFS_PORT}`)
+    const mockIpfs = mockAgent.get(`http://${env.get('IPFS_HOST')}:${env.get('IPFS_PORT')}`)
 
     mockIpfs
       .intercept({
@@ -125,4 +128,12 @@ export const withIpfsMockError = () => {
   afterEach(function () {
     setGlobalDispatcher(originalDispatcher)
   })
+}
+
+export const mockEnv = (overrides: Partial<Record<ENV_KEYS, string>>): Env => {
+  return {
+    get<K extends ENV_KEYS>(key: K) {
+      return overrides[key] || env.get(key)
+    },
+  } as Env
 }
