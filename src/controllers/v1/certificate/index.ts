@@ -26,6 +26,7 @@ import ChainNode from '../../../lib/chainNode'
 import { processInitiateCert, processIssueCert } from '../../../lib/payload'
 import { TransactionState } from '../../../models/transaction'
 import Commitment from '../../../lib/services/commitment'
+import EmissionsCalculator from '../../../lib/services/emissionsCalculator'
 
 @Route('v1/certificate')
 @injectable()
@@ -38,7 +39,8 @@ export class CertificateController extends Controller {
     private identity: Identity,
     private db: Database,
     private node: ChainNode,
-    private commitment: Commitment
+    private commitment: Commitment,
+    private emissionCalculator: EmissionsCalculator
   ) {
     super()
     this.log = logger.child({ controller: '/certificate' })
@@ -85,6 +87,10 @@ export class CertificateController extends Controller {
     }: Certificate.Payload
   ): Promise<Certificate.GetCertificateResponse> {
     this.log.trace({ identity: this.identity, energy_owner, regulator })
+
+    if (production_end_time <= production_start_time) {
+      throw new BadRequest('Production end time must be greater than start time')
+    }
 
     const identities = {
       hydrogen_owner: await this.identity.getMemberBySelf(),
@@ -176,6 +182,8 @@ export class CertificateController extends Controller {
 
     const [certificate]: CertificateRow[] = await this.db.get('certificate', { id })
     if (!certificate) throw new NotFound(id)
+    if (update.production_end_time <= update.production_start_time)
+      throw new BadRequest('Production end time must be greater than start time')
     if (certificate.commitment_salt) throw new BadRequest('Commitment has already been applied')
 
     if (!this.commitment.validate(update, commitment_salt, certificate.commitment))
@@ -319,7 +327,21 @@ export class CertificateController extends Controller {
     if (certificate.state !== 'initiated') throw new BadRequest('certificate must be initiated to issue')
     if (certificate.energy_owner !== self_address)
       throw new BadRequest('can only issue certificates where self is the energy_owner')
-    if (!certificate.commitment) throw new BadRequest('can only issue certificates with a valid commitment')
+    if (
+      !certificate.commitment ||
+      !certificate.production_start_time ||
+      !certificate.production_end_time ||
+      !certificate.energy_consumed_mwh
+    )
+      throw new BadRequest('can only issue certificates with a valid commitment')
+
+    if (!embodied_co2) {
+      embodied_co2 = await this.emissionCalculator.fetchEmissions(
+        certificate.production_start_time,
+        certificate.production_end_time,
+        certificate.energy_consumed_mwh
+      )
+    }
 
     const extrinsic = await this.node.prepareRunProcess(
       processIssueCert({
