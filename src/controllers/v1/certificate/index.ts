@@ -318,7 +318,7 @@ export class CertificateController extends Controller {
   @SuccessResponse('201')
   public async issueOnChain(
     @Path() id: UUID,
-    @Body() { embodied_co2 }: Certificate.IssuancePayload
+    @Body() body: Certificate.IssuancePayload
   ): Promise<Certificate.GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
 
@@ -335,18 +335,25 @@ export class CertificateController extends Controller {
     )
       throw new BadRequest('can only issue certificates with a valid commitment')
 
-    if (!embodied_co2) {
+    let embodied_co2: number
+    let energy_source: 'grid' | 'renewable'
+    if (!('embodied_co2' in body)) {
       embodied_co2 = await this.emissionCalculator.fetchEmissions(
         certificate.production_start_time,
         certificate.production_end_time,
         certificate.energy_consumed_mwh
       )
+      energy_source = 'grid'
+    } else {
+      embodied_co2 = body.embodied_co2
+      energy_source = body.energy_source
     }
 
     const extrinsic = await this.node.prepareRunProcess(
       processIssueCert({
         ...certificate,
         embodied_co2,
+        energy_source,
       })
     )
     const [transaction] = await this.db.insert('transaction', {

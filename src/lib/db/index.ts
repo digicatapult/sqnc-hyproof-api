@@ -79,6 +79,7 @@ const certificateRowZ = insertCertificateRowZ.extend({
   created_at: z.date(),
   updated_at: z.date(),
   embodied_co2: z.union([z.number(), z.null()]),
+  energy_source: z.union([z.literal('grid'), z.literal('renewable'), z.null()]),
 })
 
 export type InsertCertificateRow = z.infer<typeof insertCertificateRowZ>

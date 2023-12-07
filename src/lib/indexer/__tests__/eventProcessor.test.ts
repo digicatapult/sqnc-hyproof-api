@@ -111,7 +111,10 @@ describe('eventProcessor', function () {
         outputs: [
           {
             id: 2,
-            metadata: new Map([['embodied_co2', '42']]),
+            metadata: new Map([
+              ['embodied_co2', '42'],
+              ['energy_source', 'grid'],
+            ]),
             roles: new Map(),
           },
         ],
@@ -127,10 +130,80 @@ describe('eventProcessor', function () {
               latest_token_id: 2,
               state: 'issued',
               embodied_co2: 42,
+              energy_source: 'grid',
             },
           ],
         ]),
       })
+    })
+
+    it('should throw is embodies_co2 is missing', function () {
+      let error: Error | null = null
+      try {
+        eventProcessors['issue_cert']({
+          version: 1,
+          sender: 'alice',
+          inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
+          outputs: [
+            {
+              id: 2,
+              metadata: new Map([['energy_source', 'grid']]),
+              roles: new Map(),
+            },
+          ],
+        })
+      } catch (e) {
+        if (e instanceof Error) error = e
+      }
+      expect(error).to.empty.instanceOf(Error)
+    })
+
+    it('should throw is embodies_co2 is not a number', function () {
+      let error: Error | null = null
+      try {
+        eventProcessors['issue_cert']({
+          version: 1,
+          sender: 'alice',
+          inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
+          outputs: [
+            {
+              id: 2,
+              metadata: new Map([
+                ['embodied_co2', 'string'],
+                ['energy_source', 'grid'],
+              ]),
+              roles: new Map(),
+            },
+          ],
+        })
+      } catch (e) {
+        if (e instanceof Error) error = e
+      }
+      expect(error).to.empty.instanceOf(Error)
+    })
+
+    it('should throw is energy_source is not grid or renewable', function () {
+      let error: Error | null = null
+      try {
+        eventProcessors['issue_cert']({
+          version: 1,
+          sender: 'alice',
+          inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
+          outputs: [
+            {
+              id: 2,
+              metadata: new Map([
+                ['embodied_co2', '42'],
+                ['energy_source', 'string'],
+              ]),
+              roles: new Map(),
+            },
+          ],
+        })
+      } catch (e) {
+        if (e instanceof Error) error = e
+      }
+      expect(error).to.empty.instanceOf(Error)
     })
   })
 })

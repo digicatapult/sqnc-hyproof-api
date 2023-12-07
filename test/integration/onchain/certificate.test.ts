@@ -97,7 +97,10 @@ describe('on-chain', function () {
 
         const lastTokenId = await node.getLastTokenId()
 
-        const response = await post(context.app, `/v1/certificate/${context.cert.id}/issuance`, { embodied_co2: 3 })
+        const response = await post(context.app, `/v1/certificate/${context.cert.id}/issuance`, {
+          embodied_co2: 3,
+          energy_source: 'renewable',
+        })
         expect(response.status).to.equal(201)
 
         const { id: transactionId, state } = response.body
@@ -113,6 +116,7 @@ describe('on-chain', function () {
           id: context.cert.id,
           state: 'issued',
           embodied_co2: 3,
+          energy_source: 'renewable',
           latest_token_id: lastTokenId + 1,
         })
       })
@@ -138,6 +142,7 @@ describe('on-chain', function () {
           id: context.cert.id,
           state: 'issued',
           embodied_co2: 200000,
+          energy_source: 'grid',
           latest_token_id: lastTokenId + 1,
         })
       })
