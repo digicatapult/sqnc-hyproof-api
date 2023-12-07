@@ -13,7 +13,7 @@ import {
   selfAddress,
   notSelfAddress,
   notSelfAlias,
-  withIdentitySelfMock,
+  withExternalServicesMock,
   regulatorAlias,
   regulatorAddress,
 } from '../../helpers/mock'
@@ -34,7 +34,7 @@ describe('on-chain', function () {
 
   withAppAndIndexer(context)
 
-  withIdentitySelfMock()
+  withExternalServicesMock()
 
   beforeEach(async function () {
     await seed()
@@ -92,12 +92,14 @@ describe('on-chain', function () {
     })
 
     describe('issuance', function () {
-      it('should issue a certificate on-chain', async function () {
+      it('should issue a certificate on-chain based on supplied emissions', async function () {
         await withInitialisedCertFromNotSelf(context)
 
         const lastTokenId = await node.getLastTokenId()
 
-        const response = await post(context.app, `/v1/certificate/${context.cert.id}/issuance`, { embodied_co2: 3 })
+        const response = await post(context.app, `/v1/certificate/${context.cert.id}/issuance`, {
+          embodied_co2: 3,
+        })
         expect(response.status).to.equal(201)
 
         const { id: transactionId, state } = response.body
@@ -113,6 +115,31 @@ describe('on-chain', function () {
           id: context.cert.id,
           state: 'issued',
           embodied_co2: 3,
+          latest_token_id: lastTokenId + 1,
+        })
+      })
+
+      it('should issue a certificate on-chain based on grid emissions', async function () {
+        await withInitialisedCertFromNotSelf(context)
+
+        const lastTokenId = await node.getLastTokenId()
+
+        const response = await post(context.app, `/v1/certificate/${context.cert.id}/issuance`, {})
+        expect(response.status).to.equal(201)
+
+        const { id: transactionId, state } = response.body
+        expect(transactionId).to.match(
+          /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+        )
+        expect(state).to.equal('submitted')
+
+        await pollTransactionState(db, transactionId, 'finalised')
+
+        const [cert] = await db.get('certificate', { id: context.cert.id })
+        expect(cert).to.deep.contain({
+          id: context.cert.id,
+          state: 'issued',
+          embodied_co2: 200000,
           latest_token_id: lastTokenId + 1,
         })
       })

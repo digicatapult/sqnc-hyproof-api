@@ -57,5 +57,5 @@ export type UpdatePayload = {
 }
 
 export type IssuancePayload = {
-  embodied_co2: number
+  embodied_co2?: number
 }

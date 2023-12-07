@@ -11,7 +11,7 @@ export const regulatorAddress = '5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59
 
 const env = container.resolve(Env)
 
-export function withIdentitySelfMock() {
+export function withExternalServicesMock() {
   let originalDispatcher: Dispatcher
   let mockAgent: MockAgent
   beforeEach(function () {
@@ -82,6 +82,28 @@ export function withIdentitySelfMock() {
       .reply(200, {
         alias: regulatorAlias,
         address: regulatorAddress,
+      })
+      .persist()
+
+    const mockCarbon = mockAgent.get(`https://api.carbonintensity.org.uk`)
+
+    mockCarbon
+      .intercept({
+        path: '/intensity/2023-12-01T00:00:00.000Z/2023-12-02T00:00:00.000Z',
+        method: 'GET',
+      })
+      .reply(200, {
+        data: [
+          {
+            from: '2023-12-01T00:00:00.000Z',
+            to: '2023-12-02T00:00:00.000Z',
+            intensity: {
+              actual: 100,
+              forecast: 100,
+              index: 'moderate',
+            },
+          },
+        ],
       })
       .persist()
   })
