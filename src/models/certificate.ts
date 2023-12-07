@@ -62,4 +62,4 @@ export type IssuancePayload =
       embodied_co2: number
       energy_source: 'grid' | 'renewable'
     }
-  | {}
+  | Record<string, never>
