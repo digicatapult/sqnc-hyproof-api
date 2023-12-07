@@ -241,8 +241,8 @@ export class CertificateController extends Controller {
 
   /**
    * Create a initiated version of the certificate on-chain
-   * @summary Create a new demandA on-chain
-   * @param demandAId The demandA's identifier
+   * @summary Initialise a new certificate on-chain
+   * @param demandAId The certificate's identifier
    */
   @Post('{id}/initiation')
   @Response<NotFound>(404, 'Item not found')
@@ -309,9 +309,9 @@ export class CertificateController extends Controller {
   }
 
   /**
-   * Update a certificate on-chain to include
-   * @summary Create a new demandA on-chain
-   * @param demandAId The demandA's identifier
+   * Update a certificate on-chain to include emissions data
+   * @summary Issue a new certificate on-chain
+   * @param demandAId The certificate's identifier
    */
   @Post('{id}/issuance')
   @Response<NotFound>(404, 'Item not found')
