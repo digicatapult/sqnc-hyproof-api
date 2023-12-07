@@ -95,11 +95,6 @@ const DefaultEventProcessors: EventProcessors = {
     const { local_id } = inputs[0]
     const { id: latest_token_id, ...cert } = outputs[0]
 
-    const energy_source = getOrError(cert.metadata, 'energy_source')
-
-    if (energy_source !== 'grid' && energy_source !== 'renewable') {
-      throw new Error(`Energy source ${energy_source} is invalid`)
-    }
     const embodied_co2 = parseFloat(getOrError(cert.metadata, 'embodied_co2'))
     if (!Number.isFinite(embodied_co2)) {
       throw new Error(`Invalid value for embodied co2 ${embodied_co2}`)
@@ -111,7 +106,6 @@ const DefaultEventProcessors: EventProcessors = {
       latest_token_id,
       state: 'issued',
       embodied_co2,
-      energy_source,
     }
 
     return {

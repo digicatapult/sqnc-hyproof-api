@@ -332,34 +332,6 @@
       },
       {
         "Restriction": {
-          "FixedOutputMetadataValue": {
-            "index": 0,
-            "metadata_key": "energy_source",
-            "metadata_value": {
-              "Literal": "renewable"
-            }
-          }
-        }
-      },
-      {
-        "Restriction": {
-          "FixedOutputMetadataValue": {
-            "index": 0,
-            "metadata_key": "energy_source",
-            "metadata_value": {
-              "Literal": "grid"
-            }
-          }
-        }
-      },
-      {
-        "Op": "Or"
-      },
-      {
-        "Op": "And"
-      },
-      {
-        "Restriction": {
           "MatchInputOutputMetadataValue": {
             "input_index": 0,
             "input_metadata_key": "@original_id",
@@ -617,34 +589,6 @@
             "metadata_value_type": "Literal"
           }
         }
-      },
-      {
-        "Op": "And"
-      },
-      {
-        "Restriction": {
-          "FixedInputMetadataValue": {
-            "index": 0,
-            "metadata_key": "energy_source",
-            "metadata_value": {
-              "Literal": "renewable"
-            }
-          }
-        }
-      },
-      {
-        "Restriction": {
-          "FixedInputMetadataValue": {
-            "index": 0,
-            "metadata_key": "energy_source",
-            "metadata_value": {
-              "Literal": "grid"
-            }
-          }
-        }
-      },
-      {
-        "Op": "Or"
       },
       {
         "Op": "And"

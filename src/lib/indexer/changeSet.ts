@@ -28,7 +28,6 @@ export type CertificateRecord =
       id: UUID
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
       embodied_co2?: number
-      energy_source?: 'grid' | 'renewable'
       original_token_id?: number
       latest_token_id: number
     }

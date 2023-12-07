@@ -21,7 +21,6 @@ token IssuedCert {
   energy_owner: Role,
   regulator: Role,
   embodied_co2: Literal,
-  energy_source: "grid" | "renewable",
 }
 
 token RevokedCert {

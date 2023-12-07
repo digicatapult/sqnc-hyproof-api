@@ -8,7 +8,6 @@ export type GetCertificateResponse = {
   regulator: string
   hydrogen_quantity_mwh: number
   embodied_co2?: number | null
-  energy_source?: 'grid' | 'renewable' | null
   original_token_id?: number | null
   latest_token_id?: number | null
   created_at: Date
@@ -57,9 +56,6 @@ export type UpdatePayload = {
   commitment_salt: string
 }
 
-export type IssuancePayload =
-  | {
-      embodied_co2: number
-      energy_source: 'grid' | 'renewable'
-    }
-  | Record<string, never>
+export type IssuancePayload = {
+  embodied_co2?: number
+}

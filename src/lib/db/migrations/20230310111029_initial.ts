@@ -22,13 +22,6 @@ export async function up(knex: Knex): Promise<void> {
     def.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
     def.integer('hydrogen_quantity_mwh').notNullable().index('hydrogen_quantity_mwh_index')
     def.integer('embodied_co2').nullable().index('embodied_co2_index').defaultTo(null)
-    def
-      .enum('energy_source', ['grid', 'renewable'], {
-        useNative: true,
-        enumName: 'energy_source',
-      })
-      .nullable()
-      .defaultTo(null)
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
     def.string('regulator', 48).notNullable()
@@ -94,6 +87,5 @@ export async function down(knex: Knex): Promise<void> {
   await knex.raw('DROP TYPE transaction_state')
   await knex.raw('DROP TYPE transaction_type')
   await knex.raw('DROP TYPE api_type')
-  await knex.raw('DROP TYPE energy_source')
   await knex.raw('DROP EXTENSION "uuid-ossp"')
 }
