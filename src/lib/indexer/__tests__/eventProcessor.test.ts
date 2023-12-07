@@ -137,7 +137,7 @@ describe('eventProcessor', function () {
       })
     })
 
-    it('should throw is embodies_co2 is missing', function () {
+    it('should throw if embodies_co2 is missing', function () {
       let error: Error | null = null
       try {
         eventProcessors['issue_cert']({
@@ -158,7 +158,7 @@ describe('eventProcessor', function () {
       expect(error).to.empty.instanceOf(Error)
     })
 
-    it('should throw is embodies_co2 is not a number', function () {
+    it('should throw if embodies_co2 is not a number', function () {
       let error: Error | null = null
       try {
         eventProcessors['issue_cert']({
@@ -182,7 +182,7 @@ describe('eventProcessor', function () {
       expect(error).to.empty.instanceOf(Error)
     })
 
-    it('should throw is energy_source is not grid or renewable', function () {
+    it('should throw if energy_source is not grid or renewable', function () {
       let error: Error | null = null
       try {
         eventProcessors['issue_cert']({
