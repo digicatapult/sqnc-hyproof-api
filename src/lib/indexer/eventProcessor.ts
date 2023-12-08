@@ -119,14 +119,14 @@ const DefaultEventProcessors: EventProcessors = {
       type: 'update',
       latest_token_id,
       state: 'revoked',
-      reason: attachment.id
+      reason: attachment.id,
     }
 
     return {
       certificates: new Map([[local_id, update]]),
       attachments: new Map([[attachment.id, attachment]]),
     }
-  }
+  },
 }
 
 export default DefaultEventProcessors

@@ -343,9 +343,6 @@ export class CertificateController extends Controller {
     return transaction
   }
 
-
-
-
   /**
    * @summary returns certificate transaction by certificate and transaction id
    * @param id - the local certificate's identifier

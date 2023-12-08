@@ -42,12 +42,7 @@ export async function up(knex: Knex): Promise<void> {
     def.datetime('updated_at').notNullable().defaultTo(now())
     def.uuid('reason').notNullable()
     def.primary(['id'])
-    def
-    .foreign('reason')
-    .references('id')
-    .inTable('attachment')
-    .onDelete('CASCADE')
-    .onUpdate('CASCADE')
+    def.foreign('reason').references('id').inTable('attachment').onDelete('CASCADE').onUpdate('CASCADE')
   })
 
   await knex.schema.createTable('processed_blocks', (def) => {
