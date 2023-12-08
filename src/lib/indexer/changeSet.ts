@@ -28,6 +28,7 @@ export type CertificateRecord =
       id: UUID
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
       embodied_co2?: number
+      reason?: UUID
       original_token_id?: number
       latest_token_id: number
     }
@@ -38,8 +39,8 @@ export type AttachmentRecord =
       type: 'insert'
       id: string
       filename: string | null
-      ipfs_hash: string
       size: number | null
+      ipfs_hash: string
     }
   | never
 

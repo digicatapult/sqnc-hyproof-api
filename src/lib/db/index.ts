@@ -41,7 +41,7 @@ export type AttachmentRow = z.infer<typeof attachmentRowZ>
 
 const insertTransactionRowZ = z.object({
   api_type: z.union([z.literal('certificate'), z.literal('example_a'), z.literal('example_b')]),
-  transaction_type: z.union([z.literal('initiate_cert'), z.literal('issue_cert')]),
+  transaction_type: z.union([z.literal('initiate_cert'), z.literal('issue_cert'), z.literal('revoke_cert')]),
   local_id: z.string(),
   hash: z.string(),
   state: z

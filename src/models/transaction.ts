@@ -25,4 +25,4 @@ export type ListTransactionResponse = GetTransactionResponse[]
 /**
  * Transaction type - matches the endpoint that initiates the transaction
  */
-export type TransactionType = 'issue_cert' | 'initiate_cert'
+export type TransactionType = 'issue_cert' | 'initiate_cert' | 'revoke_cert'
