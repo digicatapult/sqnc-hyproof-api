@@ -63,6 +63,7 @@ export class CertificateController extends Controller {
           ...cert,
           energy_owner: (await getMemberPromise(cert.energy_owner)).alias,
           hydrogen_owner: (await getMemberPromise(cert.hydrogen_owner)).alias,
+          regulator: (await getMemberPromise(cert.regulator)).alias,
         }
       })
     )

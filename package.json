@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-hyproof-api",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "An OpenAPI API service for DSCP",
   "main": "src/index.ts",
   "scripts": {
