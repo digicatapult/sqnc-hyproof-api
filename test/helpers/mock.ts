@@ -99,7 +99,7 @@ export function withExternalServicesMock() {
             to: '2023-12-02T00:00:00.000Z',
             intensity: {
               actual: 100,
-              forecast: 100,
+              forecast: 123.456789123,
               index: 'moderate',
             },
           },
