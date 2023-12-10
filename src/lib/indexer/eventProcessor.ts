@@ -1,7 +1,7 @@
 import { v4 as UUIDv4 } from 'uuid'
 
 import { UUID } from '../../models/strings'
-import { TransactionRow } from '../db'
+import { TransactionRow } from '../db/zod-models'
 import { ChangeSet, CertificateRecord, AttachmentRecord } from './changeSet'
 
 const processNames = ['initiate_cert', 'issue_cert', 'revoke_cert'] as const
