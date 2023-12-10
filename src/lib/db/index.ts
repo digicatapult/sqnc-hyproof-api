@@ -174,6 +174,7 @@ export default class Database {
       .delete()
   }
 
+<<<<<<< HEAD
   update = async <M extends TABLE>(
     model: M,
     where: Where<M>,
@@ -189,6 +190,21 @@ export default class Database {
     query = where.reduce((acc, w) => (Array.isArray(w) ? acc.where(w[0], w[1], w[2]) : acc.where(w)), query)
 
     return z.array(TestModelsValidation[model].get).parse(await query.returning('*'))
+=======
+  update = async (
+    model: keyof Models<() => QueryBuilder>,
+    where: Record<string, string | UUID | number>,
+    updates: Record<string, string | number>
+  ): Promise<Record<string, string>[]> => {
+    const query = this.db()[model]
+    return query()
+      .update({
+        ...updates,
+        updated_at: this.client.fn.now(),
+      })
+      .where(where)
+      .returning('*')
+>>>>>>> 264773b (HYP-2: ts error.)
   }
 
   get = async <M extends TABLE>(
