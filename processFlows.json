@@ -628,12 +628,29 @@
       },
       {
         "Restriction": {
+          "OutputHasMetadata": {
+            "index": 0,
+            "metadata_key": "reason"
+          }
+        }
+      },
+      {
+        "Restriction": "None"
+      },
+      {
+        "Op": "NotL"
+      },
+      {
+        "Restriction": {
           "FixedOutputMetadataValueType": {
             "index": 0,
             "metadata_key": "reason",
             "metadata_value_type": "File"
           }
         }
+      },
+      {
+        "Op": "Or"
       },
       {
         "Op": "And"
@@ -752,6 +769,18 @@
           "SenderHasOutputRole": {
             "index": 0,
             "role_key": "regulator"
+          }
+        }
+      },
+      {
+        "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedOutputMetadataValueType": {
+            "index": 0,
+            "metadata_key": "reason",
+            "metadata_value_type": "File"
           }
         }
       },

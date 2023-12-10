@@ -40,7 +40,7 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
-    def.uuid('reason').notNullable()
+    def.uuid('reason').nullable().defaultTo(null)
     def.primary(['id'])
     def.foreign('reason').references('id').inTable('attachment').onDelete('CASCADE').onUpdate('CASCADE')
   })
@@ -74,7 +74,10 @@ export async function up(knex: Knex): Promise<void> {
     def.specificType('hash', 'CHAR(66)').notNullable()
     def.enum('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
     def
-      .enum('transaction_type', ['initiate_cert', 'issue_cert'], { useNative: true, enumName: 'transaction_type' })
+      .enum('transaction_type', ['initiate_cert', 'issue_cert', 'revoke_cert'], {
+        useNative: true,
+        enumName: 'transaction_type',
+      })
       .notNullable()
     def.unique(['id', 'local_id'], { indexName: 'transaction-id-local-id' })
   })

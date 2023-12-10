@@ -94,7 +94,7 @@ services:
     command: /bin/sh -c "
       sleep 10 &&
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
-      npx @digicatapult/dscp-process-management@latest create -h energy-owner-node -p 9944 -u //Alice -f ./processFlows.json &&
+      npx @digicatapult/dscp-process-management@latest create -h energy-owner -p 9944 -u //Alice \"$(cat processFlows.json)\" && 
       npm start"
     environment:
       - PORT=8000

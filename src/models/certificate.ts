@@ -33,12 +33,21 @@ export type ListTransactionResponse = GetTransactionResponse[]
 /**
  * Certificate Request Body example
  * @example {
- *   "hydrogen_quantity_mwh": 1,
- *   "energy_owner": "emma",
- *   "production_start_time": "2023-01-01T00:00:00.000Z",
- *   "production_end_time": "2023-01-01T12:00:00.000Z",
- *   "energy_consumed_mwh": 1,
+ * "energy_consumed_mwh": 10,
+ * "production_end_time": "2023-12-11T20:34:21.749Z",
+ * "production_start_time": "2023-12-10T18:34:21.749Z",
+ * "regulator": "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y",
+ * "energy_owner": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+ * "hydrogen_quantity_mwh": 5
  * }
+ * {
+  "energy_consumed_mwh": 10,
+  "production_end_time": "2023-12-10T20:46:35.892Z",
+  "production_start_time": "2023-12-10T18:46:35.892Z",
+  "regulator": "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y",
+  "energy_owner": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+  "hydrogen_quantity_mwh": 5
+}
  */
 export type Payload = {
   hydrogen_quantity_mwh: number
@@ -57,8 +66,12 @@ export type UpdatePayload = {
 }
 
 export type RevokePayload = {
-  reason_id: UUID
+  reason: UUID
 }
+/**
+ * 15193219-3340-4083-9ee9-a2cd37c14e7e
+ * af87b3d4-94f5-4b53-8d71-e8ec95a96a17
+ */
 
 export type IssuancePayload = {
   embodied_co2?: number

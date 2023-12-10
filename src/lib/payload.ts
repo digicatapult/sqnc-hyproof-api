@@ -1,4 +1,4 @@
-import { AttachmentRow, CertificateRow } from './db/zod-models'
+import { AttachmentRow, CertificateRow } from './db/types'
 import { bs58ToHex } from '../utils/controller-helpers'
 
 export interface Payload {

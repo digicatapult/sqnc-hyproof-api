@@ -3,8 +3,7 @@ import knex from 'knex'
 import { pgConfig } from './knexfile'
 import { z } from 'zod'
 import { singleton } from 'tsyringe'
-import type { IDatabase, TABLE, Models, Where, Update, Order } from './zod-models'
-import Zod, { tablesList } from './zod-models'
+import Zod, { tablesList, IDatabase, TABLE, Models, Where, Update, Order } from './types'
 
 const clientSingleton = knex(pgConfig)
 

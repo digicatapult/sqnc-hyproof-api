@@ -4,8 +4,6 @@ import { z } from 'zod'
 
 export const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const
 
-
-
 const insertAttachment = z.object({
   filename: z
     .union([z.string(), z.null()])
@@ -67,13 +65,13 @@ const Zod = {
     get: insertAttachment.extend({
       id: z.string(),
       created_at: z.date(),
-    })
+    }),
   },
   processed_blocks: {
     insert: insertBlock,
     get: insertBlock.extend({
       created_at: z.date(),
-    }), 
+    }),
   },
   transaction: {
     insert: insertTransaction,
@@ -82,7 +80,7 @@ const Zod = {
       state: z.union([z.literal('submitted'), z.literal('inBlock'), z.literal('finalised'), z.literal('failed')]),
       created_at: z.date(),
       updated_at: z.date(),
-    })
+    }),
   },
   certificate: {
     insert: insertCertificate,
@@ -93,11 +91,10 @@ const Zod = {
       updated_at: z.date(),
       embodied_co2: z.union([z.number(), z.null()]),
     }),
-  }
+  },
 }
 
 const { transaction, attachment, processed_blocks, certificate } = Zod
-
 
 export type InsertTransaction = z.infer<typeof transaction.insert>
 export type TransactionRow = z.infer<typeof transaction.get>
@@ -135,7 +132,7 @@ export type Where<M extends TABLE> = WhereMatch<M> | (WhereMatch<M> | WhereCompa
 export type Order<M extends TABLE> = [keyof Models[M]['get'], 'asc' | 'desc'][]
 export type Update<M extends TABLE> = Partial<Models[M]['get']>
 export type IDatabase = {
-    [key in TABLE]: () => Knex.QueryBuilder
+  [key in TABLE]: () => Knex.QueryBuilder
 }
 
 export default Zod
