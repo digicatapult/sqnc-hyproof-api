@@ -107,19 +107,54 @@ npm run flows
 5. Conflict free identifiers. All identifiers must be conflict free as updates can come from third party organisations.
 
 ### Fundamental entities
+This is project is primary based on two entities in regards to the API.
+> Certificate - that can be issued, initiated and revoked by a regulator. This is something we will keep circulating arround
+> Attachments - file or json information that is stored on IPFS servie
+> Transaction - records representing interactions with the chain
 
-there is the `attachment` entity which returns an `id` to be used when preparing entity updates to attach files.
+### Running locally
+running with docker-compose -f docker-compose-3-personal.yml logs -f will render all logs, also can be parsed by `| grep`.
+```
+docker-compose -f docker-compose-3-personal.yml logs -f | grep regulator
+```
 
-### Services
-
+> single persona
 Run `docker composel up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
+> multiple persona
+Run `docker-compose -f docker-compose-3-personal.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
+
+> services
 - dscp-hyproof-api (+ PostgreSQL)
 - dscp-identity-service (+ PostgreSQL)
+- ipfs
 - dscp-node
 
-### Identities
-...update once clear
+# Identities / System wide roles
+The regulator identity must be includd as part of a draft certificate which will be carried away until certificate is revoked or further features implemented.
 
-### Using the hyproof API
+> Energy Owner (Emma) must submit a commitment before issuing a cert
+- [API] - localhost:8000/swagger
+- [address] - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY 
+- [alias] - //Alice
+
+> Hydrogen Owner (Haidi) commitement is generated along by consumption and production which is verified by energy owner Emma
+- [API] - localhost:8010/swagger
+- [address] - 5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
+- [alias] - //Bob
+
+> Regulator (Reginald?) has the power to oversee the future, however, it has the ability to revoke an issued certificate but before that must provide a reason (ideally valid
 ...update once clear
+- [API] - localhost:8020/swagger
+- [address] - 5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y 
+- [alias] - //Charlie
+
+#### TODOs
+- [ ] link up with other docs e.g. diags and etc that andy did
+- create scenario driven integration tests 
+  - [ ] one for regulator catching invalid commitment (if possible to bypass our validation)
+  - [ ] one for regulator canseling due to age or other natural occuring change
+  - [ ] one for issue certificate - everyobn is happy lives long and prosper
+- [ ] unit test controllers
+- [ ] remove review onchain/offchain 
+ 

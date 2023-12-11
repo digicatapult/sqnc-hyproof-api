@@ -71,7 +71,7 @@ export const processRevokeCert = (certificate: CertificateRow, attachment: Attac
       },
       metadata: {
         '@version': { type: 'LITERAL', value: '1' },
-        '@type': { type: 'LITERAL', value: 'IssuedCert' },
+        '@type': { type: 'LITERAL', value: 'RevokedCert' },
         '@original_id': { type: 'TOKEN_ID', value: certificate.original_token_id || Number.NaN },
         reason: { type: 'FILE', value: bs58ToHex(attachment.ipfs_hash) },
       },

@@ -42,8 +42,8 @@ const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRec
   type: 'insert',
   id: UUIDv4(),
   ipfs_hash: getOrError(map, key),
-  filename: 'reason',
-  size: 0,
+  filename: null, 
+  size: null,
 })
 
 const DefaultEventProcessors: EventProcessors = {
