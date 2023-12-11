@@ -48,8 +48,8 @@ services:
   hydrogen-producer-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-hyproof-api
-    ports:
-      - 5432:5432
+#    ports:
+#      - 5432:5432
     volumes:
       - hydrogen-producer-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -61,8 +61,8 @@ services:
   hydrogen-producer-postgres-identity:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-identity
-    ports:
-      - 5433:5432
+#    ports:
+#      - 5433:5432
     volumes:
       - hydrogen-producer-identity-storage:/var/lib/postgresql/data
     environment:
@@ -100,16 +100,15 @@ services:
     image: digicatapult/dscp-node:latest
     container_name: hydrogen-producer-node
     command: --base-path /data
-      --name heidi --validator
+      --alice
       --unsafe-ws-external
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000001
-      --bootnodes /dns4/reginald/tcp/30333/p2p/12D3KooWSCufgHzV4fCwRijfH2k3abrpAJxTKxEvN1FDuRXA2U9x
-    ports:
-      - 30333:30333
-      - 9944:9944
-      - 9933:9933
+#    ports:
+#      - 30333:30333
+#      - 9944:9944
+#      - 9933:9933
     restart: on-failure
     networks: ['hydrogen-producer', 'chain']
 
@@ -121,6 +120,7 @@ services:
     command: /bin/sh -c "
       sleep 10 &&
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
+      npx @digicatapult/dscp-process-management@latest create -h hydrogen-producer-node -p 9944 -u //Alice -f ./processFlows.json &&
       npm start"
     environment:
       - PORT=8000
@@ -136,7 +136,7 @@ services:
       - IDENTITY_SERVICE_PORT=9000
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
-      - USER_URI=//Heidi
+      - USER_URI=//Alice
     ports:
       - 8000:8000
     depends_on:
@@ -154,8 +154,8 @@ services:
   energy-owner-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-hyproof-api
-    ports:
-      - 5442:5432
+#    ports:
+#      - 5442:5432
     volumes:
       - energy-owner-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -167,8 +167,8 @@ services:
   energy-owner-postgres-identity:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-identity
-    ports:
-      - 5443:5432
+#    ports:
+#      - 5443:5432
     volumes:
       - energy-owner-identity-storage:/var/lib/postgresql/data
     environment:
@@ -206,16 +206,16 @@ services:
     image: digicatapult/dscp-node:latest
     container_name: energy-owner-node
     command: --base-path /data/
-      --name emma --validator
+      --bob
       --unsafe-ws-external
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000002
-      --bootnodes /dns4/reginald/tcp/30333/p2p/12D3KooWSCufgHzV4fCwRijfH2k3abrpAJxTKxEvN1FDuRXA2U9x
-    ports:
-      - 31333:30333
-      - 10044:9944
-      - 10033:9933
+      --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+#    ports:
+#      - 31333:30333
+#      - 10044:9944
+#      - 10033:9933
     restart: on-failure
     networks: ['energy-owner', 'chain']
 
@@ -242,7 +242,7 @@ services:
       - IDENTITY_SERVICE_PORT=9010
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
-      - USER_URI=//Emma
+      - USER_URI=//Bob
     ports:
       - 8010:8010
     depends_on:
@@ -260,8 +260,8 @@ services:
   regulator-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-hyproof-api
-    ports:
-      - 5452:5432
+#    ports:
+#      - 5452:5432
     volumes:
       - regulator-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -273,8 +273,8 @@ services:
   regulator-postgres-identity:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-identity
-    ports:
-      - 5453:5432
+#    ports:
+#      - 5453:5432
     volumes:
       - regulator-identity-storage:/var/lib/postgresql/data
     environment:
@@ -312,15 +312,16 @@ services:
     image: digicatapult/dscp-node:latest
     container_name: regulator-node
     command: --base-path /data/
-      --name reginald --validator
+      --charlie
       --unsafe-ws-external
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000003
-    ports:
-      - 32333:30333
-      - 10144:9944
-      - 10133:9933
+      --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+#    ports:
+#      - 32333:30333
+#      - 10144:9944
+#      - 10133:9933
     restart: on-failure
     networks: ['regulator', 'chain']
 
@@ -332,8 +333,7 @@ services:
     command: /bin/sh -c "
       sleep 10 &&
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
-      npx @digicatapult/dscp-process-management@latest create -h regulator-node -p 9944 -u //Reginald -f ./processFlows.json &&
-      npm start" # Reginald the Regulator is in charge of the process flows
+      npm start"
     environment:
       - PORT=8020
       - LOG_LEVEL=debug
@@ -348,7 +348,7 @@ services:
       - IDENTITY_SERVICE_PORT=9020
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
-      - USER_URI=//Reginald
+      - USER_URI=//Charlie
     ports:
       - 8020:8020
     depends_on:
@@ -372,9 +372,9 @@ services:
         /base16/
         0000000000000000000000000000000000000000000000000000000000000000
     ports:
-      - 4001:4001
+#      - 4001:4001
       - 8080:8080
-      - 5001:5001
+#      - 5001:5001
     networks: ['ipfs']
     volumes:
       - ipfs:/data/ipfs
