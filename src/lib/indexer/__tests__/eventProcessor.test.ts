@@ -2,7 +2,7 @@ import { describe, it } from 'mocha'
 
 import eventProcessors from '../eventProcessor'
 import { expect } from 'chai'
-import { TransactionRow } from '../../db'
+import { TransactionRow } from '../../db/types'
 
 describe('eventProcessor', function () {
   describe('initiate_cert', function () {
