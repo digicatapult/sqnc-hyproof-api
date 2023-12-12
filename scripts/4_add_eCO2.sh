@@ -3,7 +3,7 @@
 # Run script using 'source ./4_add_eCO2.sh' or '. ./4_add_eCO2.sh'
 echo "Emma the Energy Provider adds the eCO2 data"
 
-export emma_response=$(curl -s -X 'GET' http://localhost:8010/v1/certificate -H 'accept: application/json')
+emma_response=$(curl -s -X 'GET' http://localhost:8010/v1/certificate -H 'accept: application/json')
 
 export emma_local_id=$(echo $emma_response | jq -r '.[] | .id')
 
