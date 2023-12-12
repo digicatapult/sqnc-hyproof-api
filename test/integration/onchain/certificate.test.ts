@@ -25,7 +25,7 @@ import { withAppAndIndexer, withInitialisedCertFromNotSelf } from '../../helpers
 
 describe('on-chain', function () {
   this.timeout(60000)
-  let issuedCert
+  let issuedCert: CertificateRow
   const db = new Database()
   const node = container.resolve(ChainNode)
   const context: { app: Express; indexer: Indexer; cert: CertificateRow } = {} as {
