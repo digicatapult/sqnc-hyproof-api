@@ -1,10 +1,9 @@
 #!/bin/sh
 
-# Run script using 'source ./initiate_token.sh' or '. ./initiate_token.sh'
+# Run script using 'source ./2_initiate_token.sh' or '. ./2_initiate_token.sh'
+echo "Heidi the Hydrogen Producer loads data into her local database"
 
-echo "Load production data into local database"
-
-heidi_response=$(
+export heidi_response=$(
 curl -s -X 'POST' \
   'http://localhost:8000/v1/certificate' \
   -H 'accept: application/json' \
