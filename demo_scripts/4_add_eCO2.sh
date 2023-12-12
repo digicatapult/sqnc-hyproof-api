@@ -3,9 +3,9 @@
 # Run script using 'source ./4_add_eCO2.sh' or '. ./4_add_eCO2.sh'
 echo "Emma the Energy Provider adds the eCO2 data"
 
-emma_response=$(curl -s -X 'GET' http://localhost:8010/v1/certificate -H 'accept: application/json')
+export emma_response=$(curl -s -X 'GET' http://localhost:8010/v1/certificate -H 'accept: application/json')
 
-emma_local_id=$(echo $emma_response | jq -r '.[] | .id')
+export emma_local_id=$(echo $emma_response | jq -r '.[] | .id')
 
 # Assign to variable to silence output
 silencer=$(curl -s -X 'PUT' http://localhost:8010/v1/certificate/$emma_local_id \
@@ -31,15 +31,15 @@ sleep 1
 
 echo "Emma submits the final certificate to be issued on the ledger"
 
-state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r .state)
+state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r .state)
 
 while [ "$state" != "issued" ] 
 do 
 sleep 2
-state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r .state)
+state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r .state)
 echo $state
 done
 
 echo "The final certificate from the ledger"
 
-curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r
+curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r

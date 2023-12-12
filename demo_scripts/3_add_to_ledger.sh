@@ -7,13 +7,13 @@ curl -s -X POST http://localhost:8000/v1/certificate/$heidi_local_id/initiation 
 
 echo "Checking status on ledger"
 
-state=$(curl -s http://localhost:8000/v1/certificate/$heidi_local_id/initiation | jq -r '.[] | .state')
+state=$(curl -s http://localhost:8000/v1/certificate/$heidi_local_id/initiation -H 'accept: application/json' | jq -r '.[] | .state')
 
 while [ "$state" != "finalised" ] 
 do 
 sleep 2
-state=$(curl -s http://localhost:8000/v1/certificate/$heidi_local_id/initiation | jq -r '.[] | .state')
+state=$(curl -s http://localhost:8000/v1/certificate/$heidi_local_id/initiation -H 'accept: application/json' | jq -r '.[] | .state')
 echo $state
 done
 
-curl -s http://localhost:8000/v1/certificate/$heidi_local_id/ | jq -r
+curl -s http://localhost:8000/v1/certificate/$heidi_local_id/ -H 'accept: application/json'| jq -r
