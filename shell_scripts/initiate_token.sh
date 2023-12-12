@@ -21,31 +21,7 @@ curl -s -X 'POST' \
 
 echo $heidi_response | jq -r
 
-sleep 1
-
-echo "Loaded"
+echo "Loaded into local database"
 
 export heidi_local_id=$(echo $heidi_response | jq -r .id) \
 export commitment_salt=$(echo $heidi_response | jq -r .commitment_salt)
-
-sleep 1
-
-echo "Adding to shared ledger"
-
-sleep 1
-
-curl -X POST http://localhost:8000/v1/certificate/$heidi_local_id/initiation -H 'accept: application/json' -d '' | jq -r
-
-sleep 1
-
-echo "Check status"
-
-curl http://localhost:8000/v1/certificate/$heidi_database_id/initiation
-
-sleep 3
-
-curl http://localhost:8000/v1/certificate/$heidi_database_id/initiation
-
-sleep 3
-
-curl http://localhost:8000/v1/certificate/$heidi_database_id/initiation
