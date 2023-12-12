@@ -16,4 +16,4 @@ state=$(curl -s http://localhost:8000/v1/certificate/$heidi_local_id/initiation 
 echo $state
 done
 
-curl -s http://localhost:8000/v1/certificate/$heidi_local_id/initiation | jq -r '.[]'
+curl -s http://localhost:8000/v1/certificate/$heidi_local_id/ | jq -r

@@ -5,9 +5,10 @@ echo "Emma the Energy Provider adds the eCO2 data"
 
 emma_response=$(curl -s -X 'GET' http://localhost:8010/v1/certificate -H 'accept: application/json')
 
-emma_local_id=$(echo $emma_response | jq -r '.[] | .id')
+export emma_local_id=$(echo $emma_response | jq -r '.[] | .id')
 
-curl -s -X 'PUT' http://localhost:8010/v1/certificate/$emma_local_id \
+# Assign to variable to silence output
+silencer=$(curl -s -X 'PUT' http://localhost:8010/v1/certificate/$emma_local_id \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -16,25 +17,26 @@ curl -s -X 'PUT' http://localhost:8010/v1/certificate/$emma_local_id \
   "production_end_time": "2023-12-07T08:56:41.116Z",
   "production_start_time": "2023-12-07T07:56:41.116Z"
 }'
+)
 
-curl -X 'POST' http://localhost:8010/v1/certificate/$emma_local_id/issuance \
+# Assign to variable to silence output
+silencer=$(curl -s -X 'POST' http://localhost:8010/v1/certificate/$emma_local_id/issuance \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "embodied_co2": 135
 }'
+)
 
-# sleep 1
+echo "Now waiting for the final certificate to be issued on the ledger"
 
-# echo "Waiting for final certificate to be issued on the ledger"
+state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r .state)
 
-# state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r .state)
+while [ "$state" != "issued" ] 
+do 
+sleep 2
+state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r .state)
+echo $state
+done
 
-# while [ "$state" != "issued" ] 
-# do 
-# sleep 2
-# state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r .state)
-# echo $state
-# done
-
-# curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r
+curl -s http://localhost:8010/v1/certificate/$emma_local_id | jq -r
