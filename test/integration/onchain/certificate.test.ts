@@ -17,13 +17,15 @@ import {
   regulatorAlias,
   regulatorAddress,
 } from '../../helpers/mock'
-import Database, { CertificateRow } from '../../../src/lib/db'
+import Database from '../../../src/lib/db'
+import { CertificateRow } from '../../../src/lib/db/types'
 import ChainNode from '../../../src/lib/chainNode'
 import { pollTransactionState } from '../../helpers/poll'
 import { withAppAndIndexer, withInitialisedCertFromNotSelf } from '../../helpers/chainTest'
 
 describe('on-chain', function () {
   this.timeout(60000)
+  let issuedCert
   const db = new Database()
   const node = container.resolve(ChainNode)
   const context: { app: Express; indexer: Indexer; cert: CertificateRow } = {} as {
@@ -140,6 +142,34 @@ describe('on-chain', function () {
           id: context.cert.id,
           state: 'issued',
           embodied_co2: 246913.578246,
+          latest_token_id: lastTokenId + 1,
+        })
+      })
+    })
+
+    describe('recovation', () => {
+      it('should revoke an issued certificate with a reason as an attachment', async function () {
+        const { status, body } = await post(context.app, '/v1/attachment', { payload: 'test-revovation' })
+        const lastTokenId = await node.getLastTokenId()
+        const response = await post(context.app, `/v1/certificate/${issuedCert.id}/revocation`, {
+          reason: body.id,
+        })
+        expect(response.status).to.equal(201)
+        expect(status).to.equal(201)
+
+        const { id: transactionId, state } = response.body
+        expect(transactionId).to.match(
+          /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+        )
+        expect(state).to.equal('submitted')
+
+        await pollTransactionState(db, transactionId, 'finalised')
+
+        const [cert] = await db.get('certificate', { id: issuedCert.id })
+        expect(cert).to.deep.contain({
+          id: issuedCert.id,
+          state: 'revoked',
+          reason: body.id,
           latest_token_id: lastTokenId + 1,
         })
       })
