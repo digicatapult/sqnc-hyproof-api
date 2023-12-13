@@ -26,6 +26,7 @@ import { withAppAndIndexer, withInitialisedCertFromNotSelf } from '../../helpers
 describe('on-chain', function () {
   this.timeout(60000)
   let issuedCert: CertificateRow
+  let attachmentId: string
   const db = new Database()
   const node = container.resolve(ChainNode)
   const context: { app: Express; indexer: Indexer; cert: CertificateRow } = {} as {
@@ -40,6 +41,12 @@ describe('on-chain', function () {
 
   beforeEach(async function () {
     await seed()
+    const [attachment] = await db.insert('attachment', {
+      filename: 'testing-revocation',
+      size: 0,
+      ipfs_hash: 'hash-ipfs-hash',
+    })
+    attachmentId = attachment.id
   })
 
   afterEach(async function () {
@@ -149,17 +156,6 @@ describe('on-chain', function () {
     })
 
     describe('recovation', () => {
-      let attachmentId: string
-
-      beforeEach(async () => {
-        const [attachment] = await db.insert('attachment', {
-          filename: 'testing-revocation',
-          size: 0,
-          ipfs_hash: 'hash-ipfs-hash',
-        })
-        attachmentId = attachment.id
-      })
-
       it('should revoke an issued certificate with a reason as an attachment', async function () {
         const lastTokenId = await node.getLastTokenId()
         const response = await post(context.app, `/v1/certificate/${issuedCert?.id}/revocation`, {

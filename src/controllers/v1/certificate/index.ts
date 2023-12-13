@@ -420,11 +420,9 @@ export class CertificateController extends Controller {
     @Path() id: UUID,
     @Body() { reason }: Certificate.RevokePayload
   ): Promise<Certificate.GetTransactionResponse> {
-    const { address: self_address } = {
-      address: '5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y' /*await this.identity.getMemberBySelf() */,
-    }
-
+    const { address: self_address } = await this.identity.getMemberBySelf()
     const [certificate] = await this.db.get('certificate', { id })
+
     if (!certificate) throw new NotFound(id)
     if (certificate.state !== 'issued') throw new BadRequest('certificate must be issued to revoke')
     if (certificate.regulator !== self_address) throw new BadRequest('certificates can be revoked only by a regulator')
