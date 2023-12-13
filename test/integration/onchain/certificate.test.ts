@@ -150,7 +150,12 @@ describe('on-chain', function () {
 
     describe('recovation', () => {
       it('should revoke an issued certificate with a reason as an attachment', async function () {
-        const { status, body } = await post(context.app, '/v1/attachment', { payload: 'test-revovation' })
+        const { status, body } = await post(
+          context.app,
+          '/v1/attachment',
+          { body: {} },
+          { accept: 'application/octect-stream' }
+        )
         const lastTokenId = await node.getLastTokenId()
         const response = await post(context.app, `/v1/certificate/${issuedCert?.id}/revocation`, {
           reason: body.id,
