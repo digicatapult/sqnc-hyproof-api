@@ -113,6 +113,7 @@ describe('on-chain', function () {
         await pollTransactionState(db, transactionId, 'finalised')
 
         const [cert] = await db.get('certificate', { id: context.cert.id })
+        issuedCert = cert
         expect(cert).to.deep.contain({
           id: context.cert.id,
           state: 'issued',
@@ -151,7 +152,7 @@ describe('on-chain', function () {
       it('should revoke an issued certificate with a reason as an attachment', async function () {
         const { status, body } = await post(context.app, '/v1/attachment', { payload: 'test-revovation' })
         const lastTokenId = await node.getLastTokenId()
-        const response = await post(context.app, `/v1/certificate/${issuedCert.id}/revocation`, {
+        const response = await post(context.app, `/v1/certificate/${issuedCert?.id}/revocation`, {
           reason: body.id,
         })
         expect(response.status).to.equal(201)
