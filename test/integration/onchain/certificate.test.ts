@@ -6,7 +6,7 @@ import { Express } from 'express'
 import { expect } from 'chai'
 
 import Indexer from '../../../src/lib/indexer'
-import { post } from '../../helpers/routeHelper'
+import { post, postFile } from '../../helpers/routeHelper'
 import { seed, cleanup } from '../../seeds/certificate'
 
 import {
@@ -150,12 +150,7 @@ describe('on-chain', function () {
 
     describe('recovation', () => {
       it('should revoke an issued certificate with a reason as an attachment', async function () {
-        const { status, body } = await post(
-          context.app,
-          '/v1/attachment',
-          { body: {} },
-          { accept: 'application/octect-stream' }
-        )
+        const { status, body } = await postFile(context.app, '/v1/attachment', Buffer.from('a'), 'filname.txt')
         const lastTokenId = await node.getLastTokenId()
         const response = await post(context.app, `/v1/certificate/${issuedCert?.id}/revocation`, {
           reason: body.id,
