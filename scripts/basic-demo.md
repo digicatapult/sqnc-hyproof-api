@@ -14,25 +14,25 @@ Use the following command to build and run the 3-persona testnet from the root d
 docker-compose -f docker-compose-3-persona.yml up --build -d
 ```
 
-The Swagger GUI for both the Main DSCP API sys and the Identity API sys for all three personas can be accessed using:
+The 3-party demonstration creates 3 personas with different roles, given below. Their Swagger API endpoints can be accessed using:
 
-**`Heidi (the Hydrogen Producer)`**:
+`Heidi (the Hydrogen Producer)`:
 
-  - **[localhost:8000/swagger](http://localhost:8000/swagger/#/)**
+  - [localhost:8000/swagger](http://localhost:8000/swagger/#/)
 
-  - **[localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)**
+  - [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
 
-**`Emma (the Energy Provider)`**:
+`Emma (the Energy Provider)`:
 
-  - **[localhost:8010/swagger](http://localhost:8010/swagger/#/)**
+  - [localhost:8010/swagger](http://localhost:8010/swagger/#/)
 
-  - **[localhost:9010/v1/swagger](http://localhost:9010/v1/swagger/#/)**
+  - [localhost:9010/v1/swagger](http://localhost:9010/v1/swagger/#/)
 
-**`Reginald (the Regulator)`**:
+`Reginald (the Regulator)`:
 
-  - **[localhost:8020/swagger](http://localhost:8020/swagger/#/)**
+  - [localhost:8020/swagger](http://localhost:8020/swagger/#/)
 
-  - **[localhost:9020/v1/swagger](http://localhost:9020/v1/swagger/#/)**
+  - [localhost:9020/v1/swagger](http://localhost:9020/v1/swagger/#/)
 
 ---
 
