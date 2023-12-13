@@ -6,7 +6,7 @@ import { Express } from 'express'
 import { expect } from 'chai'
 
 import Indexer from '../../../src/lib/indexer'
-import { post, postFile } from '../../helpers/routeHelper'
+import { post } from '../../helpers/routeHelper'
 import { seed, cleanup } from '../../seeds/certificate'
 
 import {
@@ -149,11 +149,21 @@ describe('on-chain', function () {
     })
 
     describe('recovation', () => {
+      let attachmentId: string
+
+      beforeEach(async () => {
+        const [attachment] = await db.insert('attachment', {
+          filename: 'testing-revocation',
+          size: 0,
+          ipfs_hash: 'hash-ipfs-hash',
+        })
+        attachmentId = attachment.id
+      })
+
       it('should revoke an issued certificate with a reason as an attachment', async function () {
-        const { status, body } = await postFile(context.app, '/v1/attachment', Buffer.from('a'), 'filname.txt')
         const lastTokenId = await node.getLastTokenId()
         const response = await post(context.app, `/v1/certificate/${issuedCert?.id}/revocation`, {
-          reason: body.id,
+          reason: attachmentId,
         })
         expect(response.status).to.equal(201)
         expect(status).to.equal(201)
@@ -170,7 +180,7 @@ describe('on-chain', function () {
         expect(cert).to.deep.contain({
           id: issuedCert.id,
           state: 'revoked',
-          reason: body.id,
+          reason: attachmentId,
           latest_token_id: lastTokenId + 1,
         })
       })
