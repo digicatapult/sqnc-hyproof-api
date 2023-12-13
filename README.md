@@ -112,14 +112,42 @@ there is the `attachment` entity which returns an `id` to be used when preparing
 
 ### Services
 
-Run `docker composel up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
+Run `docker-compose up -d` to start the required dependencies to fully demo a single-party version of `dscp-hyproof-api`.
 
 - dscp-hyproof-api (+ PostgreSQL)
 - dscp-identity-service (+ PostgreSQL)
 - dscp-node
 
-### Identities
-...update once clear
+You can run a full 3-party demonstration using `docker-compose -f docker-compose-3-persona.yml up --build -d`.
 
-### Using the hyproof API
-...update once clear
+### Identities
+
+The 3-party demonstration creates 3 personas with different roles, given below. Their Swagger API endpoints can be accessed using:
+
+`Heidi (the Hydrogen Producer)`:
+
+  - [localhost:8000/swagger](http://localhost:8000/swagger/#/)
+
+  - [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
+
+`Emma (the Energy Provider)`:
+
+  - [localhost:8010/swagger](http://localhost:8010/swagger/#/)
+
+  - [localhost:9010/v1/swagger](http://localhost:9010/v1/swagger/#/)
+
+`Reginald (the Regulator)`:
+
+  - [localhost:8020/swagger](http://localhost:8020/swagger/#/)
+
+  - [localhost:9020/v1/swagger](http://localhost:9020/v1/swagger/#/)
+
+The single-party version only uses:
+
+  - [localhost:8000/swagger](http://localhost:8000/swagger/#/)
+
+  - [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
+
+### Using the HyProof API
+
+You can find a basic cli walk-through for using the API in `scripts/basic-demo.md`
