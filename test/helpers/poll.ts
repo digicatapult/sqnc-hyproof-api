@@ -1,4 +1,5 @@
-import Database, { TransactionRow } from '../../src/lib/db'
+import Database from '../../src/lib/db'
+import { TransactionRow } from '../../src/lib/db/types'
 import { TransactionState } from '../../src/models/transaction'
 import { UUID } from '../../src/models/strings'
 
