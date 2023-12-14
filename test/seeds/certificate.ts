@@ -1,4 +1,5 @@
 import Database from '../../src/lib/db'
+import { notSelfAddress, regulatorAddress, selfAddress } from '../helpers/mock'
 
 const db = new Database()
 
@@ -16,9 +17,9 @@ export const updateSeed = async () => {
   await cleanup()
 
   const [cert] = await db.insert('certificate', {
-    hydrogen_owner: 'heidi',
-    energy_owner: 'emma',
-    regulator: 'reginald',
+    hydrogen_owner: notSelfAddress,
+    energy_owner: selfAddress,
+    regulator: regulatorAddress,
     hydrogen_quantity_mwh: 1,
     latest_token_id: 1,
     original_token_id: 1,
