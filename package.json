@@ -22,7 +22,7 @@
     "url": "git+https://github.com/digicatapult/dscp-hyproof-api.git"
   },
   "engines": {
-    "node": "18.x.x",
+    "node": "20.x.x",
     "npm": "10.x.x"
   },
   "keywords": [
@@ -45,8 +45,8 @@
     "@types/supertest": "^2.0.16",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^9.0.7",
-    "@typescript-eslint/eslint-plugin": "^6.13.2",
-    "@typescript-eslint/parser": "^6.13.2",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
     "chai": "^4.3.10",
     "concurrently": "^8.2.2",
     "depcheck": "^1.4.7",
@@ -56,7 +56,7 @@
     "mocha": "^10.2.0",
     "nodemon": "^3.0.2",
     "pino-colada": "^2.2.2",
-    "prettier": "^3.1.0",
+    "prettier": "^3.1.1",
     "reflect-metadata": "^0.1.14",
     "sinon": "^17.0.1",
     "supertest": "^6.3.3",

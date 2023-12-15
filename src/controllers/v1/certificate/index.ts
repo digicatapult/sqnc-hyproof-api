@@ -191,13 +191,10 @@ export class CertificateController extends Controller {
     if (!this.commitment.validate(update, commitment_salt, certificate.commitment))
       throw new BadRequest('Commitment did not match update')
 
-    const [{ updated_at }] = await this.db.update('certificate', { id }, { commitment_salt, ...update })
-    return {
-      ...certificate,
-      ...update,
-      commitment_salt,
-      updated_at: updated_at as Date,
-    }
+    const updated = await this.db.update('certificate', { id }, { commitment_salt, ...update })
+    const updatedWithAliases = await this.mapIdentities(updated)
+    if (updatedWithAliases.length !== 1) throw new InternalServerError('Unknown error updating commitment')
+    return updatedWithAliases[0]
   }
 
   /**

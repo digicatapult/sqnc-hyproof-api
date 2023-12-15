@@ -2,32 +2,32 @@
 
 ## Description
 
-An API service for issuing hydrogen certificates 
+An API service for issuing hydrogen certificates
 
 ## Configuration
 
 Use a `.env` at root of the repository to set values for the environment variables defined in `.env` file.
 
-| variable               | required |        default         | description                                                                                  |
-| :--------------------- | :------: | :--------------------: | :------------------------------------------------------------------------------------------- |
-| PORT                   |    N     |         `3000`         | The port for the API to listen on                                                            |
-| LOG_LEVEL              |    N     |        `debug`         | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
-| ENVIRONMENT_VAR        |    N     |       `example`        | An environment specific variable                                                             |
-| DB_PORT                |    N     |         `5432`         | The port for the database                                                                    |
-| DB_HOST                |    Y     |           -            | The database hostname / host                                                                 |
+| variable               | required |       default       | description                                                                                  |
+| :--------------------- | :------: | :-----------------: | :------------------------------------------------------------------------------------------- |
+| PORT                   |    N     |       `3000`        | The port for the API to listen on                                                            |
+| LOG_LEVEL              |    N     |       `debug`       | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
+| ENVIRONMENT_VAR        |    N     |      `example`      | An environment specific variable                                                             |
+| DB_PORT                |    N     |       `5432`        | The port for the database                                                                    |
+| DB_HOST                |    Y     |          -          | The database hostname / host                                                                 |
 | DB_NAME                |    N     | `dscp-hyproof-api ` | The database name                                                                            |
-| DB_USERNAME            |    Y     |           -            | The database username                                                                        |
-| DB_PASSWORD            |    Y     |           -            | The database password                                                                        |
-| IDENTITY_SERVICE_HOST  |    Y     |           -            | Hostname of the `dscp-identity-service`                                                      |
-| IDENTITY_SERVICE_PORT  |    N     |         `3000`         | Port of the `dscp-identity-service`                                                          |
-| NODE_HOST              |    Y     |           -            | The hostname of the `dscp-node` the API should connect to                                    |
-| NODE_PORT              |    N     |         `9944`         | The port of the `dscp-node` the API should connect to                                        |
-| LOG_LEVEL              |    N     |         `info`         | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
-| USER_URI               |    Y     |           -            | The Substrate `URI` representing the private key to use when making `dscp-node` transactions |
-| IPFS_HOST              |    Y     |           -            | Hostname of the `IPFS` node to use for metadata storage                                      |
-| IPFS_PORT              |    N     |         `5001`         | Port of the `IPFS` node to use for metadata storage                                          |
-| WATCHER_POLL_PERIOD_MS |    N     |        `10000`         | Number of ms between polling of service state                                                |
-| WATCHER_TIMEOUT_MS     |    N     |         `2000`         | Timeout period in ms for service state                                                       |
+| DB_USERNAME            |    Y     |          -          | The database username                                                                        |
+| DB_PASSWORD            |    Y     |          -          | The database password                                                                        |
+| IDENTITY_SERVICE_HOST  |    Y     |          -          | Hostname of the `dscp-identity-service`                                                      |
+| IDENTITY_SERVICE_PORT  |    N     |       `3000`        | Port of the `dscp-identity-service`                                                          |
+| NODE_HOST              |    Y     |          -          | The hostname of the `dscp-node` the API should connect to                                    |
+| NODE_PORT              |    N     |       `9944`        | The port of the `dscp-node` the API should connect to                                        |
+| LOG_LEVEL              |    N     |       `info`        | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
+| USER_URI               |    Y     |          -          | The Substrate `URI` representing the private key to use when making `dscp-node` transactions |
+| IPFS_HOST              |    Y     |          -          | Hostname of the `IPFS` node to use for metadata storage                                      |
+| IPFS_PORT              |    N     |       `5001`        | Port of the `IPFS` node to use for metadata storage                                          |
+| WATCHER_POLL_PERIOD_MS |    N     |       `10000`       | Number of ms between polling of service state                                                |
+| WATCHER_TIMEOUT_MS     |    N     |       `2000`        | Timeout period in ms for service state                                                       |
 
 ## Getting started
 
@@ -107,54 +107,64 @@ npm run flows
 5. Conflict free identifiers. All identifiers must be conflict free as updates can come from third party organisations.
 
 ### Fundamental entities
+
 This is project is primary based on two entities in regards to the API.
+
 > Certificate - that can be issued, initiated and revoked by a regulator. This is something we will keep circulating arround
 > Attachments - file or json information that is stored on IPFS servie
 > Transaction - records representing interactions with the chain
 
 ### Running locally
+
 running with docker-compose -f docker-compose-3-personal.yml logs -f will render all logs, also can be parsed by `| grep`.
+
 ```
 docker-compose -f docker-compose-3-personal.yml logs -f | grep regulator
 ```
 
 > single persona
-Run `docker composel up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker composel up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
 > multiple persona
-Run `docker-compose -f docker-compose-3-personal.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker-compose -f docker-compose-3-personal.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
 > services
+
 - dscp-hyproof-api (+ PostgreSQL)
 - dscp-identity-service (+ PostgreSQL)
 - ipfs
 - dscp-node
 
-# Identities / System wide roles
-The regulator identity must be includd as part of a draft certificate which will be carried away until certificate is revoked or further features implemented.
+You can run a full 3-party demonstration using `docker-compose -f docker-compose-3-persona.yml up --build -d`.
 
-> Energy Owner (Emma) must submit a commitment before issuing a cert
-- [API] - localhost:8000/swagger
-- [address] - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY 
-- [alias] - //Alice
+### Identities
 
-> Hydrogen Owner (Haidi) commitement is generated along by consumption and production which is verified by energy owner Emma
-- [API] - localhost:8010/swagger
-- [address] - 5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
-- [alias] - //Bob
+The 3-party demonstration creates 3 personas with different roles, given below. Their Swagger API endpoints can be accessed using:
 
-> Regulator (Reginald?) has the power to oversee the future, however, it has the ability to revoke an issued certificate but before that must provide a reason (ideally valid
-...update once clear
-- [API] - localhost:8020/swagger
-- [address] - 5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y 
-- [alias] - //Charlie
+`Heidi (the Hydrogen Producer)`:
 
-#### TODOs
-- [ ] link up with other docs e.g. diags and etc that andy did
-- create scenario driven integration tests 
-  - [ ] one for regulator catching invalid commitment (if possible to bypass our validation)
-  - [ ] one for regulator canseling due to age or other natural occuring change
-  - [ ] one for issue certificate - everyobn is happy lives long and prosper
-- [ ] unit test controllers
-- [ ] remove review onchain/offchain 
- 
+- [localhost:8000/swagger](http://localhost:8000/swagger/#/)
+
+- [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
+
+`Emma (the Energy Provider)`:
+
+- [localhost:8010/swagger](http://localhost:8010/swagger/#/)
+
+- [localhost:9010/v1/swagger](http://localhost:9010/v1/swagger/#/)
+
+`Reginald (the Regulator)`:
+
+- [localhost:8020/swagger](http://localhost:8020/swagger/#/)
+
+- [localhost:9020/v1/swagger](http://localhost:9020/v1/swagger/#/)
+
+The single-party version only uses:
+
+- [localhost:8000/swagger](http://localhost:8000/swagger/#/)
+
+- [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
+
+### Using the HyProof API
+
+You can find a basic cli walk-through for using the API in `scripts/basic-demo.md`
