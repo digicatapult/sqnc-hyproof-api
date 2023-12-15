@@ -402,7 +402,7 @@ export class CertificateController extends Controller {
   @Get('{id}/revocation')
   public async getRevocationTransactions(@Path() id: UUID): Promise<Certificate.ListTransactionResponse> {
     if (!id) throw new BadRequest()
-    return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'issue_cert' })
+    return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'revoke_cert' })
   }
 
   /**

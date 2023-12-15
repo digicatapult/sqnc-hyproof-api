@@ -21,16 +21,16 @@ import Database from '../../../src/lib/db'
 import { CertificateRow } from '../../../src/lib/db/types'
 import ChainNode from '../../../src/lib/chainNode'
 import { pollTransactionState } from '../../helpers/poll'
-import { withAppAndIndexer, withInitialisedCertFromNotSelf } from '../../helpers/chainTest'
+import { withAppAndIndexer, withInitialisedCertFromNotSelf, withIssuedCertAsRegulator } from '../../helpers/chainTest'
 
 describe('on-chain', function () {
   this.timeout(60000)
-  let issuedCert: CertificateRow
   let attachmentId: string
   const db = new Database()
   const node = container.resolve(ChainNode)
-  const context: { app: Express; indexer: Indexer; cert: CertificateRow } = {} as {
+  const context: { app: Express; db: Database; indexer: Indexer; cert: CertificateRow } = { db } as {
     app: Express
+    db: Database
     indexer: Indexer
     cert: CertificateRow
   }
@@ -40,12 +40,7 @@ describe('on-chain', function () {
   withExternalServicesMock()
 
   beforeEach(async function () {
-    await seed()
-    const [attachment] = await db.insert('attachment', {
-      filename: 'testing-revocation',
-      size: 0,
-      ipfs_hash: 'hash-ipfs-hash',
-    })
+    const attachment = await seed()
     attachmentId = attachment.id
   })
 
@@ -120,7 +115,7 @@ describe('on-chain', function () {
         await pollTransactionState(db, transactionId, 'finalised')
 
         const [cert] = await db.get('certificate', { id: context.cert.id })
-        issuedCert = cert
+
         expect(cert).to.deep.contain({
           id: context.cert.id,
           state: 'issued',
@@ -155,14 +150,15 @@ describe('on-chain', function () {
       })
     })
 
-    describe('recovation', () => {
+    describe('revocation', () => {
       it('should revoke an issued certificate with a reason as an attachment', async function () {
-        const lastTokenId = await node.getLastTokenId()
-        const response = await post(context.app, `/v1/certificate/${issuedCert?.id}/revocation`, {
+        await withIssuedCertAsRegulator(context)
+        const expectedTokenId = (context.cert.latest_token_id as number) + 1
+
+        const response = await post(context.app, `/v1/certificate/${context.cert.id}/revocation`, {
           reason: attachmentId,
         })
         expect(response.status).to.equal(201)
-        expect(status).to.equal(201)
 
         const { id: transactionId, state } = response.body
         expect(transactionId).to.match(
@@ -172,12 +168,12 @@ describe('on-chain', function () {
 
         await pollTransactionState(db, transactionId, 'finalised')
 
-        const [cert] = await db.get('certificate', { id: issuedCert.id })
+        const [cert] = await db.get('certificate', { id: context.cert.id })
         expect(cert).to.deep.contain({
-          id: issuedCert.id,
+          id: context.cert.id,
           state: 'revoked',
-          reason: attachmentId,
-          latest_token_id: lastTokenId + 1,
+          revocation_reason: attachmentId,
+          latest_token_id: expectedTokenId,
         })
       })
     })

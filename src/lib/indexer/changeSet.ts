@@ -28,7 +28,7 @@ export type CertificateRecord =
       id: UUID
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
       embodied_co2?: number
-      reason?: UUID
+      revocation_reason?: UUID
       original_token_id?: number
       latest_token_id: number
     }

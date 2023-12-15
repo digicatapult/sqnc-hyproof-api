@@ -17,6 +17,7 @@ export type GetCertificateResponse = {
   production_start_time?: Date | null
   production_end_time?: Date | null
   energy_consumed_mwh?: number | null
+  revocation_reason?: UUID | null
 }
 export type ListCertificatesResponse = GetCertificateResponse[]
 export type GetTransactionResponse = {

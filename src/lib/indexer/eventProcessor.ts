@@ -112,20 +112,35 @@ const DefaultEventProcessors: EventProcessors = {
       certificates: new Map([[local_id, update]]),
     }
   },
-  revoke_cert: ({ version, inputs, outputs }) => {
+  revoke_cert: ({ version, transaction, inputs, outputs }) => {
     if (version !== 1) throw new Error(`Incompatible version ${version} for issue_cert process`)
 
     const { local_id } = inputs[0]
     const { id: latest_token_id, ...cert } = outputs[0]
 
-    const attachment: AttachmentRecord = attachmentPayload(cert.metadata, 'reason')
     const update: CertificateRecord = {
-      id: local_id,
       type: 'update',
+      id: local_id,
       latest_token_id,
       state: 'revoked',
-      reason: attachment.id,
     }
+
+    if (transaction) {
+      return {
+        certificates: new Map([
+          [
+            local_id,
+            {
+              ...update,
+              revocation_reason: getOrError(cert.metadata, 'reason'),
+            },
+          ],
+        ]),
+      }
+    }
+
+    const attachment: AttachmentRecord = attachmentPayload(cert.metadata, 'reason')
+    update.revocation_reason = attachment.id
 
     return {
       certificates: new Map([[local_id, update]]),

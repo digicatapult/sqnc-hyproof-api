@@ -27,7 +27,7 @@ token RevokedCert {
   hydrogen_owner: Role,
   energy_owner: Role,
   regulator: Role,
-  reason: File | None,
+  reason: File,
 }
 
 /*

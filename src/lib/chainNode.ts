@@ -13,6 +13,7 @@ import { logger } from './logger'
 import { Env } from '../env'
 import { injectable, singleton } from 'tsyringe'
 import { trim0x } from './utils/shared'
+import Database from './db'
 
 const processRanTopic = blake2AsHex('utxoNFT.ProcessRan')
 
@@ -59,7 +60,10 @@ export default class ChainNode {
   private logger: Logger
   private userUri: string
 
-  constructor(private env: Env) {
+  constructor(
+    private env: Env,
+    private db: Database
+  ) {
     this.logger = logger.child({ module: 'ChainNode' })
     this.provider = new WsProvider(`ws://${this.env.get('NODE_HOST')}:${this.env.get('NODE_PORT')}`)
     this.userUri = this.env.get('USER_URI')
@@ -260,21 +264,25 @@ export default class ChainNode {
     const api = blockHash ? await this.api.at(blockHash) : this.api
     const token = (await api.query.utxoNFT.tokensById(tokenId)).toJSON() as unknown as SubstrateToken
     const metadata = new Map(
-      Object.entries(token.metadata).map(([keyHex, entry]) => {
-        const key = Buffer.from(keyHex.substring(2), 'hex').toString('utf8')
-        const [valueKey, valueRaw] = Object.entries(entry)[0]
-        if (valueKey === 'None' || valueKey === 'tokenId') {
-          return [key, valueRaw]
-        }
+      await Promise.all(
+        Object.entries(token.metadata).map(async ([keyHex, entry]): Promise<readonly [string, string]> => {
+          const key = Buffer.from(keyHex.substring(2), 'hex').toString('utf8')
+          const [valueKey, valueRaw] = Object.entries(entry)[0]
+          if (valueKey === 'None' || valueKey === 'tokenId') {
+            return [key, valueRaw]
+          }
 
-        if (valueKey === 'file') {
-          return [key, hexToBs58(valueRaw)]
-        }
+          if (valueKey === 'file') {
+            const base58 = hexToBs58(valueRaw)
+            const [attachment] = await this.db.get('attachment', { ipfs_hash: base58 })
+            return [key, attachment?.id || base58]
+          }
 
-        const valueHex = valueRaw || '0x'
-        const value = Buffer.from(valueHex.substring(2), 'hex').toString('utf8')
-        return [key, value]
-      })
+          const valueHex = valueRaw || '0x'
+          const value = Buffer.from(valueHex.substring(2), 'hex').toString('utf8')
+          return [key, value]
+        })
+      )
     )
     const roles = new Map(
       Object.entries(token.roles).map(([role, account]) => [Buffer.from(trim0x(role), 'hex').toString('utf8'), account])

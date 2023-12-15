@@ -11,7 +11,7 @@ import ChainNode from '../../src/lib/chainNode'
 import { logger } from '../../src/lib/logger'
 import { put } from './routeHelper'
 import { mockEnv, notSelfAddress, regulatorAddress, selfAddress } from './mock'
-import { processInitiateCert } from '../../src/lib/payload'
+import { processInitiateCert, processIssueCert } from '../../src/lib/payload'
 
 const db = new Database()
 
@@ -46,11 +46,12 @@ export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) =
   })
 }
 
-export const withInitialisedCertFromNotSelf = async (context: { app: Express; cert: CertificateRow }) => {
+export const withInitialisedCertFromNotSelf = async (context: { app: Express; db: Database; cert: CertificateRow }) => {
   const node = new ChainNode(
     mockEnv({
       USER_URI: '//Bob',
-    })
+    }),
+    db
   )
 
   const extrinsic = await node.prepareRunProcess(
@@ -85,5 +86,61 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; ce
   }
 
   const [cert] = await db.get('certificate', { id })
+  context.cert = cert
+}
+
+export const withIssuedCertAsRegulator = async (context: { app: Express; db: Database; cert: CertificateRow }) => {
+  const heidiNode = new ChainNode(
+    mockEnv({
+      USER_URI: '//Bob',
+    }),
+    db
+  )
+
+  const initExtrinsic = await heidiNode.prepareRunProcess(
+    processInitiateCert({
+      hydrogen_owner: notSelfAddress,
+      energy_owner: regulatorAddress,
+      regulator: selfAddress,
+      hydrogen_quantity_mwh: 1,
+      commitment: 'ffb693f99a5aca369539a90b6978d0eb',
+    } as CertificateRow)
+  )
+
+  const initTokenId = await new Promise<number>((resolve, reject) => {
+    heidiNode.submitRunProcess(initExtrinsic, (state, outputs) => {
+      if (state === 'finalised') {
+        setTimeout(() => resolve(outputs ? outputs[0] : Number.NaN), 100)
+      } else if (state === 'failed') reject()
+    })
+  })
+
+  const emmaNode = new ChainNode(
+    mockEnv({
+      USER_URI: '//Charlie',
+    }),
+    db
+  )
+
+  const issueExtrinsic = await emmaNode.prepareRunProcess(
+    processIssueCert({
+      latest_token_id: initTokenId,
+      hydrogen_owner: notSelfAddress,
+      energy_owner: regulatorAddress,
+      regulator: selfAddress,
+      original_token_id: initTokenId,
+      embodied_co2: 42,
+    } as CertificateRow)
+  )
+
+  const issuedTokenId = await new Promise<number>((resolve, reject) => {
+    emmaNode.submitRunProcess(issueExtrinsic, (state, outputs) => {
+      if (state === 'finalised') {
+        setTimeout(() => resolve(outputs ? outputs[0] : Number.NaN), 100)
+      } else if (state === 'failed') reject()
+    })
+  })
+
+  const [cert] = await db.get('certificate', { latest_token_id: issuedTokenId })
   context.cert = cert
 }

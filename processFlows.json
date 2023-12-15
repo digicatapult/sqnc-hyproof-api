@@ -628,29 +628,12 @@
       },
       {
         "Restriction": {
-          "OutputHasMetadata": {
-            "index": 0,
-            "metadata_key": "reason"
-          }
-        }
-      },
-      {
-        "Restriction": "None"
-      },
-      {
-        "Op": "NotL"
-      },
-      {
-        "Restriction": {
           "FixedOutputMetadataValueType": {
             "index": 0,
             "metadata_key": "reason",
             "metadata_value_type": "File"
           }
         }
-      },
-      {
-        "Op": "Or"
       },
       {
         "Op": "And"

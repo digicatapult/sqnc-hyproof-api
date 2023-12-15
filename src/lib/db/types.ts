@@ -90,6 +90,7 @@ const Zod = {
       created_at: z.date(),
       updated_at: z.date(),
       embodied_co2: z.union([z.number(), z.null()]),
+      revocation_reason: z.union([z.string(), z.null()]),
     }),
   },
 }

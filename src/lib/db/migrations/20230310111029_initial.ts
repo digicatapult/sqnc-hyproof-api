@@ -40,9 +40,9 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
-    def.uuid('reason').nullable().defaultTo(null)
+    def.uuid('revocation_reason').nullable().defaultTo(null)
     def.primary(['id'])
-    def.foreign('reason').references('id').inTable('attachment').onDelete('CASCADE').onUpdate('CASCADE')
+    def.foreign('revocation_reason').references('id').inTable('attachment').onDelete('CASCADE').onUpdate('CASCADE')
   })
 
   await knex.schema.createTable('processed_blocks', (def) => {
@@ -84,8 +84,8 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('attachment')
   await knex.schema.dropTable('certificate')
+  await knex.schema.dropTable('attachment')
   await knex.schema.dropTable('transaction')
   await knex.schema.dropTable('processed_blocks')
   await knex.raw('DROP TYPE certificate_state')
