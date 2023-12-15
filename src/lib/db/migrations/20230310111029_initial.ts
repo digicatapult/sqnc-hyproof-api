@@ -14,6 +14,7 @@ export async function up(knex: Knex): Promise<void> {
     def.bigInteger('size').nullable().defaultTo(null)
     def.binary('binary_blob').nullable().defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(knex.fn.now())
+    def.datetime('updated_at').notNullable().defaultTo(knex.fn.now())
 
     def.primary(['id'])
   })
