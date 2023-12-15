@@ -6,7 +6,7 @@ import createHttpServer from '../../../src/server'
 import { put } from '../../helpers/routeHelper'
 
 import { cleanup, updateSeed } from '../../seeds/certificate'
-import { CertificateRow } from '../../../src/lib/db'
+import { CertificateRow } from '../../../src/lib/db/types'
 import { notSelfAlias, regulatorAlias, selfAlias, withExternalServicesMock } from '../../helpers/mock'
 
 describe('certificate', () => {

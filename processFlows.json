@@ -757,6 +757,18 @@
       },
       {
         "Op": "And"
+      },
+      {
+        "Restriction": {
+          "FixedOutputMetadataValueType": {
+            "index": 0,
+            "metadata_key": "reason",
+            "metadata_value_type": "File"
+          }
+        }
+      },
+      {
+        "Op": "And"
       }
     ],
     "version": 1

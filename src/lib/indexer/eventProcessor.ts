@@ -1,10 +1,10 @@
 import { v4 as UUIDv4 } from 'uuid'
 
 import { UUID } from '../../models/strings'
-import { TransactionRow } from '../db'
-import { ChangeSet, CertificateRecord } from './changeSet'
+import { TransactionRow } from '../../lib/db/types'
+import { ChangeSet, CertificateRecord, AttachmentRecord } from './changeSet'
 
-const processNames = ['initiate_cert', 'issue_cert'] as const
+const processNames = ['initiate_cert', 'issue_cert', 'revoke_cert'] as const
 type PROCESSES_TUPLE = typeof processNames
 type PROCESSES = PROCESSES_TUPLE[number]
 
@@ -38,13 +38,13 @@ const parseIntegerOrThrow = (value: string): number => {
   return result
 }
 
-/* INFO uncomment if we decided to use attachments
 const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRecord => ({
   type: 'insert',
   id: UUIDv4(),
   ipfs_hash: getOrError(map, key),
+  filename: null,
+  size: null,
 })
-*/
 
 const DefaultEventProcessors: EventProcessors = {
   initiate_cert: ({ version, transaction, outputs }) => {
@@ -110,6 +110,41 @@ const DefaultEventProcessors: EventProcessors = {
 
     return {
       certificates: new Map([[local_id, update]]),
+    }
+  },
+  revoke_cert: ({ version, transaction, inputs, outputs }) => {
+    if (version !== 1) throw new Error(`Incompatible version ${version} for issue_cert process`)
+
+    const { local_id } = inputs[0]
+    const { id: latest_token_id, ...cert } = outputs[0]
+
+    const update: CertificateRecord = {
+      type: 'update',
+      id: local_id,
+      latest_token_id,
+      state: 'revoked',
+    }
+
+    if (transaction) {
+      return {
+        certificates: new Map([
+          [
+            local_id,
+            {
+              ...update,
+              revocation_reason: getOrError(cert.metadata, 'reason'),
+            },
+          ],
+        ]),
+      }
+    }
+
+    const attachment: AttachmentRecord = attachmentPayload(cert.metadata, 'reason')
+    update.revocation_reason = attachment.id
+
+    return {
+      certificates: new Map([[local_id, update]]),
+      attachments: new Map([[attachment.id, attachment]]),
     }
   },
 }

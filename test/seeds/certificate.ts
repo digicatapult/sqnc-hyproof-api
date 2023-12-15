@@ -11,6 +11,12 @@ export const cleanup = async () => {
 
 export const seed = async () => {
   await cleanup()
+  const [attachment] = await db.insert('attachment', {
+    filename: 'testing-revocation',
+    size: 0,
+    ipfs_hash: 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn',
+  })
+  return attachment
 }
 
 export const updateSeed = async () => {

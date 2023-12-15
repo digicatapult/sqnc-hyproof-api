@@ -17,13 +17,14 @@ import type { Logger } from 'pino'
 import { injectable } from 'tsyringe'
 
 import { logger } from '../../../lib/logger'
-import Database, { CertificateRow, Where } from '../../../lib/db'
+import { CertificateRow, Where } from '../../../lib/db/types'
+import Database from '../../../lib/db'
 import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler/index'
 import Identity from '../../../lib/services/identity'
 import * as Certificate from '../../../models/certificate'
 import { DATE, UUID } from '../../../models/strings'
 import ChainNode from '../../../lib/chainNode'
-import { processInitiateCert, processIssueCert } from '../../../lib/payload'
+import { processInitiateCert, processIssueCert, processRevokeCert } from '../../../lib/payload'
 import { TransactionState } from '../../../models/transaction'
 import Commitment from '../../../lib/services/commitment'
 import EmissionsCalculator from '../../../lib/services/emissionsCalculator'
@@ -307,9 +308,10 @@ export class CertificateController extends Controller {
   }
 
   /**
-   * Update a certificate on-chain to include emissions data
-   * @summary Issue a new certificate on-chain
-   * @param demandAId The certificate's identifier
+   * Update a certificate on-chain to include
+   * @summary updates initiated certitificate status to issued on chain
+   * along with the embodied_co2
+   * @param id the local certificate's identifier
    */
   @Post('{id}/issuance')
   @Response<NotFound>(404, 'Item not found')
@@ -355,6 +357,82 @@ export class CertificateController extends Controller {
       local_id: certificate.id,
       hash: extrinsic.hash.toHex(),
       transaction_type: 'issue_cert',
+    })
+    if (!transaction) throw new InternalServerError('Transaction must exist')
+
+    this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
+      this.db.update('transaction', { id: transaction.id }, { state })
+    )
+
+    return transaction
+  }
+
+  /**
+   * @summary returns certificate transaction by certificate and transaction id
+   * @param id - the local certificate's identifier
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Get('{id}/revocation/{transactionId}')
+  public async getRevocationTransaction(
+    @Path() id: UUID,
+    transactionId: UUID
+  ): Promise<Certificate.GetTransactionResponse> {
+    if (!id || !transactionId) throw new BadRequest()
+
+    const [transaction] = await this.db.get('transaction', {
+      local_id: id,
+      id: transactionId,
+      api_type: 'certificate',
+      transaction_type: 'revoke_cert',
+    })
+    if (!transaction) throw new NotFound(id)
+    return transaction
+  }
+
+  /**
+   * @summary returns transactions by certificate local id
+   * @example id "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Response<ValidateError>(422, 'Validation Failed')
+  @Response<NotFound>(404, '<item> not found')
+  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Get('{id}/revocation')
+  public async getRevocationTransactions(@Path() id: UUID): Promise<Certificate.ListTransactionResponse> {
+    if (!id) throw new BadRequest()
+    return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'revoke_cert' })
+  }
+
+  /**
+   * Updates a certificate on-chain to include
+   * @summary changes issued certificate to revoked
+   * @param id - the local certificate's identifier
+   */
+  @Post('{id}/revocation')
+  @Response<NotFound>(404, 'Item not found')
+  @SuccessResponse('201')
+  public async revokeOnChain(
+    @Path() id: UUID,
+    @Body() { reason }: Certificate.RevokePayload
+  ): Promise<Certificate.GetTransactionResponse> {
+    const { address: self_address } = await this.identity.getMemberBySelf()
+    const [certificate] = await this.db.get('certificate', { id })
+
+    if (!certificate) throw new NotFound(id)
+    if (certificate.state !== 'issued') throw new BadRequest('certificate must be issued to revoke')
+    if (certificate.regulator !== self_address) throw new BadRequest('certificates can be revoked only by a regulator')
+
+    const [attachment] = await this.db.get('attachment', { id: reason })
+    if (!attachment) throw new NotFound(reason)
+
+    const extrinsic = await this.node.prepareRunProcess(processRevokeCert(certificate, attachment))
+    const [transaction] = await this.db.insert('transaction', {
+      api_type: 'certificate',
+      local_id: certificate.id,
+      hash: extrinsic.hash.toHex(),
+      transaction_type: 'revoke_cert',
     })
     if (!transaction) throw new InternalServerError('Transaction must exist')
 

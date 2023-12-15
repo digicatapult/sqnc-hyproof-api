@@ -65,4 +65,5 @@ pub fn revoke_cert |input: IssuedCert| => |output: RevokedCert| where {
   output.energy_owner != sender,
   output.hydrogen_owner != sender,
   output.regulator == sender,
+  output.reason: File
 }

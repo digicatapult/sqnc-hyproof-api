@@ -1,10 +1,16 @@
-import { singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 import startApiStatus from './apiStatus'
 import startIpfsStatus from './ipfsStatus'
 import startIdentityStatus from './identityStatus'
 import { buildCombinedHandler, SERVICE_STATE, Status } from './statusPoll'
 
+import { Env } from '../../env'
+import ChainNode from '../chainNode'
+import Identity from '../services/identity'
+import Ipfs from '../ipfs'
+
 @singleton()
+@injectable()
 export class ServiceWatcher {
   handlersP: Promise<{
     readonly status: SERVICE_STATE
@@ -14,7 +20,12 @@ export class ServiceWatcher {
     close: () => void
   }>
 
-  constructor() {
+  constructor(
+    private env: Env,
+    private node: ChainNode,
+    private identity: Identity,
+    private ipfs: Ipfs
+  ) {
     this.handlersP = this.build()
   }
 
@@ -27,9 +38,9 @@ export class ServiceWatcher {
   }> => {
     const handlers = new Map()
     const [apiStatus, ipfsStatus, identityStatus] = await Promise.all([
-      startApiStatus(),
-      startIpfsStatus(),
-      startIdentityStatus(),
+      startApiStatus(this.env, this.node),
+      startIpfsStatus(this.env, this.ipfs),
+      startIdentityStatus(this.env, this.identity),
     ])
     handlers.set('api', apiStatus)
     handlers.set('ipfs', ipfsStatus)

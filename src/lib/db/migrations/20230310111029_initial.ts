@@ -14,6 +14,7 @@ export async function up(knex: Knex): Promise<void> {
     def.bigInteger('size').nullable().defaultTo(null)
     def.binary('binary_blob').nullable().defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(knex.fn.now())
+    def.datetime('updated_at').notNullable().defaultTo(knex.fn.now())
 
     def.primary(['id'])
   })
@@ -40,7 +41,9 @@ export async function up(knex: Knex): Promise<void> {
     def.integer('original_token_id').defaultTo(null)
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
+    def.uuid('revocation_reason').nullable().defaultTo(null)
     def.primary(['id'])
+    def.foreign('revocation_reason').references('id').inTable('attachment').onDelete('CASCADE').onUpdate('CASCADE')
   })
 
   await knex.schema.createTable('processed_blocks', (def) => {
@@ -72,15 +75,18 @@ export async function up(knex: Knex): Promise<void> {
     def.specificType('hash', 'CHAR(66)').notNullable()
     def.enum('api_type', ['certificate'], { useNative: true, enumName: 'api_type' }).notNullable()
     def
-      .enum('transaction_type', ['initiate_cert', 'issue_cert'], { useNative: true, enumName: 'transaction_type' })
+      .enum('transaction_type', ['initiate_cert', 'issue_cert', 'revoke_cert'], {
+        useNative: true,
+        enumName: 'transaction_type',
+      })
       .notNullable()
     def.unique(['id', 'local_id'], { indexName: 'transaction-id-local-id' })
   })
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('attachment')
   await knex.schema.dropTable('certificate')
+  await knex.schema.dropTable('attachment')
   await knex.schema.dropTable('transaction')
   await knex.schema.dropTable('processed_blocks')
   await knex.raw('DROP TYPE certificate_state')
