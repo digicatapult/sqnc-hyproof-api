@@ -188,7 +188,7 @@ describe('eventProcessor', function () {
     })
 
     it('should update without attachment if transaction is present', function () {
-      let result = eventProcessors['revoke_cert']({
+      const result = eventProcessors['revoke_cert']({
         version: 1,
         sender: 'alice',
         transaction: { local_id: '42' } as TransactionRow,
@@ -219,7 +219,7 @@ describe('eventProcessor', function () {
     })
 
     it('should update with attachment if transaction is not present', function () {
-      let result = eventProcessors['revoke_cert']({
+      const result = eventProcessors['revoke_cert']({
         version: 1,
         sender: 'alice',
         inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
