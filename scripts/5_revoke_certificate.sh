@@ -28,12 +28,12 @@ sleep 1
 
 echo "Waiting for certificate to be revoked on-chain"
 
-state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r .state)
+state=$(curl -s http://localhost:8020/v1/certificate/$reggie_local_id -H 'accept: application/json' | jq -r .state)
 
 while [ "$state" != "revoked" ] 
 do 
 sleep 2
-state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r .state)
+state=$(curl -s http://localhost:8020/v1/certificate/$reggie_local_id -H 'accept: application/json' | jq -r .state)
 echo $state
 done
 
