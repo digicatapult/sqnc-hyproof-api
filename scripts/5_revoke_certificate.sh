@@ -13,7 +13,7 @@ file_id=$(curl -s -X 'POST' http://localhost:8020/v1/attachment \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@Revocation_Reason.pdf;type=application/pdf' | jq -r .id)
 
-sleep 1
+sleep 2
 
 echo "Reginald the Regulator now revokes the certificate"
 
