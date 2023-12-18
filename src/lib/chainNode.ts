@@ -294,4 +294,8 @@ export default class ChainNode {
       roles,
     }
   }
+
+  async sealBlock(createEmpty: boolean = true, finalise: boolean = true) {
+    return await this.api.rpc.engine.createBlock(createEmpty, finalise)
+  }
 }

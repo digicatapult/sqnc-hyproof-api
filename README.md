@@ -68,16 +68,29 @@ npx knex migrate:make --knexfile src/lib/db/knexfile.ts attachment-table
 
 ## Tests
 
-Integration tests are executed by calling:
-
-```sh
-npm run test
-```
-
 Unit tests are executed by calling:
 
 ```sh
 npm run test:unit
+```
+
+Integration tests require the test dependency services be brought up using docker:
+
+```sh
+# start dependencies
+docker compose -f ./docker-compose-test.yml up -d
+# install packages
+npm ci
+# run migrations
+npm run db:migrate
+# put process flows on-chain
+npm run flows
+```
+
+Integration tests are then executed by calling:
+
+```sh
+npm run test
 ```
 
 ## Process Flows
