@@ -163,7 +163,7 @@ The single-party version only uses:
 
 - HyProof API: [localhost:3000/swagger](http://localhost:3000/swagger/#/)
 
-- Identity Service: [localhost:3002/v1/swagger](http://localhost:3000/v1/swagger/#/)
+- Identity Service: [localhost:3002/v1/swagger](http://localhost:3002/v1/swagger/#/)
 
 ### Using the HyProof API
 
