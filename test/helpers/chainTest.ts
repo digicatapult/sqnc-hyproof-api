@@ -21,13 +21,16 @@ const submitRunProcessExtrinsicAndSeal = async (
   node: ChainNode,
   extrinsic: SubmittableExtrinsic<'promise', SubmittableResult>
 ): Promise<number[]> => {
-  return new Promise<number[]>(async (resolve, reject) => {
-    await node.submitRunProcess(extrinsic, (state, outputs) => {
-      if (state === 'finalised') {
-        setTimeout(() => resolve(outputs ? outputs : []), 100)
-      } else if (state === 'failed') reject()
-    })
-    await node.sealBlock()
+  return new Promise<number[]>((resolve, reject) => {
+    node
+      .submitRunProcess(extrinsic, (state, outputs) => {
+        if (state === 'finalised') {
+          setTimeout(() => resolve(outputs ? outputs : []), 100)
+        } else if (state === 'failed') reject()
+      })
+      .then(() => {
+        node.sealBlock()
+      })
   })
 }
 
