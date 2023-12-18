@@ -92,3 +92,16 @@ You will first check that this additional private data matches against that whic
 You will then add the eCO2 to the `initialised` certificate on the ledger and the final certificate will be `issued`.
 
 Run `. ./4_add_eCO2.sh`
+
+
+### 5. Revoke the certificate
+
+Reginald the Regulator has identified a problem with this hydrogen certificate. The reasons for revocation are contained within the PDF document titled `Revocation_Reason.pdf`.
+
+Inform the audience that Reginald will first upload the document explaining the grounds for revocation into the system, and then trigger the revocation of the certificate.
+
+This revocation will then be finalised by the shared `ledger` so that both the reason and revocation are visible by all.
+
+Run `. ./5_revoke_certificate.sh`
+
+It is important to state that the system is designed like this to prevent revocation from happening without a reason first being given and indelibly linked to the certificate that it is revoking.
