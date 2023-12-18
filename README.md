@@ -19,7 +19,7 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | DB_USERNAME            |    Y     |          -          | The database username                                                                        |
 | DB_PASSWORD            |    Y     |          -          | The database password                                                                        |
 | IDENTITY_SERVICE_HOST  |    Y     |          -          | Hostname of the `dscp-identity-service`                                                      |
-| IDENTITY_SERVICE_PORT  |    N     |       `3000`        | Port of the `dscp-identity-service`                                                          |
+| IDENTITY_SERVICE_PORT  |    N     |       `3002`        | Port of the `dscp-identity-service`                                                          |
 | NODE_HOST              |    Y     |          -          | The hostname of the `dscp-node` the API should connect to                                    |
 | NODE_PORT              |    N     |       `9944`        | The port of the `dscp-node` the API should connect to                                        |
 | LOG_LEVEL              |    N     |       `info`        | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
@@ -161,9 +161,9 @@ The 3-party demonstration creates 3 personas with different roles, given below. 
 
 The single-party version only uses:
 
-- [localhost:8000/swagger](http://localhost:8000/swagger/#/)
+- HyProof API: [localhost:3000/swagger](http://localhost:8000/swagger/#/)
 
-- [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
+- Identity Service: [localhost:3002/v1/swagger](http://localhost:9000/v1/swagger/#/)
 
 ### Using the HyProof API
 
