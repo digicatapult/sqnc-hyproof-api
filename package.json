@@ -50,7 +50,7 @@
     "chai": "^4.3.10",
     "concurrently": "^8.2.2",
     "depcheck": "^1.4.7",
-    "eslint": "^8.55.0",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
     "mocha": "^10.2.0",
