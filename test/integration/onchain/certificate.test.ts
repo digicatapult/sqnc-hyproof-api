@@ -73,6 +73,7 @@ describe('on-chain', function () {
         )
         expect(state).to.equal('submitted')
 
+        await node.sealBlock()
         await pollTransactionState(db, transactionId, 'finalised')
 
         const [cert] = await db.get('certificate', { id: certId })
@@ -112,6 +113,7 @@ describe('on-chain', function () {
         )
         expect(state).to.equal('submitted')
 
+        await node.sealBlock()
         await pollTransactionState(db, transactionId, 'finalised')
 
         const [cert] = await db.get('certificate', { id: context.cert.id })
@@ -138,6 +140,7 @@ describe('on-chain', function () {
         )
         expect(state).to.equal('submitted')
 
+        await node.sealBlock()
         await pollTransactionState(db, transactionId, 'finalised')
 
         const [cert] = await db.get('certificate', { id: context.cert.id })
@@ -166,6 +169,7 @@ describe('on-chain', function () {
         )
         expect(state).to.equal('submitted')
 
+        await node.sealBlock()
         await pollTransactionState(db, transactionId, 'finalised')
 
         const [cert] = await db.get('certificate', { id: context.cert.id })
