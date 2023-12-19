@@ -174,9 +174,9 @@ The 3-party demonstration creates 3 personas with different roles, given below. 
 
 The single-party version only uses:
 
-- [localhost:8000/swagger](http://localhost:8000/swagger/#/)
+- HyProof API: [localhost:3000/swagger](http://localhost:3000/swagger/#/)
 
-- [localhost:9000/v1/swagger](http://localhost:9000/v1/swagger/#/)
+- Identity Service: [localhost:3002/v1/swagger](http://localhost:3002/v1/swagger/#/)
 
 ### Using the HyProof API
 
