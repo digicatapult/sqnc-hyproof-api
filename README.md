@@ -19,7 +19,7 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | DB_USERNAME            |    Y     |          -          | The database username                                                                        |
 | DB_PASSWORD            |    Y     |          -          | The database password                                                                        |
 | IDENTITY_SERVICE_HOST  |    Y     |          -          | Hostname of the `dscp-identity-service`                                                      |
-| IDENTITY_SERVICE_PORT  |    N     |       `3002`        | Port of the `dscp-identity-service`                                                          |
+| IDENTITY_SERVICE_PORT  |    N     |       `3000`        | Port of the `dscp-identity-service`                                                          |
 | NODE_HOST              |    Y     |          -          | The hostname of the `dscp-node` the API should connect to                                    |
 | NODE_PORT              |    N     |       `9944`        | The port of the `dscp-node` the API should connect to                                        |
 | LOG_LEVEL              |    N     |       `info`        | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
