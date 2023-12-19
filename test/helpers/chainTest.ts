@@ -12,8 +12,27 @@ import { logger } from '../../src/lib/logger'
 import { put } from './routeHelper'
 import { mockEnv, notSelfAddress, regulatorAddress, selfAddress } from './mock'
 import { processInitiateCert, processIssueCert } from '../../src/lib/payload'
+import { SubmittableExtrinsic } from '@polkadot/api/types'
+import { SubmittableResult } from '@polkadot/api'
 
 const db = new Database()
+
+const submitRunProcessExtrinsicAndSeal = async (
+  node: ChainNode,
+  extrinsic: SubmittableExtrinsic<'promise', SubmittableResult>
+): Promise<number[]> => {
+  return new Promise<number[]>((resolve, reject) => {
+    node
+      .submitRunProcess(extrinsic, (state, outputs) => {
+        if (state === 'finalised') {
+          setTimeout(() => resolve(outputs ? outputs : []), 100)
+        } else if (state === 'failed') reject()
+      })
+      .then(() => {
+        node.sealBlock()
+      })
+  })
+}
 
 export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) => {
   before(async function () {
@@ -64,13 +83,7 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; db
     } as CertificateRow)
   )
 
-  const tokenId = await new Promise<number>((resolve, reject) => {
-    node.submitRunProcess(extrinsic, (state, outputs) => {
-      if (state === 'finalised') {
-        setTimeout(() => resolve(outputs ? outputs[0] : Number.NaN), 100)
-      } else if (state === 'failed') reject()
-    })
-  })
+  const [tokenId] = await submitRunProcessExtrinsicAndSeal(node, extrinsic)
 
   const [{ id }] = await db.get('certificate', { latest_token_id: tokenId })
 
@@ -107,13 +120,7 @@ export const withIssuedCertAsRegulator = async (context: { app: Express; db: Dat
     } as CertificateRow)
   )
 
-  const initTokenId = await new Promise<number>((resolve, reject) => {
-    heidiNode.submitRunProcess(initExtrinsic, (state, outputs) => {
-      if (state === 'finalised') {
-        setTimeout(() => resolve(outputs ? outputs[0] : Number.NaN), 100)
-      } else if (state === 'failed') reject()
-    })
-  })
+  const [initTokenId] = await submitRunProcessExtrinsicAndSeal(heidiNode, initExtrinsic)
 
   const emmaNode = new ChainNode(
     mockEnv({
@@ -133,14 +140,7 @@ export const withIssuedCertAsRegulator = async (context: { app: Express; db: Dat
     } as CertificateRow)
   )
 
-  const issuedTokenId = await new Promise<number>((resolve, reject) => {
-    emmaNode.submitRunProcess(issueExtrinsic, (state, outputs) => {
-      if (state === 'finalised') {
-        setTimeout(() => resolve(outputs ? outputs[0] : Number.NaN), 100)
-      } else if (state === 'failed') reject()
-    })
-  })
-
+  const [issuedTokenId] = await submitRunProcessExtrinsicAndSeal(emmaNode, issueExtrinsic)
   const [cert] = await db.get('certificate', { latest_token_id: issuedTokenId })
   context.cert = cert
 }
