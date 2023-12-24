@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-hyproof-api",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "An OpenAPI API service for DSCP",
   "main": "src/index.ts",
   "scripts": {
@@ -52,7 +52,7 @@
     "depcheck": "^1.4.7",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.0",
+    "eslint-plugin-prettier": "^5.1.1",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.2",
     "pino-colada": "^2.2.2",
