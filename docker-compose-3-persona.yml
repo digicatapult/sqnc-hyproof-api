@@ -364,7 +364,7 @@ services:
 ##################################################################################
 
   ipfs:
-    image: ipfs/go-ipfs:v0.24.0
+    image: ipfs/go-ipfs:v0.25.0
     container_name: ipfs
     environment:
       - |
