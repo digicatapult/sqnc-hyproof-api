@@ -120,6 +120,10 @@ export class CertificateController extends Controller {
       commitment_salt: salt,
       commitment: digest,
     })
+<<<<<<< HEAD
+=======
+
+>>>>>>> c800eaf (HYP-71: unit tests for certificates controller)
     if (!certificate) throw new InternalServerError()
 
     return {
