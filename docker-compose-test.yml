@@ -46,7 +46,7 @@ services:
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
 
   dscp-node:
-    image: digicatapult/dscp-node:v9.4.0-chore_upgrade-deps
+    image: digicatapult/dscp-node:v10.0.0-chore_upgrade-deps
     container_name: node
     command: --base-path /data/
       --dev

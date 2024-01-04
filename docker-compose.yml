@@ -50,9 +50,8 @@ services:
     container_name: node
     command: --base-path /data/
       --dev
-      --unsafe-ws-external
       --unsafe-rpc-external
-      --ws-max-connections 512
+      --rpc-max-connections 512
       --rpc-cors all
     ports:
       - 30333:30333
