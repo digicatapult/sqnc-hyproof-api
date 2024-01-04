@@ -20,17 +20,7 @@ export type GetCertificateResponse = {
   revocation_reason?: UUID | null
 }
 export type ListCertificatesResponse = GetCertificateResponse[]
-export type GetTransactionResponse = {
-  id: UUID
-  api_type: 'certificate' | 'example_a' | 'example_b'
-  transaction_type: 'issue_cert' | 'initiate_cert' | 'revoke_cert'
-  state: 'submitted' | 'inBlock' | 'finalised' | 'failed'
-  local_id: string
-  hash: string
-  created_at: Date
-  updated_at: Date
-}
-export type ListTransactionResponse = GetTransactionResponse[]
+
 /**
  * Certificate Request Body example
  * @example {
