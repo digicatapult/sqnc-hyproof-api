@@ -1,11 +1,14 @@
 import express, { Express } from 'express'
 import { setup, serve } from 'swagger-ui-express'
 import cors from 'cors'
-import { json, urlencoded } from 'body-parser'
+
+import bodyParser from 'body-parser'
+const { json, urlencoded } = bodyParser
+// import { json, urlencoded } from 'body-parser'
 
 import { errorHandler } from './lib/error-handler'
 import { RegisterRoutes } from './routes'
-import * as swaggerJson from './swagger.json'
+import * as swaggerJson from './swagger.json' assert { type: 'json' }
 
 export default async (): Promise<Express> => {
   const app: Express = express()
