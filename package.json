@@ -14,8 +14,9 @@
     "test:offchain": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/integration/offchain/*.test.ts",
     "test:onchain": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/integration/onchain/*.test.ts",
     "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts",
-    "db:migrate": "npx knex migrate:latest --knexfile build/lib/db/knexfile.ts",
-    "db:rollback": "npx knex migrate:rollback --knexfile build/lib/db/knexfile.ts",
+    "db:cmd": "node --import='data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' ./node_modules/.bin/knex",
+    "db:migrate": "npm run db:cmd -- migrate:latest --knexfile src/lib/db/knexfile.ts",
+    "db:rollback": "npm run db:cmd -- migrate:rollback --knexfile src/lib/db/knexfile.ts",
     "flows": "npx @digicatapult/dscp-process-management@latest create -h localhost -p 9944 -u //Alice -f ./processFlows.json"
   },
   "repository": {
