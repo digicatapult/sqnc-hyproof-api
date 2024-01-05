@@ -1,12 +1,11 @@
 import { describe, it, afterEach, beforeEach } from 'mocha'
 import { expect } from 'chai'
-
-import { withMockLogger } from './fixtures/logger'
-import { withLastProcessedBlocksByCall, withInitialLastProcessedBlock } from './fixtures/db'
-import { withHappyChainNode, withGetHeaderBoom } from './fixtures/chainNode'
-
-import Indexer from '../index'
 import sinon from 'sinon'
+
+import { withMockLogger } from './fixtures/logger.js'
+import { withLastProcessedBlocksByCall, withInitialLastProcessedBlock } from './fixtures/db.js'
+import { withHappyChainNode, withGetHeaderBoom } from './fixtures/chainNode.js'
+import Indexer from '../index.js'
 
 describe('Indexer', function () {
   let indexer: Indexer

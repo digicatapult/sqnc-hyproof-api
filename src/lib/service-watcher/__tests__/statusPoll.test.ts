@@ -2,7 +2,7 @@ import { describe, beforeEach, afterEach, it } from 'mocha'
 import sinon from 'sinon'
 import { expect } from 'chai'
 
-import { serviceState, startStatusHandler, buildCombinedHandler } from '../statusPoll'
+import { serviceState, startStatusHandler, buildCombinedHandler } from '../statusPoll.js'
 
 const okStatus = (i: number) => ({
   status: serviceState.UP,

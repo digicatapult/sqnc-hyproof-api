@@ -1,4 +1,4 @@
-import Database from '../../src/lib/db'
+import Database from '../../src/lib/db/index.js'
 
 const db = new Database()
 

@@ -1,19 +1,18 @@
 import { before, after } from 'mocha'
 import { Express } from 'express'
 import { container } from 'tsyringe'
-
-import createHttpServer from '../../src/server'
-import Indexer from '../../src/lib/indexer'
-
-import { CertificateRow } from '../../src/lib/db/types'
-import Database from '../../src/lib/db'
-import ChainNode from '../../src/lib/chainNode'
-import { logger } from '../../src/lib/logger'
-import { put } from './routeHelper'
-import { mockEnv, notSelfAddress, regulatorAddress, selfAddress } from './mock'
-import { processInitiateCert, processIssueCert } from '../../src/lib/payload'
-import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { SubmittableResult } from '@polkadot/api'
+import { SubmittableExtrinsic } from '@polkadot/api/types'
+
+import createHttpServer from '../../src/server.js'
+import Indexer from '../../src/lib/indexer/index.js'
+import { CertificateRow } from '../../src/lib/db/types.js'
+import Database from '../../src/lib/db/index.js'
+import ChainNode from '../../src/lib/chainNode.js'
+import { logger } from '../../src/lib/logger.js'
+import { put } from './routeHelper.js'
+import { mockEnv, notSelfAddress, regulatorAddress, selfAddress } from './mock.js'
+import { processInitiateCert, processIssueCert } from '../../src/lib/payload.js'
 
 const db = new Database()
 

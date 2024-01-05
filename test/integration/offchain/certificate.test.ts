@@ -2,12 +2,11 @@ import { describe, before } from 'mocha'
 import { Express } from 'express'
 import { expect } from 'chai'
 
-import createHttpServer from '../../../src/server'
-import { put } from '../../helpers/routeHelper'
-
-import { cleanup, updateSeed } from '../../seeds/certificate'
-import { CertificateRow } from '../../../src/lib/db/types'
-import { notSelfAlias, regulatorAlias, selfAlias, withExternalServicesMock } from '../../helpers/mock'
+import createHttpServer from '../../../src/server.js'
+import { put } from '../../helpers/routeHelper.js'
+import { cleanup, updateSeed } from '../../seeds/certificate.js'
+import { CertificateRow } from '../../../src/lib/db/types.js'
+import { notSelfAlias, regulatorAlias, selfAlias, withExternalServicesMock } from '../../helpers/mock.js'
 
 describe('certificate', () => {
   let certificate: CertificateRow

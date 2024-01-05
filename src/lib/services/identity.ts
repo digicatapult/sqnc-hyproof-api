@@ -1,15 +1,21 @@
-import { NotFound, HttpResponse } from '../error-handler'
-import { Status, serviceState } from '../service-watcher/statusPoll'
 import { injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../../env'
+import { NotFound, HttpResponse } from '../error-handler/index.js'
+import { Status, serviceState } from '../service-watcher/statusPoll.js'
+import { Env } from '../../env.js'
 
 const identityResponseValidator = z.object({
   address: z.string(),
   alias: z.string(),
 })
 type IdentityResponse = z.infer<typeof identityResponseValidator>
+
+const identityHealthValidator = z.object({
+  version: z.string(),
+  status: z.literal('ok'),
+})
+type IdentityHealthResponse = z.infer<typeof identityHealthValidator>
 
 @singleton()
 @injectable()
@@ -63,11 +69,11 @@ export default class Identity {
     throw new HttpResponse({})
   }
 
-  getHealth = async () => {
+  getHealth = async (): Promise<IdentityHealthResponse> => {
     const res = await fetch(`${this.URL_PREFIX}/health`)
 
     if (res.ok) {
-      return await res.json()
+      return identityHealthValidator.parse(await res.json())
     }
 
     throw new HttpResponse({})

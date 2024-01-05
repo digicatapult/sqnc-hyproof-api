@@ -3,12 +3,12 @@ import { expect } from 'chai'
 import { Express } from 'express'
 import { container } from 'tsyringe'
 
-import Indexer from '../../../src/lib/indexer'
-import { withExternalServicesMock } from '../../helpers/mock'
-import { withAppAndIndexer } from '../../helpers/chainTest'
-import Database from '../../../src/lib/db'
-import ChainNode from '../../../src/lib/chainNode'
-import { pollTransactionState } from '../../helpers/poll'
+import Indexer from '../../../src/lib/indexer/index.js'
+import { withExternalServicesMock } from '../../helpers/mock.js'
+import { withAppAndIndexer } from '../../helpers/chainTest.js'
+import Database from '../../../src/lib/db/index.js'
+import ChainNode from '../../../src/lib/chainNode.js'
+import { pollTransactionState } from '../../helpers/poll.js'
 
 describe('on-chain', function () {
   this.timeout(120000)

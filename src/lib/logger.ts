@@ -1,11 +1,11 @@
-import pino, { Logger } from 'pino'
+import { pino } from 'pino'
 import { container } from 'tsyringe'
 
-import { Env } from '../env'
+import { Env } from '../env.js'
 
 const env = container.resolve(Env)
 
-export const logger: Logger = pino(
+export const logger = pino(
   {
     name: 'dscp-hyproof-api',
     timestamp: true,

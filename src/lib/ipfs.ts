@@ -1,17 +1,67 @@
 import type { Logger } from 'pino'
-
-import { logger } from './logger'
-import { serviceState } from './service-watcher/statusPoll'
-import type { MetadataFile } from './payload'
-import { HttpResponse } from './error-handler'
-import { Env } from '../env'
 import { injectable, singleton } from 'tsyringe'
+import { z } from 'zod'
+
+import { logger } from './logger.js'
+import { serviceState } from './service-watcher/statusPoll.js'
+import type { MetadataFile } from './payload.js'
+import { HttpResponse } from './error-handler/index.js'
+import { Env } from '../env.js'
 
 interface FilestoreResponse {
   Name: string
   Hash: string
   Size: string
 }
+
+const dirListValidator = z.object({
+  Objects: z.array(
+    z.object({
+      Hash: z.string(),
+      Links: z.array(
+        z.object({
+          Hash: z.string(),
+          Name: z.string(),
+          Size: z.number(),
+          Target: z.string(),
+          Type: z.number(),
+        })
+      ),
+    })
+  ),
+})
+
+const versionValidator = z.object({
+  Commit: z.string(),
+  Golang: z.string(),
+  Repo: z.string(),
+  System: z.string(),
+  Version: z.string(),
+})
+
+const peersValidator = z.object({
+  Peers: z.array(
+    z.object({
+      Addr: z.string(),
+      Direction: z.number(),
+      Identify: z.object({
+        Addresses: z.array(z.string()),
+        AgentVersion: z.string(),
+        ID: z.string(),
+        Protocols: z.array(z.string()),
+        PublicKey: z.string(),
+      }),
+      Latency: z.string(),
+      Muxer: z.string(),
+      Peer: z.string(),
+      Streams: z.array(
+        z.object({
+          Protocol: z.string(),
+        })
+      ),
+    })
+  ),
+})
 
 @singleton()
 @injectable()
@@ -70,7 +120,7 @@ export default class Ipfs {
     }
 
     // Parse stream of dir data to get the file hash
-    const data = await dirRes.json()
+    const data = dirListValidator.parse(await dirRes.json())
     const link = data?.Objects?.[0]?.Links?.[0]
 
     if (!link) {
@@ -102,7 +152,11 @@ export default class Ipfs {
         }
       }
 
-      const [versionResult, peersResult] = await Promise.all(results.map((r) => r.json()))
+      const [versionResultJson, peersResultJson] = await Promise.all(results.map((r) => r.json()))
+      const [versionResult, peersResult] = [
+        versionValidator.parse(versionResultJson),
+        peersValidator.parse(peersResultJson),
+      ]
       const peers: { Peer: unknown }[] = peersResult.Peers || []
       const peerCount = new Set(peers.map((peer) => peer.Peer)).size
       return {

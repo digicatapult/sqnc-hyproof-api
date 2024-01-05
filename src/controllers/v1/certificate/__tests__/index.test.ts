@@ -1,15 +1,15 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
 
-import { CertificateController } from '../index'
-import Identity from '../../../../lib/services/identity'
-import { Env } from '../../../../env'
-import Database from '../../../../lib/db'
-import ChainNode from '../../../../lib/chainNode'
-import Commitment from '../../../../lib/services/commitment'
-import EmissionsCalculator from '../../../../lib/services/emissionsCalculator'
-import { BadRequest, InternalServerError, NotFound } from '../../../../lib/error-handler'
-import { CertificateRow, TransactionRow } from '../../../../lib/db/types'
+import { CertificateController } from '../index.js'
+import Identity from '../../../../lib/services/identity.js'
+import { Env } from '../../../../env.js'
+import Database from '../../../../lib/db/index.js'
+import ChainNode from '../../../../lib/chainNode.js'
+import Commitment from '../../../../lib/services/commitment.js'
+import EmissionsCalculator from '../../../../lib/services/emissionsCalculator.js'
+import { BadRequest, InternalServerError, NotFound } from '../../../../lib/error-handler/index.js'
+import { CertificateRow, TransactionRow } from '../../../../lib/db/types.js'
 
 const attachmentExample = {
   filename: 'testing-revocation',

@@ -1,4 +1,4 @@
-import { AttachmentRecord, CertificateRecord, ChangeSet } from '../../changeSet'
+import { AttachmentRecord, CertificateRecord, ChangeSet } from '../../changeSet.js'
 
 export const changeSets2: ChangeSet[] = [
   {

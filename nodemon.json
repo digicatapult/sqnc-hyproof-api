@@ -1,0 +1,7 @@
+{
+  "exec": "node --import=tsimp/import src/index.ts",
+  "watch": [
+    "src"
+  ],
+  "ext": "ts"
+}

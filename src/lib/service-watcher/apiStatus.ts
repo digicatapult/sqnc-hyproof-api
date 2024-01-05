@@ -1,6 +1,6 @@
-import { startStatusHandler } from './statusPoll'
-import { Env } from '../../env'
-import ChainNode from '../chainNode'
+import { startStatusHandler } from './statusPoll.js'
+import { Env } from '../../env.js'
+import ChainNode from '../chainNode.js'
 
 const startApiStatus = (env: Env, node: ChainNode) =>
   startStatusHandler({

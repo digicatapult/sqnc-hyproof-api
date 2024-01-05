@@ -1,16 +1,17 @@
 import { Controller, Get, Route, Path, Response, Tags, Security, Query } from 'tsoa'
 import type { Logger } from 'pino'
-import { logger } from '../../../lib/logger'
-import Database from '../../../lib/db'
-import { DATE, UUID } from '../../../models/strings'
-import { BadRequest, NotFound } from '../../../lib/error-handler/index'
-import {
+import { injectable } from 'tsyringe'
+
+import { logger } from '../../../lib/logger.js'
+import Database from '../../../lib/db/index.js'
+import type { DATE, UUID } from '../../../models/strings.js'
+import { BadRequest, NotFound } from '../../../lib/error-handler/index.js'
+import type {
   TransactionApiType,
   GetTransactionResponse,
   ListTransactionResponse,
   TransactionState,
-} from '../../../models/transaction'
-import { injectable } from 'tsyringe'
+} from '../../../models/transaction.js'
 
 @injectable()
 @Route('v1/transaction')

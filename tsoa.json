@@ -1,7 +1,9 @@
 {
   "entryFile": "src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "controllerPathGlobs": [
+    "src/controllers/**/*.ts"
+  ],
   "multerOpts": {
     "limits": {
       "fileSize": 104857600
@@ -102,6 +104,7 @@
     }
   },
   "routes": {
+    "esm": true,
     "routesDir": "src",
     "authenticationModule": "./src/lib/authentication.ts",
     "iocModule": "src/ioc"

@@ -1,8 +1,8 @@
 import { Logger } from 'pino'
-import ChainNode, { ProcessRanEvent } from '../chainNode'
-import Database from '../db'
-import { ChangeSet, findLocalIdInChangeSet, mergeChangeSets } from './changeSet'
-import defaultEventProcessors, { EventProcessors, ValidateProcessName } from './eventProcessor'
+import ChainNode, { ProcessRanEvent } from '../chainNode.js'
+import Database from '../db/index.js'
+import { ChangeSet, findLocalIdInChangeSet, mergeChangeSets } from './changeSet.js'
+import defaultEventProcessors, { EventProcessors, ValidateProcessName } from './eventProcessor.js'
 
 export interface EventHandlerCtorArgs {
   db: Database

@@ -1,9 +1,8 @@
 import { singleton } from 'tsyringe'
-import { InternalServerError } from '../error-handler'
-
 import { z } from 'zod'
 
-import { logger } from '../logger'
+import { InternalServerError } from '../error-handler/index.js'
+import { logger } from '../logger.js'
 
 const intensityResponseValidator = z.object({
   data: z.array(

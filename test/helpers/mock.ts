@@ -1,6 +1,7 @@
 import { MockAgent, setGlobalDispatcher, getGlobalDispatcher, Dispatcher } from 'undici'
 import { container } from 'tsyringe'
-import { Env, ENV_KEYS } from '../../src/env'
+
+import { Env, ENV_KEYS } from '../../src/env.js'
 
 export const selfAlias = 'test-self'
 export const selfAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
@@ -136,7 +137,20 @@ export const withIpfsMock = (fileContent?: string | object | Buffer) => {
         method: 'POST',
       })
       .reply(200, {
-        Objects: [{ Links: [{ Hash: 'file_hash', Name: 'test' }] }],
+        Objects: [
+          {
+            Hash: 'file_hash',
+            Links: [
+              {
+                Hash: 'file_hash',
+                Name: 'test',
+                Size: 42,
+                Target: 'target',
+                Type: 1,
+              },
+            ],
+          },
+        ],
       })
     if (fileContent) {
       mockIpfs

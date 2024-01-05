@@ -1,5 +1,5 @@
-import { AttachmentRow, CertificateRow } from './db/types'
-import { bs58ToHex } from '../utils/controller-helpers'
+import { AttachmentRow, CertificateRow } from './db/types.js'
+import { bs58ToHex } from '../utils/controller-helpers.js'
 
 export interface Payload {
   process: { id: string; version: number }

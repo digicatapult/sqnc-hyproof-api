@@ -1,12 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 import { Logger } from 'pino'
-import Database from '../db'
-import ChainNode from '../chainNode'
 
-import { ChangeSet } from './changeSet'
-import EventHandler from './handleEvent'
-import { HEX } from '../../models/strings'
+import Database from '../db/index.js'
+import ChainNode from '../chainNode.js'
+import { ChangeSet } from './changeSet.js'
+import EventHandler from './handleEvent.js'
+import { HEX } from '../../models/strings.js'
 
 export interface BlockHandlerCtorArgs {
   db: Database

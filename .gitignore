@@ -17,3 +17,4 @@ knexfile.js
 *.seed
 *.pid.lock
 
+.tsimp

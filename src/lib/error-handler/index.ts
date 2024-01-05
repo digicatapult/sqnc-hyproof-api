@@ -1,8 +1,8 @@
 import { Response as ExResponse, Request as ExRequest, NextFunction } from 'express'
 import { ValidateError } from 'tsoa'
-import { Health } from '../../models'
 
-import { logger } from '../logger'
+import type { Health } from '../../models/health.js'
+import { logger } from '../logger.js'
 
 /**
  * this should reflect database tables
