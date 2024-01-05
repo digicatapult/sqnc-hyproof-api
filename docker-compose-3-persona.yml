@@ -40,16 +40,15 @@ networks:
       driver: default
 
 services:
-
-##################################################################################
-## Heidi the Hydrogen Producer ###################################################
-##################################################################################
+  ##################################################################################
+  ## Heidi the Hydrogen Producer ###################################################
+  ##################################################################################
 
   hydrogen-producer-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-hyproof-api
-#    ports:
-#      - 5432:5432
+    #    ports:
+    #      - 5432:5432
     volumes:
       - hydrogen-producer-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -61,8 +60,8 @@ services:
   hydrogen-producer-postgres-identity:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-identity
-#    ports:
-#      - 5433:5432
+    #    ports:
+    #      - 5433:5432
     volumes:
       - hydrogen-producer-identity-storage:/var/lib/postgresql/data
     environment:
@@ -101,14 +100,13 @@ services:
     container_name: hydrogen-producer-node
     command: --base-path /data
       --alice
-      --unsafe-ws-external
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000001
-#    ports:
-#      - 30333:30333
-#      - 9944:9944
-#      - 9933:9933
+    #    ports:
+    #      - 30333:30333
+    #      - 9944:9944
+    #      - 9933:9933
     restart: on-failure
     networks: ['hydrogen-producer', 'chain']
 
@@ -147,15 +145,15 @@ services:
     restart: on-failure
     networks: ['hydrogen-producer', 'ipfs']
 
-##################################################################################
-## Emma the Energy Owner #########################################################
-##################################################################################
+  ##################################################################################
+  ## Emma the Energy Owner #########################################################
+  ##################################################################################
 
   energy-owner-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-hyproof-api
-#    ports:
-#      - 5442:5432
+    #    ports:
+    #      - 5442:5432
     volumes:
       - energy-owner-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -167,8 +165,8 @@ services:
   energy-owner-postgres-identity:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-identity
-#    ports:
-#      - 5443:5432
+    #    ports:
+    #      - 5443:5432
     volumes:
       - energy-owner-identity-storage:/var/lib/postgresql/data
     environment:
@@ -207,15 +205,14 @@ services:
     container_name: energy-owner-node
     command: --base-path /data/
       --bob
-      --unsafe-ws-external
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000002
       --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
-#    ports:
-#      - 31333:30333
-#      - 10044:9944
-#      - 10033:9933
+    #    ports:
+    #      - 31333:30333
+    #      - 10044:9944
+    #      - 10033:9933
     restart: on-failure
     networks: ['energy-owner', 'chain']
 
@@ -253,15 +250,15 @@ services:
     restart: on-failure
     networks: ['energy-owner', 'ipfs']
 
-##################################################################################
-## Reginald the Regulator ########################################################
-##################################################################################
+  ##################################################################################
+  ## Reginald the Regulator ########################################################
+  ##################################################################################
 
   regulator-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-hyproof-api
-#    ports:
-#      - 5452:5432
+    #    ports:
+    #      - 5452:5432
     volumes:
       - regulator-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -273,8 +270,8 @@ services:
   regulator-postgres-identity:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-identity
-#    ports:
-#      - 5453:5432
+    #    ports:
+    #      - 5453:5432
     volumes:
       - regulator-identity-storage:/var/lib/postgresql/data
     environment:
@@ -313,15 +310,14 @@ services:
     container_name: regulator-node
     command: --base-path /data/
       --charlie
-      --unsafe-ws-external
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000003
       --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
-#    ports:
-#      - 32333:30333
-#      - 10144:9944
-#      - 10133:9933
+    #    ports:
+    #      - 32333:30333
+    #      - 10144:9944
+    #      - 10133:9933
     restart: on-failure
     networks: ['regulator', 'chain']
 
@@ -359,9 +355,9 @@ services:
     restart: on-failure
     networks: ['regulator', 'ipfs']
 
-##################################################################################
-## IPFS ##########################################################################
-##################################################################################
+  ##################################################################################
+  ## IPFS ##########################################################################
+  ##################################################################################
 
   ipfs:
     image: ipfs/go-ipfs:v0.25.0
@@ -372,9 +368,9 @@ services:
         /base16/
         0000000000000000000000000000000000000000000000000000000000000000
     ports:
-#      - 4001:4001
+      #      - 4001:4001
       - 8080:8080
-#      - 5001:5001
+    #      - 5001:5001
     networks: ['ipfs']
     volumes:
       - ipfs:/data/ipfs
