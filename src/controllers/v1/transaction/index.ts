@@ -4,9 +4,9 @@ import { injectable } from 'tsyringe'
 
 import { logger } from '../../../lib/logger.js'
 import Database from '../../../lib/db/index.js'
-import { DATE, UUID } from '../../../models/strings.js'
+import type { DATE, UUID } from '../../../models/strings.js'
 import { BadRequest, NotFound } from '../../../lib/error-handler/index.js'
-import {
+import type {
   TransactionApiType,
   GetTransactionResponse,
   ListTransactionResponse,

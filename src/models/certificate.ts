@@ -40,7 +40,7 @@ export type ListCertificatesResponse = GetCertificateResponse[]
   "hydrogen_quantity_mwh": 5
 }
  */
-export type Payload = {
+export type InitiatePayload = {
   hydrogen_quantity_mwh: number
   energy_owner: string
   regulator: string

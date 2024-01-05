@@ -1,6 +1,7 @@
 import sinon from 'sinon'
-import { ChangeSet } from '../../changeSet'
-import EventHandler from '../../handleEvent'
+
+import { ChangeSet } from '../../changeSet.js'
+import EventHandler from '../../handleEvent.js'
 
 export const withMockEventHandler = (changeSets: ChangeSet[]) => {
   return {

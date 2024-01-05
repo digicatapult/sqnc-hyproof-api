@@ -1,7 +1,7 @@
 import { Response as ExResponse, Request as ExRequest, NextFunction } from 'express'
 import { ValidateError } from 'tsoa'
 
-import { Health } from '../../models/index.js'
+import type { Health } from '../../models/health.js'
 import { logger } from '../logger.js'
 
 /**

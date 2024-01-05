@@ -3,6 +3,9 @@
   "exit": true,
   "extension": "ts",
   "file": [
-    "test/init.js"
+    "test/init.ts"
+  ],
+  "node-option": [
+    "import=tsimp/import"
   ]
 }

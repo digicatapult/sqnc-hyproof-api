@@ -21,9 +21,16 @@ import { CertificateRow, Where } from '../../../lib/db/types.js'
 import Database from '../../../lib/db/index.js'
 import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler/index.js'
 import Identity from '../../../lib/services/identity.js'
-import * as Certificate from '../../../models/certificate.js'
-import * as Transaction from '../../../models/transaction.js'
-import { DATE, UUID } from '../../../models/strings.js'
+import type {
+  InitiatePayload,
+  GetCertificateResponse,
+  ListCertificatesResponse,
+  UpdatePayload,
+  IssuancePayload,
+  RevokePayload,
+} from '../../../models/certificate.js'
+import type { GetTransactionResponse, ListTransactionResponse } from '../../../models/transaction.js'
+import type { DATE, UUID } from '../../../models/strings.js'
 import ChainNode from '../../../lib/chainNode.js'
 import { processInitiateCert, processIssueCert, processRevokeCert } from '../../../lib/payload.js'
 import { TransactionState } from '../../../models/transaction.js'
@@ -87,8 +94,8 @@ export class CertificateController extends Controller {
       production_start_time,
       production_end_time,
       energy_consumed_mwh,
-    }: Certificate.Payload
-  ): Promise<Certificate.GetCertificateResponse> {
+    }: InitiatePayload
+  ): Promise<GetCertificateResponse> {
     this.log.trace({ identity: this.identity, energy_owner, regulator })
 
     if (production_end_time <= production_start_time) {
@@ -142,7 +149,7 @@ export class CertificateController extends Controller {
    */
   @Get('/')
   @Response<NotFound>(404, '<item> not found')
-  public async getAll(@Query() createdAt?: DATE): Promise<Certificate.ListCertificatesResponse> {
+  public async getAll(@Query() createdAt?: DATE): Promise<ListCertificatesResponse> {
     const where: Where<'certificate'> = {}
     if (createdAt) where.created_at = new Date(createdAt)
 
@@ -160,7 +167,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}')
-  public async getById(@Path() id: UUID): Promise<Certificate.GetCertificateResponse> {
+  public async getById(@Path() id: UUID): Promise<GetCertificateResponse> {
     if (!id) throw new BadRequest()
     let certificates = await this.db.get('certificate', { id })
     certificates = await this.mapIdentities(certificates)
@@ -179,8 +186,8 @@ export class CertificateController extends Controller {
   @Put('{id}')
   public async updateById(
     @Path() id: UUID,
-    @Body() { commitment_salt, ...update }: Certificate.UpdatePayload
-  ): Promise<Certificate.GetCertificateResponse> {
+    @Body() { commitment_salt, ...update }: UpdatePayload
+  ): Promise<GetCertificateResponse> {
     if (!id) throw new BadRequest()
 
     const [certificate]: CertificateRow[] = await this.db.get('certificate', { id })
@@ -206,10 +213,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/initiation/{transactionId}')
-  public async getInitiationTransaction(
-    @Path() id: UUID,
-    transactionId: UUID
-  ): Promise<Transaction.GetTransactionResponse> {
+  public async getInitiationTransaction(@Path() id: UUID, transactionId: UUID): Promise<GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
 
     const [transaction] = await this.db.get('transaction', {
@@ -230,7 +234,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/initiation')
-  public async getInitiationTransactions(@Path() id: UUID): Promise<Transaction.ListTransactionResponse> {
+  public async getInitiationTransactions(@Path() id: UUID): Promise<ListTransactionResponse> {
     if (!id) throw new BadRequest()
     return await this.db.get('transaction', {
       local_id: id,
@@ -247,7 +251,7 @@ export class CertificateController extends Controller {
   @Post('{id}/initiation')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async createOnChain(@Path() id: UUID): Promise<Transaction.GetTransactionResponse> {
+  public async createOnChain(@Path() id: UUID): Promise<GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
 
     const [certificate] = await this.db.get('certificate', { id })
@@ -279,10 +283,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/issuance/{transactionId}')
-  public async getIssuanceTransaction(
-    @Path() id: UUID,
-    transactionId: UUID
-  ): Promise<Transaction.GetTransactionResponse> {
+  public async getIssuanceTransaction(@Path() id: UUID, transactionId: UUID): Promise<GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
 
     const [transaction] = await this.db.get('transaction', {
@@ -303,7 +304,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/issuance')
-  public async getIssuanceTransactions(@Path() id: UUID): Promise<Transaction.ListTransactionResponse> {
+  public async getIssuanceTransactions(@Path() id: UUID): Promise<ListTransactionResponse> {
     if (!id) throw new BadRequest()
     return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'issue_cert' })
   }
@@ -317,10 +318,7 @@ export class CertificateController extends Controller {
   @Post('{id}/issuance')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async issueOnChain(
-    @Path() id: UUID,
-    @Body() body: Certificate.IssuancePayload
-  ): Promise<Transaction.GetTransactionResponse> {
+  public async issueOnChain(@Path() id: UUID, @Body() body: IssuancePayload): Promise<GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
 
     const [certificate] = await this.db.get('certificate', { id })
@@ -377,10 +375,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/revocation/{transactionId}')
-  public async getRevocationTransaction(
-    @Path() id: UUID,
-    transactionId: UUID
-  ): Promise<Transaction.GetTransactionResponse> {
+  public async getRevocationTransaction(@Path() id: UUID, transactionId: UUID): Promise<GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
 
     const [transaction] = await this.db.get('transaction', {
@@ -401,7 +396,7 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be supplied in UUID format')
   @Get('{id}/revocation')
-  public async getRevocationTransactions(@Path() id: UUID): Promise<Transaction.ListTransactionResponse> {
+  public async getRevocationTransactions(@Path() id: UUID): Promise<ListTransactionResponse> {
     if (!id) throw new BadRequest()
     return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'revoke_cert' })
   }
@@ -414,10 +409,7 @@ export class CertificateController extends Controller {
   @Post('{id}/revocation')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async revokeOnChain(
-    @Path() id: UUID,
-    @Body() { reason }: Certificate.RevokePayload
-  ): Promise<Transaction.GetTransactionResponse> {
+  public async revokeOnChain(@Path() id: UUID, @Body() { reason }: RevokePayload): Promise<GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
     const [certificate] = await this.db.get('certificate', { id })
 

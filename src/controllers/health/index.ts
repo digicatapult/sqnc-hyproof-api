@@ -1,7 +1,7 @@
 import { Controller, Get, Response, Route, SuccessResponse, Hidden } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import type { Health } from '../../models/index.js'
+import type { Health } from '../../models/health.js'
 import { logger } from '../../lib/logger.js'
 import { serviceState } from '../../lib/service-watcher/statusPoll.js'
 import { ServiceUnavailable } from '../../lib/error-handler/index.js'

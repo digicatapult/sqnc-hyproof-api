@@ -1,4 +1,4 @@
-export interface Health {
+export type Health = {
   status: string
   version: string
   details: {
