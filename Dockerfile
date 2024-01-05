@@ -13,7 +13,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# service 
+# service
 FROM node:lts-alpine as service
 
 WORKDIR /dscp-hyproof-api
