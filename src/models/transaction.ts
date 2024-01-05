@@ -1,4 +1,4 @@
-import { UUID } from './strings'
+import { UUID } from './strings.js'
 
 /**
  * The possible states of a chain transaction

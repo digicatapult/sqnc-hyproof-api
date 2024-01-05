@@ -1,6 +1,7 @@
 import moment from 'moment'
-import { BadRequest } from '../error-handler'
-import { DATE } from '../../models/strings'
+
+import { BadRequest } from '../error-handler/index.js'
+import { DATE } from '../../models/strings.js'
 
 export const parseDateParam = (dateStr: DATE) => {
   const parsed = moment(dateStr, moment.ISO_8601, true)

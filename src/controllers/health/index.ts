@@ -1,11 +1,12 @@
 import { Controller, Get, Response, Route, SuccessResponse, Hidden } from 'tsoa'
-import type { Health } from '../../models'
-import { logger } from '../../lib/logger'
-import { serviceState } from '../../lib/service-watcher/statusPoll'
-import { ServiceUnavailable } from '../../lib/error-handler/index'
-
-import { ServiceWatcher } from '../../lib/service-watcher'
 import { injectable } from 'tsyringe'
+
+import type { Health } from '../../models/index.js'
+import { logger } from '../../lib/logger.js'
+import { serviceState } from '../../lib/service-watcher/statusPoll.js'
+import { ServiceUnavailable } from '../../lib/error-handler/index.js'
+
+import { ServiceWatcher } from '../../lib/service-watcher/index.js'
 
 const packageVersion = process.env.npm_package_version ? process.env.npm_package_version : 'unknown'
 

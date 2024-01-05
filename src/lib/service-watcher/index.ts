@@ -1,13 +1,14 @@
 import { injectable, singleton } from 'tsyringe'
-import startApiStatus from './apiStatus'
-import startIpfsStatus from './ipfsStatus'
-import startIdentityStatus from './identityStatus'
-import { buildCombinedHandler, SERVICE_STATE, Status } from './statusPoll'
 
-import { Env } from '../../env'
-import ChainNode from '../chainNode'
-import Identity from '../services/identity'
-import Ipfs from '../ipfs'
+import startApiStatus from './apiStatus.js'
+import startIpfsStatus from './ipfsStatus.js'
+import startIdentityStatus from './identityStatus.js'
+import { buildCombinedHandler, SERVICE_STATE, Status } from './statusPoll.js'
+
+import { Env } from '../../env.js'
+import ChainNode from '../chainNode.js'
+import Identity from '../services/identity.js'
+import Ipfs from '../ipfs.js'
 
 @singleton()
 @injectable()

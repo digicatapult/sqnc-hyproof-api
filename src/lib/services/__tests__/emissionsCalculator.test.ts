@@ -1,8 +1,8 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator'
-import { InternalServerError } from '../../error-handler'
+import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator.js'
+import { InternalServerError } from '../../error-handler/index.js'
 
 const date1 = new Date('2023-01-01T00:00Z')
 const date2 = new Date('2023-01-02T00:00Z')

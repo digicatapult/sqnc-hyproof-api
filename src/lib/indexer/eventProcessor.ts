@@ -1,8 +1,8 @@
 import { v4 as UUIDv4 } from 'uuid'
 
-import { UUID } from '../../models/strings'
-import { TransactionRow } from '../../lib/db/types'
-import { ChangeSet, CertificateRecord, AttachmentRecord } from './changeSet'
+import { UUID } from '../../models/strings.js'
+import { TransactionRow } from '../../lib/db/types.js'
+import { ChangeSet, CertificateRecord, AttachmentRecord } from './changeSet.js'
 
 const processNames = ['initiate_cert', 'issue_cert', 'revoke_cert'] as const
 type PROCESSES_TUPLE = typeof processNames

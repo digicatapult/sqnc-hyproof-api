@@ -1,6 +1,7 @@
 import { MockAgent, setGlobalDispatcher, getGlobalDispatcher, Dispatcher } from 'undici'
 import { container } from 'tsyringe'
-import { Env, ENV_KEYS } from '../../src/env'
+
+import { Env, ENV_KEYS } from '../../src/env.js'
 
 export const selfAlias = 'test-self'
 export const selfAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'

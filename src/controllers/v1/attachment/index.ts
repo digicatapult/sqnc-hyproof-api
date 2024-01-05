@@ -16,15 +16,15 @@ import {
 } from 'tsoa'
 import { Logger } from 'pino'
 import express from 'express'
+import { injectable } from 'tsyringe'
 import { Readable } from 'node:stream'
 
-import { logger } from '../../../lib/logger'
-import Database from '../../../lib/db'
-import type * as Attachment from '../../../models'
-import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler'
-import type { UUID, DATE } from '../../../models/strings'
-import Ipfs from '../../../lib/ipfs'
-import { injectable } from 'tsyringe'
+import { logger } from '../../../lib/logger.js'
+import Database from '../../../lib/db/index.js'
+import type * as Attachment from '../../../models/index.js'
+import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler/index.js'
+import type { UUID, DATE } from '../../../models/strings.js'
+import Ipfs from '../../../lib/ipfs.js'
 
 const parseAccept = (acceptHeader: string) =>
   acceptHeader

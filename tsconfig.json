@@ -3,7 +3,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "ESNext",
-    "module": "commonjs",
+    "module": "ESNext",
     "rootDir": "./src",
     "baseUrl": "./",
     "moduleResolution": "node",
@@ -17,14 +17,10 @@
     "skipLibCheck": true,
     "outDir": "./build",
     "esModuleInterop": true,
-    "paths":{
+    "paths": {
       "pino": ["node_modules/pino"],
-      "types": ["types"],
+      "types": ["types"]
     }
   },
-  "exclude": [
-    "**/*.test.ts",
-    "test",
-    "**/__test__"
-  ]
+  "exclude": ["**/*.test.ts", "test", "**/__test__"]
 }

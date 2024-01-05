@@ -1,7 +1,8 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
-import { parseDateParam } from '../queryParams'
-import { BadRequest } from '../../error-handler'
+
+import { parseDateParam } from '../queryParams.js'
+import { BadRequest } from '../../error-handler/index.js'
 
 describe('parseDateParam', function () {
   it('should return parsed date is str is valid date', function () {

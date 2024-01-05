@@ -1,11 +1,11 @@
 import type { Logger } from 'pino'
-
-import { logger } from './logger'
-import { serviceState } from './service-watcher/statusPoll'
-import type { MetadataFile } from './payload'
-import { HttpResponse } from './error-handler'
-import { Env } from '../env'
 import { injectable, singleton } from 'tsyringe'
+
+import { logger } from './logger.js'
+import { serviceState } from './service-watcher/statusPoll.js'
+import type { MetadataFile } from './payload.js'
+import { HttpResponse } from './error-handler/index.js'
+import { Env } from '../env.js'
 
 interface FilestoreResponse {
   Name: string

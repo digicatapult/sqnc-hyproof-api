@@ -1,4 +1,4 @@
-import { HEX } from '../../models/strings'
+import { HEX } from '../../models/strings.js'
 
 export function camelToSnake(str: string | number): string {
   return str

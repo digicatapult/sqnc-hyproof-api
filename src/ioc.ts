@@ -1,8 +1,8 @@
 import { IocContainer } from '@tsoa/runtime'
 import { container } from 'tsyringe'
 
-import Commitment from './lib/services/commitment'
-import Database from './lib/db'
+import Commitment from './lib/services/commitment.js'
+import Database from './lib/db/index.js'
 
 container.register(Commitment, { useValue: new Commitment('shake128') })
 container.register(Database, { useValue: new Database() })

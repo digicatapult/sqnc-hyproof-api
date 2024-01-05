@@ -3,13 +3,13 @@ import 'reflect-metadata'
 import { Express } from 'express'
 import { container } from 'tsyringe'
 
-import Indexer from './lib/indexer'
-import ChainNode from './lib/chainNode'
-import Database from './lib/db'
-import Server from './server'
-import { Env } from './env'
+import Indexer from './lib/indexer/index.js'
+import ChainNode from './lib/chainNode.js'
+import Database from './lib/db/index.js'
+import Server from './server.js'
+import { Env } from './env.js'
 
-import { logger } from './lib/logger'
+import { logger } from './lib/logger.js'
 ;(async () => {
   const app: Express = await Server()
   const env = container.resolve(Env)

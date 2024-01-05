@@ -1,7 +1,7 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import { bs58ToHex, hexToBs58 } from '../controller-helpers'
+import { bs58ToHex, hexToBs58 } from '../controller-helpers.js'
 
 describe('hex util', function () {
   it('should convert bs58 to hex correctly', function () {

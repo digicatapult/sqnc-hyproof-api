@@ -1,11 +1,8 @@
-import 'reflect-metadata'
-
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import Commitment from '../commitment'
-
-import type { ALGOS } from '../commitment'
+import Commitment from '../commitment.js'
+import type { ALGOS } from '../commitment.js'
 
 describe('Commitment', function () {
   describe('ctor', function () {

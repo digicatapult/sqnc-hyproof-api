@@ -1,5 +1,4 @@
 import { Knex } from 'knex'
-
 import { z } from 'zod'
 
 export const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const

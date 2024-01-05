@@ -1,13 +1,11 @@
-import 'reflect-metadata'
 import { container } from 'tsyringe'
-
 import { describe, beforeEach, afterEach, it } from 'mocha'
 import { Express } from 'express'
 import { expect } from 'chai'
 
-import Indexer from '../../../src/lib/indexer'
-import { post } from '../../helpers/routeHelper'
-import { seed, cleanup } from '../../seeds/certificate'
+import Indexer from '../../../src/lib/indexer/index.js'
+import { post } from '../../helpers/routeHelper.js'
+import { seed, cleanup } from '../../seeds/certificate.js'
 
 import {
   selfAddress,
@@ -16,12 +14,16 @@ import {
   withExternalServicesMock,
   regulatorAlias,
   regulatorAddress,
-} from '../../helpers/mock'
-import Database from '../../../src/lib/db'
-import { CertificateRow } from '../../../src/lib/db/types'
-import ChainNode from '../../../src/lib/chainNode'
-import { pollTransactionState } from '../../helpers/poll'
-import { withAppAndIndexer, withInitialisedCertFromNotSelf, withIssuedCertAsRegulator } from '../../helpers/chainTest'
+} from '../../helpers/mock.js'
+import Database from '../../../src/lib/db/index.js'
+import { CertificateRow } from '../../../src/lib/db/types.js'
+import ChainNode from '../../../src/lib/chainNode.js'
+import { pollTransactionState } from '../../helpers/poll.js'
+import {
+  withAppAndIndexer,
+  withInitialisedCertFromNotSelf,
+  withIssuedCertAsRegulator,
+} from '../../helpers/chainTest.js'
 
 describe('on-chain', function () {
   this.timeout(60000)

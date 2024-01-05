@@ -1,9 +1,9 @@
-import { NotFound, HttpResponse } from '../error-handler'
-import { Status, serviceState } from '../service-watcher/statusPoll'
 import { injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../../env'
+import { NotFound, HttpResponse } from '../error-handler/index.js'
+import { Status, serviceState } from '../service-watcher/statusPoll.js'
+import { Env } from '../../env.js'
 
 const identityResponseValidator = z.object({
   address: z.string(),

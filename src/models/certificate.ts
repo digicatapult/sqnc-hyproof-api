@@ -1,4 +1,4 @@
-import { UUID } from './strings'
+import { UUID } from './strings.js'
 
 export type GetCertificateResponse = {
   id: UUID

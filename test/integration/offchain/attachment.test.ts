@@ -2,11 +2,10 @@ import { describe, before } from 'mocha'
 import { Express } from 'express'
 import { expect } from 'chai'
 
-import createHttpServer from '../../../src/server'
-import { get, post, postFile } from '../../helpers/routeHelper'
-
-import { withIpfsMockError, withIpfsMock } from '../../helpers/mock'
-import { cleanup, attachmentSeed } from '../../seeds/attachment'
+import createHttpServer from '../../../src/server.js'
+import { get, post, postFile } from '../../helpers/routeHelper.js'
+import { withIpfsMockError, withIpfsMock } from '../../helpers/mock.js'
+import { cleanup, attachmentSeed } from '../../seeds/attachment.js'
 
 describe('attachment', () => {
   const size = 100

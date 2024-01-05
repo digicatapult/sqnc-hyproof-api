@@ -1,5 +1,5 @@
-import Database from '../../src/lib/db'
-import { notSelfAddress, regulatorAddress, selfAddress } from '../helpers/mock'
+import Database from '../../src/lib/db/index.js'
+import { notSelfAddress, regulatorAddress, selfAddress } from '../helpers/mock.js'
 
 const db = new Database()
 

@@ -1,6 +1,6 @@
-import { startStatusHandler } from './statusPoll'
-import { Env } from '../../env'
-import Identity from '../services/identity'
+import { startStatusHandler } from './statusPoll.js'
+import { Env } from '../../env.js'
+import Identity from '../services/identity.js'
 
 const startIdentityStatus = (env: Env, identity: Identity) =>
   startStatusHandler({
