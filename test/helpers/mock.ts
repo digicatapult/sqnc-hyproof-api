@@ -137,7 +137,19 @@ export const withIpfsMock = (fileContent?: string | object | Buffer) => {
         method: 'POST',
       })
       .reply(200, {
-        Objects: [{ Links: [{ Hash: 'file_hash', Name: 'test' }] }],
+        Objects: [
+          {
+            Links: [
+              {
+                Hash: 'file_hash',
+                Name: 'test',
+                Size: 42,
+                Target: 'target',
+                Type: 1,
+              },
+            ],
+          },
+        ],
       })
     if (fileContent) {
       mockIpfs
