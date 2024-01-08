@@ -22,5 +22,6 @@
       "types": ["types"]
     }
   },
-  "exclude": ["**/*.test.ts", "test", "**/__test__"]
+  "include": ["src/**/*.ts", "src/swagger.json"],
+  "exclude": ["**/*.test.ts", "test", "**/__test__", "**/__tests__"]
 }
