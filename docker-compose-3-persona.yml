@@ -116,9 +116,8 @@ services:
       context: './'
       dockerfile: 'Dockerfile'
     command: /bin/sh -c "
-      sleep 10 &&
+      sleep 20 &&
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
-      sleep 10 &&
       npx @digicatapult/dscp-process-management@latest create -h hydrogen-producer-node -p 9944 -u //Alice -f ./processFlows.json &&
       npm start"
     environment:
