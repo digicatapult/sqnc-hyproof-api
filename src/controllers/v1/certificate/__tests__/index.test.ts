@@ -99,7 +99,7 @@ describe('v1/certificate', () => {
       beforeEach(async () => {
         stubs.getMemberByAlias.resetHistory()
         stubs.getSelfAddress.resetHistory()
-        stubs.insert.throws(new InternalServerError('some database error [test]'))
+        stubs.insert.throwsException(new InternalServerError('some database error [test]'))
 
         response = await controller
           .postDraft({
@@ -111,6 +111,12 @@ describe('v1/certificate', () => {
             regulator: 'reginald-test',
           } as any)
           .catch((err) => err)
+      })
+
+      // restore stub back to this initial state
+      afterEach(() => {
+        stubs.insert.resetHistory()
+        stubs.insert.callsFake((_, data) => [data])
       })
 
       it('throws InternalServerError error', () => {
