@@ -133,7 +133,7 @@ describe('v1/attachment', () => {
         response = await controller.create({ body: { data: 'attachment-test' } } as any)
       })
 
-      it('guploads to ipfs and gets an ipfs hash', () => {
+      it('uploads to ipfs and gets an ipfs hash', () => {
         expect(stubs.addFile.lastCall.args[0]).to.deep.contain({
           filename: 'json',
         })
