@@ -29,7 +29,9 @@ describe('v1/attachment', () => {
     ]),
     insert: sinon
       .stub(database, 'insert' as any)
-      .callsFake((_, data: any) => [{ ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' }]),
+      .callsFake((_, data: any) => [
+        { ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' },
+      ]),
   }
 
   before(() => {
@@ -78,7 +80,9 @@ describe('v1/attachment', () => {
 
       // reset back to top level stubbing
       afterEach(() => {
-        stubs.insert.callsFake((_, data: any) => [{ ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' }])
+        stubs.insert.callsFake((_, data: any) => [
+          { ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' },
+        ])
       })
 
       it('throws InternalServerError error', () => {
@@ -120,7 +124,7 @@ describe('v1/attachment', () => {
         expect(response).to.deep.contain({
           ...octetExample,
           id: 'attachment-insert-test',
-          created_at: new Date('2024-01-09T08:41:16.243Z')
+          created_at: new Date('2024-01-09T08:41:16.243Z'),
         })
       })
     })
