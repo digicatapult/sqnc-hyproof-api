@@ -22,5 +22,6 @@ echo $heidi_response | jq -r
 
 echo "Loaded into local database"
 
-export heidi_local_id=$(echo $heidi_response | jq -r .id) \
+export heidi_local_id=$(echo $heidi_response | jq -r .id)
+
 export commitment_salt=$(echo $heidi_response | jq -r .commitment_salt)
