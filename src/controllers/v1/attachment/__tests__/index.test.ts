@@ -1,6 +1,5 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
-import mockdate from 'mockdate'
 
 import { attachment } from '../index.js'
 import { Env } from '../../../../env.js'
@@ -9,8 +8,6 @@ import { octetExample, jsonExample } from './fixtures.js'
 import Ipfs from '../../../../lib/ipfs.js'
 import { BadRequest, InternalServerError, NotFound } from '../../../../lib/error-handler/index.js'
 import { AttachmentRow } from '../../../../lib/db/types.js'
-
-mockdate.set('2020-10-10')
 
 describe('v1/attachment', () => {
   let response: any
@@ -32,7 +29,7 @@ describe('v1/attachment', () => {
     ]),
     insert: sinon
       .stub(database, 'insert' as any)
-      .callsFake((_, data: any) => [{ ...data, created_at: new Date(), id: 'attachment-insert-test' }]),
+      .callsFake((_, data: any) => [{ ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' }]),
   }
 
   before(() => {
@@ -79,10 +76,9 @@ describe('v1/attachment', () => {
         response = await controller.create({ body: { data: 'attachment-test' } } as any).catch((err) => err)
       })
 
-      // QUESTION shall we rely on off-chain and do not assert here?
       // reset back to top level stubbing
       afterEach(() => {
-        stubs.insert.callsFake((_, data: any) => [{ ...data, created_at: new Date(), id: 'attachment-insert-test' }])
+        stubs.insert.callsFake((_, data: any) => [{ ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' }])
       })
 
       it('throws InternalServerError error', () => {
@@ -120,10 +116,11 @@ describe('v1/attachment', () => {
         })
       })
 
-      it('returns attachments', () => {
+      it('returns attachment', () => {
         expect(response).to.deep.contain({
           ...octetExample,
           id: 'attachment-insert-test',
+          created_at: new Date('2024-01-09T08:41:16.243Z')
         })
       })
     })
@@ -187,7 +184,7 @@ describe('v1/attachment', () => {
           size: 1024,
           ipfs_hash: 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn',
           id: 'attachment-1-test',
-          created_at: new Date('2020-10-10'),
+          created_at: new Date('2024-01-09T08:41:16.243Z'),
         },
         {
           id: 'attachment-2-test',

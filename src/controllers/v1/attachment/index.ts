@@ -70,6 +70,8 @@ export class attachment extends Controller {
         return 0
       })
       .map(({ mimeType }) => mimeType)
+
+  octetResponse(buffer: Buffer, name: string): Readable {
     // default to octet-stream or allow error middleware to handle
     this.setHeader('access-control-expose-headers', 'content-disposition')
     this.setHeader('content-disposition', `attachment; filename="${name}"`)

@@ -5,7 +5,7 @@ export const octetExample: AttachmentRow = {
   size: 1024,
   ipfs_hash: 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn',
   id: 'attachment-1-test',
-  created_at: new Date('2020-10-10T00:00:00.000Z'),
+  created_at: new Date('2024-01-09T08:41:16.243Z'),
 }
 
 export const jsonExample: AttachmentRow = {
