@@ -25,36 +25,7 @@ import type { GetAttachmentResponse, ListAttachmentsResponse } from '../../../mo
 import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler/index.js'
 import type { UUID, DATE } from '../../../models/strings.js'
 import Ipfs from '../../../lib/ipfs.js'
-
-const parseAccept = (acceptHeader: string) =>
-  acceptHeader
-    .split(',')
-    .map((acceptElement) => {
-      const trimmed = acceptElement.trim()
-      const [mimeType, quality = '1'] = trimmed.split(';q=')
-      return { mimeType, quality: parseFloat(quality) }
-    })
-    .sort((a, b) => {
-      if (a.quality !== b.quality) {
-        return b.quality - a.quality
-      }
-      const [aType, aSubtype] = a.mimeType.split('/')
-      const [bType, bSubtype] = b.mimeType.split('/')
-      if (aType === '*' && bType !== '*') {
-        return 1
-      }
-      if (aType !== '*' && bType === '*') {
-        return -1
-      }
-      if (aSubtype === '*' && bSubtype !== '*') {
-        return 1
-      }
-      if (aSubtype !== '*' && bSubtype === '*') {
-        return -1
-      }
-      return 0
-    })
-    .map(({ mimeType }) => mimeType)
+import { parseAccept } from '../../../utils/controller-helpers.js'
 
 @injectable()
 @Route('v1/attachment')
