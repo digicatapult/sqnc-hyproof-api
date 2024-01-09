@@ -12,6 +12,7 @@ import { AttachmentRow } from '../../../../lib/db/types.js'
 describe('v1/attachment', () => {
   let response: any
   let controller: attachment
+
   const database: Database = new Database()
   const ipfs: Ipfs = new Ipfs(new Env())
 
@@ -38,12 +39,12 @@ describe('v1/attachment', () => {
     controller = new attachment(database, ipfs)
   })
 
-  after(() => {
-    stubs.get.reset()
-    stubs.getFile.reset()
-    stubs.insert.reset()
-    stubs.get.reset()
-    stubs.update.reset()
+  afterEach(() => {
+    stubs.get.resetHistory()
+    stubs.getFile.resetHistory()
+    stubs.insert.resetHistory()
+    stubs.get.resetHistory()
+    stubs.update.resetHistory()
   })
 
   describe('create() - POST /', () => {
@@ -134,7 +135,7 @@ describe('v1/attachment', () => {
         response = await controller.create({ body: { data: 'attachment-test' } } as any)
       })
 
-      it('guploads to ipfs and gets an ipfs hash', () => {
+      it('uploads to ipfs and gets an ipfs hash', () => {
         expect(stubs.addFile.lastCall.args[0]).to.deep.contain({
           filename: 'json',
         })
@@ -165,7 +166,6 @@ describe('v1/attachment', () => {
 
   describe('getAll() - GET /', () => {
     beforeEach(async () => {
-      stubs.get.resetHistory()
       stubs.get.callsFake(async () => [octetExample, jsonExample]), (response = await controller.getAll())
     })
 
@@ -204,9 +204,6 @@ describe('v1/attachment', () => {
   describe('getById() - GET /{id}', () => {
     describe('if attachment does not exist', () => {
       beforeEach(async () => {
-        stubs.get.resetHistory()
-        stubs.update.resetHistory()
-        stubs.getFile.resetHistory()
         stubs.get.callsFake(async () => [])
 
         response = await controller
@@ -231,7 +228,6 @@ describe('v1/attachment', () => {
 
     describe('if accept header is octet-stream', () => {
       beforeEach(async () => {
-        stubs.get.resetHistory()
         stubs.get.callsFake(async () => [octetExample])
 
         response = await controller.getById({ headers: { accept: 'application/octet-stream' } } as any, 'octet-id')
@@ -248,8 +244,6 @@ describe('v1/attachment', () => {
 
     describe('if accept header is json', () => {
       beforeEach(async () => {
-        stubs.get.resetHistory()
-        stubs.getFile.resetHistory()
         stubs.get.callsFake(async () => [
           {
             id: 'attachment-2-test',
@@ -274,8 +268,6 @@ describe('v1/attachment', () => {
 
     describe('if attachment does not have size or filename', () => {
       beforeEach(async () => {
-        stubs.get.resetHistory()
-        stubs.getFile.resetHistory()
         stubs.get.callsFake(
           async () =>
             [
