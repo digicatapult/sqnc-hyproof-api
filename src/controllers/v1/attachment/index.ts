@@ -25,7 +25,7 @@ import type { GetAttachmentResponse, ListAttachmentsResponse } from '../../../mo
 import { BadRequest, InternalServerError, NotFound } from '../../../lib/error-handler/index.js'
 import type { UUID, DATE } from '../../../models/strings.js'
 import Ipfs from '../../../lib/ipfs.js'
-import { parseAccept } from 'src/utils/controller-helpers.js'
+import { parseAccept } from '../../../utils/controller-helpers.js'
 
 @injectable()
 @Route('v1/attachment')
