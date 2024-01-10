@@ -49,6 +49,10 @@ describe('v1/certificate', () => {
   afterEach(() => {
     stubs.submitRunProcess.resetHistory()
     stubs.prepareRunProcess.resetHistory()
+    stubs.build.resetHistory()
+    stubs.getMemberByAlias.resetHistory()
+    stubs.getSelfAddress.resetHistory()
+    stubs.insert.resetHistory()
   })
 
   describe('postDraft() - POST /', () => {

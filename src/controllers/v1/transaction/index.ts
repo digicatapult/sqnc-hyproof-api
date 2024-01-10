@@ -33,7 +33,7 @@ export class TransactionController extends Controller {
   @Response<BadRequest>(400, 'Request was invalid')
   @Response<NotFound>(404, 'Item not found')
   @Get('/')
-  public async getAllTransactions(
+  public async get(
     @Query() api_type?: TransactionApiType,
     @Query() state?: TransactionState,
     @Query() updated_since?: DATE
@@ -53,8 +53,9 @@ export class TransactionController extends Controller {
    */
   @Response<NotFound>(404, 'Item not found')
   @Get('{id}')
-  public async getTransaction(@Path() id: UUID): Promise<GetTransactionResponse> {
-    const transaction = await this.db.get('transaction', { id }).then((transactions) => transactions[0])
+  public async getById(@Path() id: UUID): Promise<GetTransactionResponse> {
+    const [transaction] = await this.db.get('transaction', { id })
+    if (!transaction) throw new NotFound(`transaction [${id}]`)
 
     return transaction
   }
