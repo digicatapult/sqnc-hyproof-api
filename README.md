@@ -183,4 +183,6 @@ The single-party version only uses:
 
 ### Using the HyProof API
 
-You can find a basic cli walk-through for using the API in `scripts/basic-demo.md`
+You can find a basic cli walk-through for using the API in **`scripts/basic-demo.md`** or alternatively, you can view more details in the **[digicatapult/dscp-documentation](https://github.com/digicatapult/dscp-documentation)** repository ( in the **`./docs/hyproof/`** folder ).
+
+---
