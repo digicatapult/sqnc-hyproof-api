@@ -9,13 +9,11 @@ import bodyParser from 'body-parser'
 import { errorHandler } from './lib/error-handler/index.js'
 import { RegisterRoutes } from './routes.js'
 
-import { container } from 'tsyringe'
+// import { container } from 'tsyringe'
 
 import { Env } from './env.js'
 
-// const env = new Env()
-
-const env = container.resolve(Env)
+const env = new Env() // const env = container.resolve(Env)
 
 const API_SWAGGER_BG_COLOR = env.get('API_SWAGGER_BG_COLOR')
 const API_SWAGGER_TITLE = env.get('API_SWAGGER_TITLE')
@@ -36,13 +34,12 @@ const customCssToInject = `
 
 `
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default async (): Promise<Express> => {
   const swaggerBuffer = await fs.readFile(path.join(__dirname, './swagger.json'))
   const swaggerJson = JSON.parse(swaggerBuffer.toString('utf8'))
-  swaggerJson.info.title = `${swaggerJson.info.title}:${API_SWAGGER_HEADING}`
+  swaggerJson.info.title += `:${API_SWAGGER_HEADING}`
   const app: Express = express()
 
   const options = {
