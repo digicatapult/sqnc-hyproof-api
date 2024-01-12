@@ -93,6 +93,9 @@ services:
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - API_SWAGGER_BG_COLOR=#e4f2f3
+      - API_SWAGGER_TITLE=IdentityAPIheidi
+      - API_SWAGGER_HEADING=Identity-API-System-heidi
     networks: ['hydrogen-producer']
 
   hydrogen-producer-node:
@@ -201,6 +204,9 @@ services:
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - API_SWAGGER_BG_COLOR=#e7f6e6
+      - API_SWAGGER_TITLE=IdentityAPIemma
+      - API_SWAGGER_HEADING=Identity-API-System-emma
     networks: ['energy-owner']
 
   energy-owner-node:
@@ -309,6 +315,9 @@ services:
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - API_SWAGGER_BG_COLOR=#f8dddd
+      - API_SWAGGER_TITLE=IdentityAPIreginald
+      - API_SWAGGER_HEADING=Identity-API-System-reginald
     networks: ['regulator']
 
   regulator-node:
