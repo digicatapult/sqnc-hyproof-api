@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import express, { Express } from 'express'
-import { setup, serve } from 'swagger-ui-express'
+import { setup, serve, SwaggerUiOptions } from 'swagger-ui-express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 
@@ -19,7 +19,7 @@ const API_SWAGGER_BG_COLOR = env.get('API_SWAGGER_BG_COLOR')
 const API_SWAGGER_TITLE = env.get('API_SWAGGER_TITLE')
 const API_SWAGGER_HEADING = env.get('API_SWAGGER_HEADING')
 
-const customCssToInject = `
+const customCssToInject: string = `
 
   body { background-color: ${API_SWAGGER_BG_COLOR}; }
   .swagger-ui .scheme-container { background-color: inherit; }
@@ -42,7 +42,7 @@ export default async (): Promise<Express> => {
   swaggerJson.info.title += `:${API_SWAGGER_HEADING}`
   const app: Express = express()
 
-  const options = {
+  const options: SwaggerUiOptions = {
     swaggerOptions: { url: '/api-docs' },
     customCss: customCssToInject,
     customSiteTitle: API_SWAGGER_TITLE,
