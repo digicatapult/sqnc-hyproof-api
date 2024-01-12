@@ -94,8 +94,8 @@ services:
       - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
       - 'API_SWAGGER_BG_COLOR=#e4f2f3'
-      - 'API_SWAGGER_TITLE=Hyproof Identity API - Heidi'
-      - 'API_SWAGGER_HEADING=Hyproof Identity API - Heidi'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Heidi'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Heidi'
     networks: ['hydrogen-producer']
 
   hydrogen-producer-node:
@@ -139,8 +139,8 @@ services:
       - IPFS_PORT=5001
       - USER_URI=//Alice
       - 'API_SWAGGER_BG_COLOR=#e4f2f3'
-      - 'API_SWAGGER_TITLE=Hyproof API - Heidi'
-      - 'API_SWAGGER_HEADING=Hyproof API - Heidi'
+      - 'API_SWAGGER_TITLE=HyProof API - Heidi'
+      - 'API_SWAGGER_HEADING=HyProof API - Heidi'
     ports:
       - 8000:8000
     depends_on:
@@ -205,8 +205,8 @@ services:
       - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
       - 'API_SWAGGER_BG_COLOR=#e7f6e6'
-      - 'API_SWAGGER_TITLE=Hyproof Identity API - Emma'
-      - 'API_SWAGGER_HEADING=Hyproof Identity API - Emma'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Emma'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Emma'
     networks: ['energy-owner']
 
   energy-owner-node:
@@ -250,8 +250,8 @@ services:
       - IPFS_PORT=5001
       - USER_URI=//Bob
       - 'API_SWAGGER_BG_COLOR=#e7f6e6'
-      - 'API_SWAGGER_TITLE=Hyproof API - Emma'
-      - 'API_SWAGGER_HEADING=Hyproof API - Emma'
+      - 'API_SWAGGER_TITLE=HyProof API - Emma'
+      - 'API_SWAGGER_HEADING=HyProof API - Emma'
     ports:
       - 8010:8010
     depends_on:
@@ -316,8 +316,8 @@ services:
       - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
       - 'API_SWAGGER_BG_COLOR=#f8dddd'
-      - 'API_SWAGGER_TITLE=Hyproof Identity API - Reginald'
-      - 'API_SWAGGER_HEADING=Hyproof Identity API - Reginald'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Reginald'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Reginald'
     networks: ['regulator']
 
   regulator-node:
@@ -361,8 +361,8 @@ services:
       - IPFS_PORT=5001
       - USER_URI=//Charlie
       - 'API_SWAGGER_BG_COLOR=#f8dddd'
-      - 'API_SWAGGER_TITLE=Hyproof API - Reginald'
-      - 'API_SWAGGER_HEADING=Hyproof API - Reginald'
+      - 'API_SWAGGER_TITLE=HyProof API - Reginald'
+      - 'API_SWAGGER_HEADING=HyProof API - Reginald'
     ports:
       - 8020:8020
     depends_on:
