@@ -132,17 +132,17 @@ This is project is primary based on two entities in regards to the API.
 
 ### Running locally
 
-running with docker-compose -f docker-compose-3-personal.yml logs -f will render all logs, also can be parsed by `| grep`.
+running with docker-compose -f docker-compose-3-persona.yml logs -f will render all logs, also can be parsed by `| grep`.
 
 ```
-docker-compose -f docker-compose-3-personal.yml logs -f | grep regulator
+docker-compose -f docker-compose-3-persona.yml logs -f | grep regulator
 ```
 
 > single persona
 > Run `docker compose up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
 > multiple persona
-> Run `docker-compose -f docker-compose-3-personal.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker-compose -f docker-compose-3-persona.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
 > services
 
