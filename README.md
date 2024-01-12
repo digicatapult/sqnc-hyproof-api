@@ -8,26 +8,29 @@ An API service for issuing hydrogen certificates
 
 Use a `.env` at root of the repository to set values for the environment variables defined in `.env` file.
 
-| variable               | required |       default       | description                                                                                  |
-| :--------------------- | :------: | :-----------------: | :------------------------------------------------------------------------------------------- |
-| PORT                   |    N     |       `3000`        | The port for the API to listen on                                                            |
-| LOG_LEVEL              |    N     |       `debug`       | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
-| ENVIRONMENT_VAR        |    N     |      `example`      | An environment specific variable                                                             |
-| DB_PORT                |    N     |       `5432`        | The port for the database                                                                    |
-| DB_HOST                |    Y     |          -          | The database hostname / host                                                                 |
-| DB_NAME                |    N     | `dscp-hyproof-api ` | The database name                                                                            |
-| DB_USERNAME            |    Y     |          -          | The database username                                                                        |
-| DB_PASSWORD            |    Y     |          -          | The database password                                                                        |
-| IDENTITY_SERVICE_HOST  |    Y     |          -          | Hostname of the `dscp-identity-service`                                                      |
-| IDENTITY_SERVICE_PORT  |    N     |       `3000`        | Port of the `dscp-identity-service`                                                          |
-| NODE_HOST              |    Y     |          -          | The hostname of the `dscp-node` the API should connect to                                    |
-| NODE_PORT              |    N     |       `9944`        | The port of the `dscp-node` the API should connect to                                        |
-| LOG_LEVEL              |    N     |       `info`        | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
-| USER_URI               |    Y     |          -          | The Substrate `URI` representing the private key to use when making `dscp-node` transactions |
-| IPFS_HOST              |    Y     |          -          | Hostname of the `IPFS` node to use for metadata storage                                      |
-| IPFS_PORT              |    N     |       `5001`        | Port of the `IPFS` node to use for metadata storage                                          |
-| WATCHER_POLL_PERIOD_MS |    N     |       `10000`       | Number of ms between polling of service state                                                |
-| WATCHER_TIMEOUT_MS     |    N     |       `2000`        | Timeout period in ms for service state                                                       |
+|                        | required | default             | description                                                                                                                                       |
+|------------------------|----------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| PORT                   | N        | `3000`              | The port for the API to listen on                                                                                                                 |
+| LOG_LEVEL              | N        | `debug`             | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
+| ENVIRONMENT_VAR        | N        | `example`           | An environment specific variable                                                                                                                  |
+| DB_PORT                | N        | `5432`              | The port for the database                                                                                                                         |
+| DB_HOST                | Y        | -                   | The database hostname / host                                                                                                                      |
+| DB_NAME                | N        | `dscp-hyproof-api ` | The database name                                                                                                                                 |
+| DB_USERNAME            | Y        | -                   | The database username                                                                                                                             |
+| DB_PASSWORD            | Y        | -                   | The database password                                                                                                                             |
+| IDENTITY_SERVICE_HOST  | Y        | -                   | Hostname of the `dscp-identity-service`                                                                                                           |
+| IDENTITY_SERVICE_PORT  | N        | `3000`              | Port of the `dscp-identity-service`                                                                                                               |
+| NODE_HOST              | Y        | -                   | The hostname of the `dscp-node` the API should connect to                                                                                         |
+| NODE_PORT              | N        | `9944`              | The port of the `dscp-node` the API should connect to                                                                                             |
+| LOG_LEVEL              | N        | `info`              | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
+| USER_URI               | Y        | -                   | The Substrate `URI` representing the private key to use when making `dscp-node` transactions                                                      |
+| IPFS_HOST              | Y        | -                   | Hostname of the `IPFS` node to use for metadata storage                                                                                           |
+| IPFS_PORT              | N        | `5001`              | Port of the `IPFS` node to use for metadata storage                                                                                               |
+| WATCHER_POLL_PERIOD_MS | N        | `10000`             | Number of ms between polling of service state                                                                                                     |
+| WATCHER_TIMEOUT_MS     | N        | `2000`              | Timeout period in ms for service state                                                                                                            |
+| API_SWAGGER_BG_COLOR   | N        | `#fafafa`           | CSS _color_ val for UI bg ( try: [e4f2f3](https://coolors.co/e4f2f3) , [e7f6e6](https://coolors.co/e7f6e6) or [f8dddd](https://coolors.co/f8dddd) |
+| API_SWAGGER_TITLE      | N        | `API`               | String used to customise the title of the html page                                                                                               |
+| API_SWAGGER_HEADING    | N        | `ApiService`        | String used to customise the H2 heading                                                                                                           |
 
 ## Getting started
 
