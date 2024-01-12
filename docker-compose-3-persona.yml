@@ -52,9 +52,9 @@ services:
     volumes:
       - hydrogen-producer-hyproof-api-storage:/var/lib/postgresql/data
     environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_DB=dscp-hyproof-api'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-hyproof-api
     networks: ['hydrogen-producer']
 
   hydrogen-producer-postgres-identity:
@@ -65,9 +65,9 @@ services:
     volumes:
       - hydrogen-producer-identity-storage:/var/lib/postgresql/data
     environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_DB=dscp-identity'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-identity
     networks: ['hydrogen-producer']
 
   hydrogen-producer-identity:
@@ -83,16 +83,16 @@ services:
       - hydrogen-producer-node
       - hydrogen-producer-postgres-identity
     environment:
-      - 'PORT=9000'
-      - 'API_HOST=hydrogen-producer-node'
-      - 'API_PORT=9944'
-      - 'DB_HOST=hydrogen-producer-postgres-identity'
-      - 'DB_PORT=5432'
-      - 'DB_NAME=dscp-identity'
-      - 'DB_USERNAME=postgres'
-      - 'DB_PASSWORD=postgres'
-      - 'SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
-      - 'AUTH_TYPE=${AUTH_TYPE:-NONE}'
+      - PORT=9000
+      - API_HOST=hydrogen-producer-node
+      - API_PORT=9944
+      - DB_HOST=hydrogen-producer-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=dscp-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
       - 'API_SWAGGER_BG_COLOR=#e4f2f3'
       - 'API_SWAGGER_TITLE=Hyproof Indentity API - Heidi'
       - 'API_SWAGGER_HEADING=Hyproof Indentity API - Heidi'
@@ -124,20 +124,20 @@ services:
       npx @digicatapult/dscp-process-management@latest create -h hydrogen-producer-node -p 9944 -u //Alice -f ./processFlows.json &&
       npm start"
     environment:
-      - 'PORT=8000'
-      - 'LOG_LEVEL=debug'
-      - 'NODE_HOST=hydrogen-producer-node'
-      - 'NODE_PORT=9944'
-      - 'DB_HOST=hydrogen-producer-postgres-hyproof-api'
-      - 'DB_PORT=5432'
-      - 'DB_NAME=dscp-hyproof-api'
-      - 'DB_USERNAME=postgres'
-      - 'DB_PASSWORD=postgres'
-      - 'IDENTITY_SERVICE_HOST=hydrogen-producer-identity'
-      - 'IDENTITY_SERVICE_PORT=9000'
-      - 'IPFS_HOST=ipfs'
-      - 'IPFS_PORT=5001'
-      - 'USER_URI=//Alice'
+      - PORT=8000
+      - LOG_LEVEL=debug
+      - NODE_HOST=hydrogen-producer-node
+      - NODE_PORT=9944
+      - DB_HOST=hydrogen-producer-postgres-hyproof-api
+      - DB_PORT=5432
+      - DB_NAME=dscp-hyproof-api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - IDENTITY_SERVICE_HOST=hydrogen-producer-identity
+      - IDENTITY_SERVICE_PORT=9000
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+      - USER_URI=//Alice
       - 'API_SWAGGER_BG_COLOR=#e4f2f3'
       - 'API_SWAGGER_TITLE=Hyproof API - Heidi'
       - 'API_SWAGGER_HEADING=Hyproof API - Heidi'
@@ -163,9 +163,9 @@ services:
     volumes:
       - energy-owner-hyproof-api-storage:/var/lib/postgresql/data
     environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_DB=dscp-hyproof-api'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-hyproof-api
     networks: ['energy-owner']
 
   energy-owner-postgres-identity:
@@ -176,9 +176,9 @@ services:
     volumes:
       - energy-owner-identity-storage:/var/lib/postgresql/data
     environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_DB=dscp-identity'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-identity
     networks: ['energy-owner']
 
   energy-owner-identity:
@@ -194,16 +194,16 @@ services:
       - energy-owner-node
       - energy-owner-postgres-identity
     environment:
-      - 'PORT=9010'
-      - 'API_HOST=energy-owner-node'
-      - 'API_PORT=9944'
-      - 'DB_HOST=energy-owner-postgres-identity'
-      - 'DB_PORT=5432'
-      - 'DB_NAME=dscp-identity'
-      - 'DB_USERNAME=postgres'
-      - 'DB_PASSWORD=postgres'
-      - 'SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty'
-      - 'AUTH_TYPE=${AUTH_TYPE:-NONE}'
+      - PORT=9010
+      - API_HOST=energy-owner-node
+      - API_PORT=9944
+      - DB_HOST=energy-owner-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=dscp-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
       - 'API_SWAGGER_BG_COLOR=#e7f6e6'
       - 'API_SWAGGER_TITLE=Hyproof Indentity API - Emma'
       - 'API_SWAGGER_HEADING=Hyproof Indentity API - Emma'
@@ -235,20 +235,20 @@ services:
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
       npm start"
     environment:
-      - 'PORT=8010'
-      - 'LOG_LEVEL=debug'
-      - 'NODE_HOST=energy-owner-node'
-      - 'NODE_PORT=9944'
-      - 'DB_HOST=energy-owner-postgres-hyproof-api'
-      - 'DB_PORT=5432'
-      - 'DB_NAME=dscp-hyproof-api'
-      - 'DB_USERNAME=postgres'
-      - 'DB_PASSWORD=postgres'
-      - 'IDENTITY_SERVICE_HOST=energy-owner-identity'
-      - 'IDENTITY_SERVICE_PORT=9010'
-      - 'IPFS_HOST=ipfs'
-      - 'IPFS_PORT=5001'
-      - 'USER_URI=//Bob'
+      - PORT=8010
+      - LOG_LEVEL=debug
+      - NODE_HOST=energy-owner-node
+      - NODE_PORT=9944
+      - DB_HOST=energy-owner-postgres-hyproof-api
+      - DB_PORT=5432
+      - DB_NAME=dscp-hyproof-api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - IDENTITY_SERVICE_HOST=energy-owner-identity
+      - IDENTITY_SERVICE_PORT=9010
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+      - USER_URI=//Bob
       - 'API_SWAGGER_BG_COLOR=#e7f6e6'
       - 'API_SWAGGER_TITLE=Hyproof API - Emma'
       - 'API_SWAGGER_HEADING=Hyproof API - Emma'
@@ -274,9 +274,9 @@ services:
     volumes:
       - regulator-hyproof-api-storage:/var/lib/postgresql/data
     environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_DB=dscp-hyproof-api'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-hyproof-api
     networks: ['regulator']
 
   regulator-postgres-identity:
@@ -287,9 +287,9 @@ services:
     volumes:
       - regulator-identity-storage:/var/lib/postgresql/data
     environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_DB=dscp-identity'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dscp-identity
     networks: ['regulator']
 
   regulator-identity:
@@ -305,16 +305,16 @@ services:
       - regulator-node
       - regulator-postgres-identity
     environment:
-      - 'PORT=9020'
-      - 'API_HOST=regulator-node'
-      - 'API_PORT=9944'
-      - 'DB_HOST=regulator-postgres-identity'
-      - 'DB_PORT=5432'
-      - 'DB_NAME=dscp-identity'
-      - 'DB_USERNAME=postgres'
-      - 'DB_PASSWORD=postgres'
-      - 'SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y'
-      - 'AUTH_TYPE=${AUTH_TYPE:-NONE}'
+      - PORT=9020
+      - API_HOST=regulator-node
+      - API_PORT=9944
+      - DB_HOST=regulator-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=dscp-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
       - 'API_SWAGGER_BG_COLOR=#f8dddd'
       - 'API_SWAGGER_TITLE=Hyproof Indentity API - Reginald'
       - 'API_SWAGGER_HEADING=Hyproof Indentity API - Reginald'
@@ -346,20 +346,20 @@ services:
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
       npm start"
     environment:
-      - 'PORT=8020'
-      - 'LOG_LEVEL=debug'
-      - 'NODE_HOST=regulator-node'
-      - 'NODE_PORT=9944'
-      - 'DB_HOST=regulator-postgres-hyproof-api'
-      - 'DB_PORT=5432'
-      - 'DB_NAME=dscp-hyproof-api'
-      - 'DB_USERNAME=postgres'
-      - 'DB_PASSWORD=postgres'
-      - 'IDENTITY_SERVICE_HOST=regulator-identity'
-      - 'IDENTITY_SERVICE_PORT=9020'
-      - 'IPFS_HOST=ipfs'
-      - 'IPFS_PORT=5001'
-      - 'USER_URI=//Charlie'
+      - PORT=8020
+      - LOG_LEVEL=debug
+      - NODE_HOST=regulator-node
+      - NODE_PORT=9944
+      - DB_HOST=regulator-postgres-hyproof-api
+      - DB_PORT=5432
+      - DB_NAME=dscp-hyproof-api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - IDENTITY_SERVICE_HOST=regulator-identity
+      - IDENTITY_SERVICE_PORT=9020
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+      - USER_URI=//Charlie
       - 'API_SWAGGER_BG_COLOR=#f8dddd'
       - 'API_SWAGGER_TITLE=Hyproof API - Reginald'
       - 'API_SWAGGER_HEADING=Hyproof API - Reginald'
