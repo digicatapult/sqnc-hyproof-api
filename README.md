@@ -14,7 +14,7 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | LOG_LEVEL              | N        | `debug`             | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
 | DB_PORT                | N        | `5432`              | The port for the database                                                                                                                         |
 | DB_HOST                | Y        | -                   | The database hostname / host                                                                                                                      |
-| DB_NAME                | N        | `dscp-hyproof-api ` | The database name                                                                                                                                 |
+| DB_NAME                | N        | `dscp-hyproof-api`  | The database name                                                                                                                                 |
 | DB_USERNAME            | Y        | -                   | The database username                                                                                                                             |
 | DB_PASSWORD            | Y        | -                   | The database password                                                                                                                             |
 | IDENTITY_SERVICE_HOST  | Y        | -                   | Hostname of the `dscp-identity-service`                                                                                                           |
