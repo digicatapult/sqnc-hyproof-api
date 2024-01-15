@@ -47,8 +47,8 @@ services:
   hydrogen-producer-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-hyproof-api
-    #    ports:
-    #      - 5432:5432
+    # ports:
+    #   - 5432:5432
     volumes:
       - hydrogen-producer-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -60,8 +60,8 @@ services:
   hydrogen-producer-postgres-identity:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-identity
-    #    ports:
-    #      - 5433:5432
+    # ports:
+    #   - 5433:5432
     volumes:
       - hydrogen-producer-identity-storage:/var/lib/postgresql/data
     environment:
@@ -93,6 +93,9 @@ services:
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - 'API_SWAGGER_BG_COLOR=#e4f2f3'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Heidi'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Heidi'
     networks: ['hydrogen-producer']
 
   hydrogen-producer-node:
@@ -103,10 +106,10 @@ services:
       --unsafe-rpc-external
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000001
-    #    ports:
-    #      - 30333:30333
-    #      - 9944:9944
-    #      - 9933:9933
+    # ports:
+    #   - 30333:30333
+    #   - 9944:9944
+    #   - 9933:9933
     restart: on-failure
     networks: ['hydrogen-producer', 'chain']
 
@@ -135,6 +138,9 @@ services:
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
       - USER_URI=//Alice
+      - 'API_SWAGGER_BG_COLOR=#e4f2f3'
+      - 'API_SWAGGER_TITLE=HyProof API - Heidi'
+      - 'API_SWAGGER_HEADING=HyProof API - Heidi'
     ports:
       - 8000:8000
     depends_on:
@@ -152,8 +158,8 @@ services:
   energy-owner-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-hyproof-api
-    #    ports:
-    #      - 5442:5432
+    # ports:
+    #   - 5442:5432
     volumes:
       - energy-owner-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -165,8 +171,8 @@ services:
   energy-owner-postgres-identity:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-identity
-    #    ports:
-    #      - 5443:5432
+    # ports:
+    #   - 5443:5432
     volumes:
       - energy-owner-identity-storage:/var/lib/postgresql/data
     environment:
@@ -198,6 +204,9 @@ services:
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - 'API_SWAGGER_BG_COLOR=#e7f6e6'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Emma'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Emma'
     networks: ['energy-owner']
 
   energy-owner-node:
@@ -209,10 +218,10 @@ services:
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000002
       --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
-    #    ports:
-    #      - 31333:30333
-    #      - 10044:9944
-    #      - 10033:9933
+    # ports:
+    #   - 31333:30333
+    #   - 10044:9944
+    #   - 10033:9933
     restart: on-failure
     networks: ['energy-owner', 'chain']
 
@@ -240,6 +249,9 @@ services:
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
       - USER_URI=//Bob
+      - 'API_SWAGGER_BG_COLOR=#e7f6e6'
+      - 'API_SWAGGER_TITLE=HyProof API - Emma'
+      - 'API_SWAGGER_HEADING=HyProof API - Emma'
     ports:
       - 8010:8010
     depends_on:
@@ -257,8 +269,8 @@ services:
   regulator-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-hyproof-api
-    #    ports:
-    #      - 5452:5432
+    # ports:
+    #   - 5452:5432
     volumes:
       - regulator-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -270,8 +282,8 @@ services:
   regulator-postgres-identity:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-identity
-    #    ports:
-    #      - 5453:5432
+    # ports:
+    #   - 5453:5432
     volumes:
       - regulator-identity-storage:/var/lib/postgresql/data
     environment:
@@ -303,6 +315,9 @@ services:
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - 'API_SWAGGER_BG_COLOR=#f8dddd'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Reginald'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Reginald'
     networks: ['regulator']
 
   regulator-node:
@@ -314,10 +329,10 @@ services:
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000003
       --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
-    #    ports:
-    #      - 32333:30333
-    #      - 10144:9944
-    #      - 10133:9933
+    # ports:
+    #   - 32333:30333
+    #   - 10144:9944
+    #   - 10133:9933
     restart: on-failure
     networks: ['regulator', 'chain']
 
@@ -345,6 +360,9 @@ services:
       - IPFS_HOST=ipfs
       - IPFS_PORT=5001
       - USER_URI=//Charlie
+      - 'API_SWAGGER_BG_COLOR=#f8dddd'
+      - 'API_SWAGGER_TITLE=HyProof API - Reginald'
+      - 'API_SWAGGER_HEADING=HyProof API - Reginald'
     ports:
       - 8020:8020
     depends_on:

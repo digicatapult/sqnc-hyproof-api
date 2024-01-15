@@ -8,26 +8,29 @@ An API service for issuing hydrogen certificates
 
 Use a `.env` at root of the repository to set values for the environment variables defined in `.env` file.
 
-| variable               | required |       default       | description                                                                                  |
-| :--------------------- | :------: | :-----------------: | :------------------------------------------------------------------------------------------- |
-| PORT                   |    N     |       `3000`        | The port for the API to listen on                                                            |
-| LOG_LEVEL              |    N     |       `debug`       | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
-| ENVIRONMENT_VAR        |    N     |      `example`      | An environment specific variable                                                             |
-| DB_PORT                |    N     |       `5432`        | The port for the database                                                                    |
-| DB_HOST                |    Y     |          -          | The database hostname / host                                                                 |
-| DB_NAME                |    N     | `dscp-hyproof-api ` | The database name                                                                            |
-| DB_USERNAME            |    Y     |          -          | The database username                                                                        |
-| DB_PASSWORD            |    Y     |          -          | The database password                                                                        |
-| IDENTITY_SERVICE_HOST  |    Y     |          -          | Hostname of the `dscp-identity-service`                                                      |
-| IDENTITY_SERVICE_PORT  |    N     |       `3000`        | Port of the `dscp-identity-service`                                                          |
-| NODE_HOST              |    Y     |          -          | The hostname of the `dscp-node` the API should connect to                                    |
-| NODE_PORT              |    N     |       `9944`        | The port of the `dscp-node` the API should connect to                                        |
-| LOG_LEVEL              |    N     |       `info`        | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]         |
-| USER_URI               |    Y     |          -          | The Substrate `URI` representing the private key to use when making `dscp-node` transactions |
-| IPFS_HOST              |    Y     |          -          | Hostname of the `IPFS` node to use for metadata storage                                      |
-| IPFS_PORT              |    N     |       `5001`        | Port of the `IPFS` node to use for metadata storage                                          |
-| WATCHER_POLL_PERIOD_MS |    N     |       `10000`       | Number of ms between polling of service state                                                |
-| WATCHER_TIMEOUT_MS     |    N     |       `2000`        | Timeout period in ms for service state                                                       |
+|                        | required | default             | description                                                                                                                                       |
+|------------------------|----------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| PORT                   | N        | `3000`              | The port for the API to listen on                                                                                                                 |
+| LOG_LEVEL              | N        | `debug`             | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
+| DB_PORT                | N        | `5432`              | The port for the database                                                                                                                         |
+| DB_HOST                | Y        | -                   | The database hostname / host                                                                                                                      |
+| DB_NAME                | N        | `dscp-hyproof-api`  | The database name                                                                                                                                 |
+| DB_USERNAME            | Y        | -                   | The database username                                                                                                                             |
+| DB_PASSWORD            | Y        | -                   | The database password                                                                                                                             |
+| IDENTITY_SERVICE_HOST  | Y        | -                   | Hostname of the `dscp-identity-service`                                                                                                           |
+| IDENTITY_SERVICE_PORT  | N        | `3000`              | Port of the `dscp-identity-service`                                                                                                               |
+| NODE_HOST              | Y        | -                   | The hostname of the `dscp-node` the API should connect to                                                                                         |
+| NODE_PORT              | N        | `9944`              | The port of the `dscp-node` the API should connect to                                                                                             |
+| LOG_LEVEL              | N        | `info`              | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
+| USER_URI               | Y        | -                   | The Substrate `URI` representing the private key to use when making `dscp-node` transactions                                                      |
+| IPFS_HOST              | Y        | -                   | Hostname of the `IPFS` node to use for metadata storage                                                                                           |
+| IPFS_PORT              | N        | `5001`              | Port of the `IPFS` node to use for metadata storage                                                                                               |
+| WATCHER_POLL_PERIOD_MS | N        | `10000`             | Number of ms between polling of service state                                                                                                     |
+| WATCHER_TIMEOUT_MS     | N        | `2000`              | Timeout period in ms for service state                                                                                                            |
+| API_SWAGGER_BG_COLOR   | N        | `#fafafa`           | CSS _color_ val for UI bg ( try: [e4f2f3](https://coolors.co/e4f2f3) , [e7f6e6](https://coolors.co/e7f6e6) or [f8dddd](https://coolors.co/f8dddd) |
+| API_SWAGGER_TITLE      | N        | `API`               | String used to customise the title of the html page                                                                                               |
+| API_SWAGGER_HEADING    | N        | `ApiService`        | String used to customise the H2 heading                                                                                                           |
+| ENVIRONMENT_VAR        | N        | `example`           | An environment specific variable ( not in use )                                                                                                   |
 
 ## Getting started
 
@@ -123,23 +126,23 @@ npm run flows
 
 This is project is primary based on two entities in regards to the API.
 
-> Certificate - that can be issued, initiated and revoked by a regulator. This is something we will keep circulating arround
-> Attachments - file or json information that is stored on IPFS servie
+> Certificate - that can be issued, initiated and revoked by a regulator. This is something we will keep circulating around
+> Attachments - file or json information that is stored on IPFS service
 > Transaction - records representing interactions with the chain
 
 ### Running locally
 
-running with docker-compose -f docker-compose-3-personal.yml logs -f will render all logs, also can be parsed by `| grep`.
+running with docker-compose -f docker-compose-3-persona.yml logs -f will render all logs, also can be parsed by `| grep`.
 
 ```
-docker-compose -f docker-compose-3-personal.yml logs -f | grep regulator
+docker-compose -f docker-compose-3-persona.yml logs -f | grep regulator
 ```
 
 > single persona
-> Run `docker composel up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker compose up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
 > multiple persona
-> Run `docker-compose -f docker-compose-3-personal.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker-compose -f docker-compose-3-persona.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
 
 > services
 
@@ -180,4 +183,6 @@ The single-party version only uses:
 
 ### Using the HyProof API
 
-You can find a basic cli walk-through for using the API in `scripts/basic-demo.md`
+You can find a basic cli walk-through for using the API in **`scripts/basic-demo.md`** or alternatively, you can view more details in the **[digicatapult/dscp-documentation](https://github.com/digicatapult/dscp-documentation)** repository ( in the **`./docs/hyproof/`** folder ).
+
+---
