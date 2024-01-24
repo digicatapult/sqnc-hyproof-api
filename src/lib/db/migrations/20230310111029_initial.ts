@@ -21,14 +21,14 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable('certificate', (def) => {
     def.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
-    def.integer('hydrogen_quantity_mwh').notNullable()
+    def.integer('hydrogen_quantity_wh').notNullable()
     def.double('embodied_co2').nullable().defaultTo(null)
     def.string('energy_owner', 48).notNullable()
     def.string('hydrogen_owner', 48).notNullable()
     def.string('regulator', 48).notNullable()
     def.dateTime('production_start_time').nullable().defaultTo(null)
     def.dateTime('production_end_time').nullable().defaultTo(null)
-    def.integer('energy_consumed_mwh').nullable().defaultTo(null)
+    def.integer('energy_consumed_wh').nullable().defaultTo(null)
     def.string('commitment_salt', 32).nullable().defaultTo(null)
     def.string('commitment', 32).notNullable()
     def

@@ -59,10 +59,10 @@ describe('on-chain', function () {
         } = await post(context.app, '/v1/certificate', {
           energy_owner: notSelfAlias,
           regulator: regulatorAlias,
-          hydrogen_quantity_mwh: 1,
+          hydrogen_quantity_wh: 1000000,
           production_start_time: new Date('2023-12-01T00:00:00.000Z'),
           production_end_time: new Date('2023-12-02T00:00:00.000Z'),
-          energy_consumed_mwh: 2,
+          energy_consumed_wh: 2000000,
         })
 
         // submit to chain
@@ -84,14 +84,14 @@ describe('on-chain', function () {
           energy_owner: notSelfAddress,
           hydrogen_owner: selfAddress,
           regulator: regulatorAddress,
-          hydrogen_quantity_mwh: 1,
+          hydrogen_quantity_wh: 1000000,
           state: 'initiated',
           embodied_co2: null,
           latest_token_id: lastTokenId + 1,
           original_token_id: lastTokenId + 1,
           production_start_time: new Date('2023-12-01T00:00:00.000Z'),
           production_end_time: new Date('2023-12-02T00:00:00.000Z'),
-          energy_consumed_mwh: 2,
+          energy_consumed_wh: 2000000,
         })
         expect(cert.commitment).to.match(/^[0-9a-f]{32}$/)
         expect(cert.commitment_salt).to.match(/^[0-9a-f]{32}$/)

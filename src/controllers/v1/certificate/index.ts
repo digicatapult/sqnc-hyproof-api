@@ -88,12 +88,12 @@ export class CertificateController extends Controller {
   public async postDraft(
     @Body()
     {
-      hydrogen_quantity_mwh,
+      hydrogen_quantity_wh,
       energy_owner,
       regulator,
       production_start_time,
       production_end_time,
-      energy_consumed_mwh,
+      energy_consumed_wh,
     }: InitiatePayload
   ): Promise<GetCertificateResponse> {
     this.log.trace({ identity: this.identity, energy_owner, regulator })
@@ -111,12 +111,12 @@ export class CertificateController extends Controller {
     const { salt, digest } = await this.commitment.build({
       production_start_time,
       production_end_time,
-      energy_consumed_mwh,
+      energy_consumed_wh,
     })
 
     // errors: handled by middlewar, thrown by the library e.g. this.lib.fn()
     const [certificate] = await this.db.insert('certificate', {
-      hydrogen_quantity_mwh,
+      hydrogen_quantity_wh,
       hydrogen_owner: identities.hydrogen_owner.address,
       energy_owner: identities.energy_owner.address,
       regulator: identities.regulator.address,
@@ -124,7 +124,7 @@ export class CertificateController extends Controller {
       original_token_id: null,
       production_start_time,
       production_end_time,
-      energy_consumed_mwh,
+      energy_consumed_wh,
       commitment_salt: salt,
       commitment: digest,
     })
@@ -137,7 +137,7 @@ export class CertificateController extends Controller {
       regulator: identities.regulator.alias,
       production_start_time: production_start_time,
       production_end_time: production_end_time,
-      energy_consumed_mwh,
+      energy_consumed_wh,
       commitment_salt: salt,
       commitment: digest,
     }
@@ -330,7 +330,7 @@ export class CertificateController extends Controller {
       !certificate.commitment ||
       !certificate.production_start_time ||
       !certificate.production_end_time ||
-      !certificate.energy_consumed_mwh
+      !certificate.energy_consumed_wh
     )
       throw new BadRequest('can only issue certificates with a valid commitment')
 
@@ -341,7 +341,7 @@ export class CertificateController extends Controller {
       embodied_co2 = await this.emissionCalculator.fetchEmissions(
         certificate.production_start_time,
         certificate.production_end_time,
-        certificate.energy_consumed_mwh
+        certificate.energy_consumed_wh
       )
     }
 

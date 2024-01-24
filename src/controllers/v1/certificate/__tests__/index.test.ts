@@ -58,12 +58,12 @@ describe('v1/certificate', () => {
   describe('postDraft() - POST /', () => {
     beforeEach(async () => {
       response = await controller.postDraft({
-        hydrogen_quantity_mwh: 10,
+        hydrogen_quantity_wh: 10000000,
         energy_owner: 'emma-test',
         regulator: 'reginald-test',
         production_start_time: new Date('2023-12-25T07:11:58.837Z'),
         production_end_time: new Date('2023-12-25T09:11:58.837Z'),
-        energy_consumed_mwh: 5,
+        energy_consumed_wh: 5000000,
       })
     })
 
@@ -77,8 +77,8 @@ describe('v1/certificate', () => {
           .postDraft({
             production_start_time: new Date('2023-12-25T07:11:58.837Z'),
             production_end_time: new Date('2023-12-25T06:11:58.837Z'),
-            hydrogen_quantity_mwh: 10,
-            energy_consumed_mwh: 5,
+            hydrogen_quantity_wh: 10000000,
+            energy_consumed_wh: 5000000,
           } as any)
           .catch((err) => err)
       })
@@ -109,8 +109,8 @@ describe('v1/certificate', () => {
           .postDraft({
             production_start_time: new Date('2023-12-25T07:11:58.837Z'),
             production_end_time: new Date('2023-12-25T09:11:58.837Z'),
-            hydrogen_quantity_mwh: 10,
-            energy_consumed_mwh: 5,
+            hydrogen_quantity_wh: 10000000,
+            energy_consumed_wh: 5000000,
             energy_owner: 'emma-test',
             regulator: 'reginald-test',
           } as any)
@@ -136,14 +136,14 @@ describe('v1/certificate', () => {
 
     it('persist and returns a draft certificate', () => {
       expect(response).to.deep.contain({
-        hydrogen_quantity_mwh: 10,
+        hydrogen_quantity_wh: 10000000,
         energy_owner: 'emma-test',
         regulator: 'reginald-test',
         latest_token_id: null,
         original_token_id: null,
         production_start_time: new Date('2023-12-25T07:11:58.837Z'),
         production_end_time: new Date('2023-12-25T09:11:58.837Z'),
-        energy_consumed_mwh: 5,
+        energy_consumed_wh: 5000000,
       })
       expect(response).to.have.property('commitment')
     })
@@ -391,9 +391,9 @@ describe('v1/certificate', () => {
           type: 'LITERAL',
           value: 'InitiatedCert',
         },
-        hydrogen_quantity_mwh: {
+        hydrogen_quantity_wh: {
           type: 'LITERAL',
-          value: '10',
+          value: '10000000',
         },
       })
     })

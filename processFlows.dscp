@@ -12,7 +12,7 @@ token InitiatedCert {
   hydrogen_owner: Role,
   energy_owner: Role,
   regulator: Role,
-  hydrogen_quantity_mwh: Literal,
+  hydrogen_quantity_wh: Literal,
   commitment: Literal,
 }
 

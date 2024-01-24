@@ -1,7 +1,9 @@
+import { createHash } from 'node:crypto'
+
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import Commitment from '../commitment.js'
+import Commitment, { buildDigest } from '../commitment.js'
 import type { ALGOS } from '../commitment.js'
 
 describe('Commitment', function () {
@@ -160,4 +162,24 @@ describe('Commitment', function () {
       })
     })
   }
+
+  // test to protect test seed at test/seeds/certificate.ts
+  it('should validate commitment for integration tests', async function () {
+    const record = {
+      production_start_time: new Date('2023-12-01T00:00:00.000Z'),
+      production_end_time: new Date('2023-12-02T00:00:00.000Z'),
+      energy_consumed_wh: 2000000,
+    }
+    const salt = Buffer.from('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'hex')
+    const hasher = createHash('shake128')
+    hasher.update(salt)
+
+    const digest = buildDigest(hasher, record)
+
+    expect(digest).to.equal('d2993129495123cb1591061f615de4da')
+
+    const commitment = new Commitment('shake128')
+    const result = commitment.validate(record, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', digest)
+    expect(result).to.equal(true)
+  })
 })

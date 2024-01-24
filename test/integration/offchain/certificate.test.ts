@@ -30,7 +30,7 @@ describe('certificate', () => {
     const { status, body } = await put(app, `/v1/certificate/${certificate.id}`, {
       production_start_time: new Date('2023-12-01T00:00:00.000Z'),
       production_end_time: new Date('2023-12-02T00:00:00.000Z'),
-      energy_consumed_mwh: 2,
+      energy_consumed_wh: 2000000,
       commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     })
 
@@ -41,7 +41,7 @@ describe('certificate', () => {
       regulator: regulatorAlias,
       production_start_time: '2023-12-01T00:00:00.000Z',
       production_end_time: '2023-12-02T00:00:00.000Z',
-      energy_consumed_mwh: 2,
+      energy_consumed_wh: 2000000,
       commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     })
   })
@@ -50,7 +50,7 @@ describe('certificate', () => {
     const { status, body } = await put(app, `/v1/certificate/${certificate.id}`, {
       production_start_time: new Date('2023-12-01T00:00:00.000Z'),
       production_end_time: new Date('2023-12-02T00:00:00.000Z'),
-      energy_consumed_mwh: 3,
+      energy_consumed_wh: 3000000,
       commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     })
 

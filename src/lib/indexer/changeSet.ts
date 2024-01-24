@@ -13,7 +13,7 @@ export type CertificateRecord =
       hydrogen_owner: string
       energy_owner: string
       regulator: string
-      hydrogen_quantity_mwh: number
+      hydrogen_quantity_wh: number
       state: 'pending' | 'initiated' | 'issued' | 'revoked'
       latest_token_id: number
       original_token_id: number
@@ -21,7 +21,7 @@ export type CertificateRecord =
       commitment_salt: null
       production_start_time: null
       production_end_time: null
-      energy_consumed_mwh: null
+      energy_consumed_wh: null
     }
   | {
       type: 'update'
