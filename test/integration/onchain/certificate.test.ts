@@ -149,7 +149,7 @@ describe('on-chain', function () {
         expect(cert).to.deep.contain({
           id: context.cert.id,
           state: 'issued',
-          embodied_co2: 246913.578246,
+          embodied_co2: 246914,
           latest_token_id: lastTokenId + 1,
         })
       })

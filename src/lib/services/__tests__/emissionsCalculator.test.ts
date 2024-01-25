@@ -97,5 +97,11 @@ describe('EmissionsCalculator', function () {
       const result = calc.calculateEmissions(withExtendedRanges, date1, date2, 10000000)
       expect(Math.round(result)).to.equal(10 * 1000 * 130) // 10MWh are consumed. Rate is 10 (h + 1) for each h. First hour and last hour only count half (5 and 125). Therefore rate is (5 + (11 * 260 + 130) + 125) / 24 = 130
     })
+
+    it('should round return', function () {
+      const calc = new EmissionsCalculator()
+      const result = calc.calculateEmissions(fullBoundData, date1, date2, 10000001)
+      expect(result).to.equal(10 * 1000 * 100) // 10MWh are emitted in the fullBoundRange. 100gCO2/KWh => 10 * 1000 * 100
+    })
   })
 })

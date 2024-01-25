@@ -78,6 +78,15 @@ export class CertificateController extends Controller {
     )
   }
 
+  private transformCertNumbers(cert: CertificateRow) {
+    return {
+      ...cert,
+      hydrogen_quantity_wh: Number.parseFloat(cert.hydrogen_quantity_wh),
+      energy_consumed_wh: cert.energy_consumed_wh === null ? null : Number.parseFloat(cert.energy_consumed_wh),
+      embodied_co2: cert.embodied_co2 === null ? null : Number.parseFloat(cert.embodied_co2),
+    }
+  }
+
   /**
    * @summary insert a certificate for initialisation
    */
@@ -116,7 +125,7 @@ export class CertificateController extends Controller {
 
     // errors: handled by middlewar, thrown by the library e.g. this.lib.fn()
     const [certificate] = await this.db.insert('certificate', {
-      hydrogen_quantity_wh,
+      hydrogen_quantity_wh: BigInt(hydrogen_quantity_wh).toString(),
       hydrogen_owner: identities.hydrogen_owner.address,
       energy_owner: identities.energy_owner.address,
       regulator: identities.regulator.address,
@@ -124,19 +133,17 @@ export class CertificateController extends Controller {
       original_token_id: null,
       production_start_time,
       production_end_time,
-      energy_consumed_wh,
+      energy_consumed_wh: BigInt(energy_consumed_wh).toString(),
       commitment_salt: salt,
       commitment: digest,
     })
     if (!certificate) throw new InternalServerError()
 
     return {
-      ...certificate,
+      ...this.transformCertNumbers(certificate),
       hydrogen_owner: identities.hydrogen_owner.alias,
       energy_owner: identities.energy_owner.alias,
       regulator: identities.regulator.alias,
-      production_start_time: production_start_time,
-      production_end_time: production_end_time,
       energy_consumed_wh,
       commitment_salt: salt,
       commitment: digest,
@@ -156,7 +163,7 @@ export class CertificateController extends Controller {
     const found = await this.db.get('certificate', where)
     const certificates = await this.mapIdentities(found)
 
-    return certificates
+    return certificates.map(this.transformCertNumbers)
   }
 
   /**
@@ -173,7 +180,7 @@ export class CertificateController extends Controller {
     certificates = await this.mapIdentities(certificates)
     const certificate = certificates[0]
     if (!certificate) throw new NotFound(id)
-    return certificate
+    return this.transformCertNumbers(certificate)
   }
 
   /**
@@ -199,10 +206,14 @@ export class CertificateController extends Controller {
     if (!this.commitment.validate(update, commitment_salt, certificate.commitment))
       throw new BadRequest('Commitment did not match update')
 
-    const updated = await this.db.update('certificate', { id }, { commitment_salt, ...update })
+    const updated = await this.db.update(
+      'certificate',
+      { id },
+      { ...update, commitment_salt, energy_consumed_wh: BigInt(update.energy_consumed_wh).toString() }
+    )
     const updatedWithAliases = await this.mapIdentities(updated)
     if (updatedWithAliases.length !== 1) throw new InternalServerError('Unknown error updating commitment')
-    return updatedWithAliases[0]
+    return this.transformCertNumbers(updatedWithAliases[0])
   }
 
   /**
@@ -334,15 +345,16 @@ export class CertificateController extends Controller {
     )
       throw new BadRequest('can only issue certificates with a valid commitment')
 
-    let embodied_co2: number
+    let embodied_co2: string
     if (body.embodied_co2 !== undefined) {
-      embodied_co2 = body.embodied_co2
+      embodied_co2 = BigInt(body.embodied_co2).toString()
     } else {
-      embodied_co2 = await this.emissionCalculator.fetchEmissions(
+      const asNumber = await this.emissionCalculator.fetchEmissions(
         certificate.production_start_time,
         certificate.production_end_time,
-        certificate.energy_consumed_wh
+        Number.parseFloat(certificate.energy_consumed_wh)
       )
+      embodied_co2 = BigInt(asNumber).toString()
     }
 
     const extrinsic = await this.node.prepareRunProcess(

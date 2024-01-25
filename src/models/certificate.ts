@@ -1,3 +1,4 @@
+import { INT } from './numbers.js'
 import { UUID } from './strings.js'
 
 export type GetCertificateResponse = {
@@ -6,17 +7,17 @@ export type GetCertificateResponse = {
   hydrogen_owner: string
   energy_owner: string
   regulator: string
-  hydrogen_quantity_wh: number
-  embodied_co2?: number | null
-  original_token_id?: number | null
-  latest_token_id?: number | null
+  hydrogen_quantity_wh: INT
+  embodied_co2?: INT | null
+  original_token_id?: INT | null
+  latest_token_id?: INT | null
   created_at: Date
   updated_at: Date
   commitment: string
   commitment_salt?: string | null
   production_start_time?: Date | null
   production_end_time?: Date | null
-  energy_consumed_wh?: number | null
+  energy_consumed_wh?: INT | null
   revocation_reason?: UUID | null
 }
 export type ListCertificatesResponse = GetCertificateResponse[]
@@ -41,18 +42,18 @@ export type ListCertificatesResponse = GetCertificateResponse[]
 }
  */
 export type InitiatePayload = {
-  hydrogen_quantity_wh: number
+  hydrogen_quantity_wh: INT
   energy_owner: string
   regulator: string
   production_start_time: Date
   production_end_time: Date
-  energy_consumed_wh: number
+  energy_consumed_wh: INT
 }
 
 export type UpdatePayload = {
   production_start_time: Date
   production_end_time: Date
-  energy_consumed_wh: number
+  energy_consumed_wh: INT
   commitment_salt: string
 }
 
@@ -65,5 +66,5 @@ export type RevokePayload = {
  */
 
 export type IssuancePayload = {
-  embodied_co2?: number
+  embodied_co2?: INT
 }

@@ -65,8 +65,9 @@ export default class EmissionsCalculator {
 
       return acc + period.intensity.actual * (averagePowerConsumptionKW * overlapH)
     }, 0)
+    const emissionsRounded = Math.round(emissions)
 
-    if (!Number.isFinite(emissions)) {
+    if (!Number.isFinite(emissionsRounded)) {
       logger.debug(
         'Error processing carbon intensity data. productionStartDate: %s, productionEndDate: %s, energyConsumedWh: %s',
         productionStartDate,
@@ -76,7 +77,7 @@ export default class EmissionsCalculator {
       logger.trace('Error processing carbon intensity data. data: %j', data)
       throw new InternalServerError('Unexpected error processing carbon intensity data')
     }
-    return emissions
+    return emissionsRounded
   }
 
   private intensityUrl(productionStartDate: Date, productionEndDate: Date): string {
