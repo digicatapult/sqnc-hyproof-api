@@ -78,7 +78,7 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; db
       energy_owner: selfAddress,
       regulator: regulatorAddress,
       hydrogen_quantity_wh: 1000000,
-      commitment: 'ffb693f99a5aca369539a90b6978d0eb',
+      commitment: 'd2993129495123cb1591061f615de4da',
     } as CertificateRow)
   )
 
@@ -115,7 +115,7 @@ export const withIssuedCertAsRegulator = async (context: { app: Express; db: Dat
       energy_owner: regulatorAddress,
       regulator: selfAddress,
       hydrogen_quantity_wh: 1000000,
-      commitment: 'ffb693f99a5aca369539a90b6978d0eb',
+      commitment: 'd2993129495123cb1591061f615de4da',
     } as CertificateRow)
   )
 
