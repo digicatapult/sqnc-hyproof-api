@@ -84,14 +84,14 @@ describe('on-chain', function () {
           energy_owner: notSelfAddress,
           hydrogen_owner: selfAddress,
           regulator: regulatorAddress,
-          hydrogen_quantity_wh: 1000000,
+          hydrogen_quantity_wh: '1000000',
           state: 'initiated',
           embodied_co2: null,
           latest_token_id: lastTokenId + 1,
           original_token_id: lastTokenId + 1,
           production_start_time: new Date('2023-12-01T00:00:00.000Z'),
           production_end_time: new Date('2023-12-02T00:00:00.000Z'),
-          energy_consumed_wh: 2000000,
+          energy_consumed_wh: '2000000',
         })
         expect(cert.commitment).to.match(/^[0-9a-f]{32}$/)
         expect(cert.commitment_salt).to.match(/^[0-9a-f]{32}$/)
@@ -123,7 +123,7 @@ describe('on-chain', function () {
         expect(cert).to.deep.contain({
           id: context.cert.id,
           state: 'issued',
-          embodied_co2: 3,
+          embodied_co2: '3',
           latest_token_id: lastTokenId + 1,
         })
       })
@@ -149,7 +149,7 @@ describe('on-chain', function () {
         expect(cert).to.deep.contain({
           id: context.cert.id,
           state: 'issued',
-          embodied_co2: 246914,
+          embodied_co2: '246914',
           latest_token_id: lastTokenId + 1,
         })
       })
