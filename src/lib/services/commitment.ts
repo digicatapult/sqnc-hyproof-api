@@ -19,6 +19,22 @@ const getBlockLength = (algo: ALGOS): number => {
   }
 }
 
+export const buildDigest = (hasher: crypto.Hmac, values: Record<string, string | number | Date>): string => {
+  const sortedPairs = Object.entries(values).sort(([a], [b]) => a.localeCompare(b, 'en'))
+  for (const [key, value] of sortedPairs) {
+    let valStr: string | null = null
+    if (typeof value === 'number') {
+      valStr = '' + value
+    } else if (value instanceof Date) {
+      valStr = value.toISOString()
+    } else valStr = value
+
+    hasher.update(key, 'utf8')
+    hasher.update(valStr, 'utf8')
+  }
+  return hasher.digest().toString('hex')
+}
+
 @singleton()
 export default class Commitment {
   blockSize: number
@@ -35,7 +51,7 @@ export default class Commitment {
     const salt = (await generateKey('hmac', { length: this.blockSize })).export()
     const hasher = createHash(this.algo)
     hasher.update(salt)
-    const digest = this.buildDigest(hasher, values)
+    const digest = buildDigest(hasher, values)
 
     return {
       salt: salt.toString('hex'),
@@ -47,22 +63,6 @@ export default class Commitment {
     const saltAsBuffer = Buffer.from(salt, 'hex')
     const hasher = createHash(this.algo)
     hasher.update(saltAsBuffer)
-    return this.buildDigest(hasher, values) === digest
-  }
-
-  private buildDigest = (hasher: crypto.Hmac, values: Record<string, string | number | Date>): string => {
-    const sortedPairs = Object.entries(values).sort(([a], [b]) => a.localeCompare(b, 'en'))
-    for (const [key, value] of sortedPairs) {
-      let valStr: string | null = null
-      if (typeof value === 'number') {
-        valStr = '' + value
-      } else if (value instanceof Date) {
-        valStr = value.toISOString()
-      } else valStr = value
-
-      hasher.update(key, 'utf8')
-      hasher.update(valStr, 'utf8')
-    }
-    return hasher.digest().toString('hex')
+    return buildDigest(hasher, values) === digest
   }
 }

@@ -77,8 +77,8 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; db
       hydrogen_owner: notSelfAddress,
       energy_owner: selfAddress,
       regulator: regulatorAddress,
-      hydrogen_quantity_mwh: 1,
-      commitment: 'ffb693f99a5aca369539a90b6978d0eb',
+      hydrogen_quantity_wh: BigInt(1000000).toString(),
+      commitment: 'd2993129495123cb1591061f615de4da',
     } as CertificateRow)
   )
 
@@ -89,7 +89,7 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; db
   const { status, body } = await put(context.app, `/v1/certificate/${id}`, {
     production_start_time: new Date('2023-12-01T00:00:00.000Z'),
     production_end_time: new Date('2023-12-02T00:00:00.000Z'),
-    energy_consumed_mwh: 2,
+    energy_consumed_wh: 2000000,
     commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   })
 
@@ -114,8 +114,8 @@ export const withIssuedCertAsRegulator = async (context: { app: Express; db: Dat
       hydrogen_owner: notSelfAddress,
       energy_owner: regulatorAddress,
       regulator: selfAddress,
-      hydrogen_quantity_mwh: 1,
-      commitment: 'ffb693f99a5aca369539a90b6978d0eb',
+      hydrogen_quantity_wh: BigInt(1000000).toString(),
+      commitment: 'd2993129495123cb1591061f615de4da',
     } as CertificateRow)
   )
 
@@ -135,7 +135,7 @@ export const withIssuedCertAsRegulator = async (context: { app: Express; db: Dat
       energy_owner: regulatorAddress,
       regulator: selfAddress,
       original_token_id: initTokenId,
-      embodied_co2: 42,
+      embodied_co2: BigInt(42).toString(),
     } as CertificateRow)
   )
 

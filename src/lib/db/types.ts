@@ -48,14 +48,14 @@ const insertCertificate = z.object({
   hydrogen_owner: z.string(),
   energy_owner: z.string(),
   regulator: z.string(),
-  hydrogen_quantity_mwh: z.number(),
+  hydrogen_quantity_wh: z.string(),
   original_token_id: z.union([z.number(), z.null()]),
   latest_token_id: z.union([z.number(), z.null()]),
   commitment: z.string(),
   commitment_salt: z.union([z.string(), z.null()]),
   production_start_time: z.union([z.date(), z.null()]),
   production_end_time: z.union([z.date(), z.null()]),
-  energy_consumed_mwh: z.union([z.number(), z.null()]),
+  energy_consumed_wh: z.union([z.string(), z.null()]),
 })
 
 const Zod = {
@@ -88,7 +88,7 @@ const Zod = {
       state: z.union([z.literal('pending'), z.literal('initiated'), z.literal('issued'), z.literal('revoked')]),
       created_at: z.date(),
       updated_at: z.date(),
-      embodied_co2: z.union([z.number(), z.null()]),
+      embodied_co2: z.union([z.string(), z.null()]),
       revocation_reason: z.union([z.string(), z.null()]),
     }),
   },

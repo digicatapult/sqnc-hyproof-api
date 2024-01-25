@@ -14,7 +14,7 @@ silencer=$(curl -s -X 'PUT' http://localhost:8010/v1/certificate/$emma_local_id 
   -H 'Content-Type: application/json' \
   -d '{
   "commitment_salt": "'"$commitment_salt"'",
-  "energy_consumed_mwh": 2,
+  "energy_consumed_wh": 2000000,
   "production_end_time": "2023-12-07T08:56:41.116Z",
   "production_start_time": "2023-12-07T07:56:41.116Z"
 }'
@@ -32,14 +32,14 @@ silencer=$(curl -s -X 'POST' http://localhost:8010/v1/certificate/$emma_local_id
 }'
 )
 
-sleep 1 
+sleep 1
 
 echo "Emma submits the final certificate to be issued on the ledger"
 
 state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r .state)
 
-while [ "$state" != "issued" ] 
-do 
+while [ "$state" != "issued" ]
+do
 sleep 2
 state=$(curl -s http://localhost:8010/v1/certificate/$emma_local_id -H 'accept: application/json' | jq -r .state)
 echo $state

@@ -26,12 +26,12 @@ export const updateSeed = async () => {
     hydrogen_owner: notSelfAddress,
     energy_owner: selfAddress,
     regulator: regulatorAddress,
-    hydrogen_quantity_mwh: 1,
+    hydrogen_quantity_wh: 1000000,
     latest_token_id: 1,
     original_token_id: 1,
-    commitment: 'ffb693f99a5aca369539a90b6978d0eb', // matches { production_start_time: new Date('2023-12-01T00:00:00.000Z'), production_end_time: new Date('2023-12-02T00:00:00.000Z'), energy_consumed_mwh: 2, commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }
+    commitment: 'd2993129495123cb1591061f615de4da', // matches { production_start_time: new Date('2023-12-01T00:00:00.000Z'), production_end_time: new Date('2023-12-02T00:00:00.000Z'), energy_consumed_wh: 2000000, commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }
     commitment_salt: null,
-    energy_consumed_mwh: null,
+    energy_consumed_wh: null,
     production_end_time: null,
     production_start_time: null,
   })

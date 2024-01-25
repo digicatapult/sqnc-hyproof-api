@@ -33,7 +33,7 @@ export default class EmissionsCalculator {
   public async fetchEmissions(
     productionStartDate: Date,
     productionEndDate: Date,
-    energyConsumedMWh: number
+    energyConsumedWh: number
   ): Promise<number> {
     const url = this.intensityUrl(productionStartDate, productionEndDate)
     const response = await fetch(url)
@@ -41,17 +41,17 @@ export default class EmissionsCalculator {
       throw new InternalServerError('Unexpected error fetching carbon intensity data')
     }
     const { data } = intensityResponseValidator.parse(await response.json())
-    return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedMWh)
+    return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
   }
 
   public calculateEmissions(
     data: IntensityResponseData,
     productionStartDate: Date,
     productionEndDate: Date,
-    energyConsumedMWh: number
+    energyConsumedWh: number
   ): number {
     const elapsedTimeHours = (productionEndDate.getTime() - productionStartDate.getTime()) / (1000 * 60 * 60)
-    const averagePowerConsumptionKW = (1000 * energyConsumedMWh) / elapsedTimeHours
+    const averagePowerConsumptionKW = energyConsumedWh / (1000 * elapsedTimeHours)
 
     const emissions = data.reduce((acc, period) => {
       if (period.to < productionStartDate || period.from > productionEndDate) {
@@ -65,18 +65,19 @@ export default class EmissionsCalculator {
 
       return acc + period.intensity.actual * (averagePowerConsumptionKW * overlapH)
     }, 0)
+    const emissionsRounded = Math.round(emissions)
 
-    if (!Number.isFinite(emissions)) {
+    if (!Number.isFinite(emissionsRounded)) {
       logger.debug(
-        'Error processing carbon intensity data. productionStartDate: %s, productionEndDate: %s, energyConsumedMWh: %s',
+        'Error processing carbon intensity data. productionStartDate: %s, productionEndDate: %s, energyConsumedWh: %s',
         productionStartDate,
         productionEndDate,
-        energyConsumedMWh
+        energyConsumedWh
       )
       logger.trace('Error processing carbon intensity data. data: %j', data)
       throw new InternalServerError('Unexpected error processing carbon intensity data')
     }
-    return emissions
+    return emissionsRounded
   }
 
   private intensityUrl(productionStartDate: Date, productionEndDate: Date): string {
