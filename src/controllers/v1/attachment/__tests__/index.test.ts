@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream'
+
 import { expect } from 'chai'
 import sinon from 'sinon'
 
@@ -238,7 +240,7 @@ describe('v1/attachment', () => {
       })
 
       it('returns as octet', () => {
-        expect(response).to.include.keys(['_readableState', '_read', '_events', '_eventsCount', '_maxListeners'])
+        expect(response).to.be.instanceOf(Readable)
       })
     })
 
