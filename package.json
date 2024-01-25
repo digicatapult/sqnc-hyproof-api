@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-hyproof-api",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "An OpenAPI API service for DSCP",
   "main": "src/index.ts",
   "type": "module",
@@ -51,8 +51,8 @@
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^9.0.7",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
     "chai": "^5.0.0",
     "concurrently": "^8.2.2",
     "depcheck": "^1.4.7",
