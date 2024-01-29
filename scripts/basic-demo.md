@@ -38,12 +38,13 @@ The 3-party demonstration creates 3 personas with different roles, given below. 
 
 ## Running the Demo
 
-The `scripts` folder within the `dscp-hyproof-api` project contains a series of shell scripts (numbered initially with `1` through `4`).
+The `scripts` folder within the `dscp-hyproof-api` project contains a series of shell scripts (numbered initially with `1` through `5`).
 
-`1_load_identities.sh`
-`2_initiate_token.sh`
-`3_add_to_ledger.sh`
-`4_add_eCO2.sh`
+- `1_load_identities.sh`
+- `2_initiate_token.sh`
+- `3_add_to_ledger.sh`
+- `4_add_eCO2.sh`
+- `5_revoke_certificate.sh`
 
 These shell scripts contain helpful command line responses to inform the audience during the demonstration.
 
