@@ -47,8 +47,9 @@ services:
   hydrogen-producer-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-hyproof-api
-    # ports:
-    #   - 5432:5432
+    depends_on:
+      hydrogen-producer-node:
+        condition: service_healthy
     volumes:
       - hydrogen-producer-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -60,8 +61,9 @@ services:
   hydrogen-producer-postgres-identity:
     image: postgres:16.1-alpine
     container_name: hydrogen-producer-postgres-identity
-    # ports:
-    #   - 5433:5432
+    depends_on:
+      hydrogen-producer-node:
+        condition: service_healthy
     volumes:
       - hydrogen-producer-identity-storage:/var/lib/postgresql/data
     environment:
@@ -80,8 +82,10 @@ services:
     ports:
       - 9000:9000
     depends_on:
-      - hydrogen-producer-node
-      - hydrogen-producer-postgres-identity
+      hydrogen-producer-node:
+        condition: service_healthy
+      hydrogen-producer-postgres-identity:
+        condition: service_started
     environment:
       - PORT=9000
       - API_HOST=hydrogen-producer-node
@@ -144,10 +148,14 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      - hydrogen-producer-node
-      - hydrogen-producer-identity
-      - hydrogen-producer-postgres-hyproof-api
-      - ipfs
+      hydrogen-producer-node:
+        condition: service_healthy
+      hydrogen-producer-identity:
+        condition: service_started
+      hydrogen-producer-postgres-hyproof-api:
+        condition: service_started
+      ipfs:
+        condition: service_started
     restart: on-failure
     networks: ['hydrogen-producer', 'ipfs']
 
@@ -158,8 +166,9 @@ services:
   energy-owner-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-hyproof-api
-    # ports:
-    #   - 5442:5432
+    depends_on:
+      energy-owner-node:
+        condition: service_healthy
     volumes:
       - energy-owner-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -171,8 +180,9 @@ services:
   energy-owner-postgres-identity:
     image: postgres:16.1-alpine
     container_name: energy-owner-postgres-identity
-    # ports:
-    #   - 5443:5432
+    depends_on:
+      energy-owner-node:
+        condition: service_healthy
     volumes:
       - energy-owner-identity-storage:/var/lib/postgresql/data
     environment:
@@ -191,8 +201,10 @@ services:
     ports:
       - 9010:9010
     depends_on:
-      - energy-owner-node
-      - energy-owner-postgres-identity
+      energy-owner-node:
+        condition: service_healthy
+      energy-owner-postgres-identity:
+        condition: service_started
     environment:
       - PORT=9010
       - API_HOST=energy-owner-node
@@ -255,10 +267,14 @@ services:
     ports:
       - 8010:8010
     depends_on:
-      - energy-owner-node
-      - energy-owner-identity
-      - energy-owner-postgres-hyproof-api
-      - ipfs
+      energy-owner-node:
+        condition: service_healthy
+      energy-owner-identity:
+        condition: service_started
+      energy-owner-postgres-hyproof-api:
+        condition: service_started
+      ipfs:
+        condition: service_started
     restart: on-failure
     networks: ['energy-owner', 'ipfs']
 
@@ -269,8 +285,9 @@ services:
   regulator-postgres-hyproof-api:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-hyproof-api
-    # ports:
-    #   - 5452:5432
+    depends_on:
+      regulator-node:
+        condition: service_healthy
     volumes:
       - regulator-hyproof-api-storage:/var/lib/postgresql/data
     environment:
@@ -282,8 +299,9 @@ services:
   regulator-postgres-identity:
     image: postgres:16.1-alpine
     container_name: regulator-postgres-identity
-    # ports:
-    #   - 5453:5432
+    depends_on:
+      regulator-node:
+        condition: service_healthy
     volumes:
       - regulator-identity-storage:/var/lib/postgresql/data
     environment:
@@ -302,8 +320,10 @@ services:
     ports:
       - 9020:9020
     depends_on:
-      - regulator-node
-      - regulator-postgres-identity
+      regulator-node:
+        condition: service_healthy
+      regulator-postgres-identity:
+        condition: service_started
     environment:
       - PORT=9020
       - API_HOST=regulator-node
@@ -329,10 +349,6 @@ services:
       --rpc-cors all
       --node-key 0000000000000000000000000000000000000000000000000000000000000003
       --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
-    # ports:
-    #   - 32333:30333
-    #   - 10144:9944
-    #   - 10133:9933
     restart: on-failure
     networks: ['regulator', 'chain']
 
@@ -366,10 +382,14 @@ services:
     ports:
       - 8020:8020
     depends_on:
-      - regulator-node
-      - regulator-identity
-      - regulator-postgres-hyproof-api
-      - ipfs
+      regulator-node:
+        condition: service_healthy
+      regulator-identity:
+        condition: service_started
+      regulator-postgres-hyproof-api:
+        condition: service_started
+      ipfs:
+        condition: service_started
     restart: on-failure
     networks: ['regulator', 'ipfs']
 
@@ -380,15 +400,20 @@ services:
   ipfs:
     image: ipfs/go-ipfs:v0.26.0
     container_name: ipfs
+    depends_on:
+      hydrogen-producer-node:
+        condition: service_healthy
+      energy-owner-node:
+        condition: service_healthy
+      regulator-node:
+        condition: service_healthy
     environment:
       - |
         IPFS_SWARM_KEY=/key/swarm/psk/1.0.0/
         /base16/
         0000000000000000000000000000000000000000000000000000000000000000
     ports:
-      #      - 4001:4001
       - 8080:8080
-    #      - 5001:5001
     networks: ['ipfs']
     volumes:
       - ipfs:/data/ipfs
