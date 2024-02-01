@@ -3,7 +3,7 @@
 # Run script using 'source ./2_initiate_token.sh' or '. ./2_initiate_token.sh'
 echo "Heidi the Hydrogen Producer loads data into her local database"
 
-export heidi_response=$(
+heidi_response=$(
 curl -s -X 'POST' \
   'http://localhost:8000/v1/certificate' \
   -H 'accept: application/json' \
@@ -18,9 +18,11 @@ curl -s -X 'POST' \
 }'
 )
 
-echo $heidi_response | jq -r
-
 echo "Loaded into local database"
+
+sleep 0.2
+
+echo $heidi_response | jq -r
 
 export heidi_local_id=$(echo $heidi_response | jq -r .id)
 
