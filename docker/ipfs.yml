@@ -1,0 +1,102 @@
+version: '3'
+
+networks:
+  ipfs:
+    ipam:
+      driver: default
+
+services:
+  ##################################################################################
+  ## Heidi the Hydrogen Producer ###################################################
+  ##################################################################################
+
+  hydrogen-producer-ipfs:
+    image: digicatapult/dscp-ipfs:latest
+    container_name: hydrogen-producer-ipfs
+    depends_on:
+      hydrogen-producer-node:
+        condition: service_healthy
+    entrypoint: []
+    command: /bin/sh -c '
+      ipfs init --profile server;
+      ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001;
+      ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/4001\"]";
+      ipfs config --json Addresses.Announce "[\"/dns4/hydrogen-producer-ipfs/tcp/4001\"]";
+      ipfs config --json Addresses.NoAnnounce "[]";
+      ipfs config --json Swarm.AddrFilters "[]";
+      ipfs config --json Routing.Type "\"dht\"";
+      ipfs config --json Discovery.MDNS.Enabled true;
+      ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"http://0.0.0.0:5001\", \"http://127.0.0.1:5001\"]";
+      ipfs bootstrap rm --all;
+      ./app/index.js;'
+    environment:
+      - NODE_HOST=hydrogen-producer-node
+    volumes:
+      - hydrogen-producer-ipfs:/ipfs
+    restart: on-failure
+    networks: ['hydrogen-producer', 'ipfs']
+
+  ##################################################################################
+  ## Emma the Energy Owner #########################################################
+  ##################################################################################
+
+  energy-owner-ipfs:
+    image: digicatapult/dscp-ipfs:latest
+    container_name: energy-owner-ipfs
+    depends_on:
+      energy-owner-node:
+        condition: service_healthy
+    entrypoint: []
+    command: /bin/sh -c '
+      ipfs init --profile server;
+      ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001;
+      ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/4001\"]";
+      ipfs config --json Addresses.Announce "[\"/dns4/energy-owner-ipfs/tcp/4001\"]";
+      ipfs config --json Addresses.NoAnnounce "[]";
+      ipfs config --json Swarm.AddrFilters "[]";
+      ipfs config --json Routing.Type "\"dht\"";
+      ipfs config --json Discovery.MDNS.Enabled true;
+      ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"http://0.0.0.0:5001\", \"http://127.0.0.1:5001\"]";
+      ipfs bootstrap rm --all;
+      ./app/index.js;'
+    environment:
+      - NODE_HOST=energy-owner-node
+    volumes:
+      - energy_owner-ipfs:/ipfs
+    restart: on-failure
+    networks: ['energy-owner', 'ipfs']
+
+  ##################################################################################
+  ## Reginald the Regulator ########################################################
+  ##################################################################################
+
+  regulator-ipfs:
+    image: digicatapult/dscp-ipfs:latest
+    container_name: regulator-ipfs
+    depends_on:
+      regulator-node:
+        condition: service_healthy
+    entrypoint: []
+    command: /bin/sh -c '
+      ipfs init --profile server;
+      ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001;
+      ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/4001\"]";
+      ipfs config --json Addresses.Announce "[\"/dns4/regulator-ipfs/tcp/4001\"]";
+      ipfs config --json Addresses.NoAnnounce "[]";
+      ipfs config --json Swarm.AddrFilters "[]";
+      ipfs config --json Routing.Type "\"dht\"";
+      ipfs config --json Discovery.MDNS.Enabled true;
+      ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"http://0.0.0.0:5001\", \"http://127.0.0.1:5001\"]";
+      ipfs bootstrap rm --all;
+      ./app/index.js;'
+    environment:
+      - NODE_HOST=regulator-node
+    volumes:
+      - regulator-ipfs:/ipfs
+    restart: on-failure
+    networks: ['regulator', 'ipfs']
+
+volumes:
+  hydrogen-producer-ipfs:
+  energy_owner-ipfs:
+  regulator-ipfs:

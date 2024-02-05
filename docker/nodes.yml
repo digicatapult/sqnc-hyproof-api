@@ -1,0 +1,65 @@
+version: '3'
+
+networks:
+  chain:
+    ipam:
+      driver: default
+
+services:
+  ##################################################################################
+  ## Heidi the Hydrogen Producer ###################################################
+  ##################################################################################
+
+  hydrogen-producer-node:
+    image: digicatapult/dscp-node:latest
+    container_name: hydrogen-producer-node
+    command: --base-path /data
+      --alice
+      --unsafe-rpc-external
+      --rpc-cors all
+      --node-key 0000000000000000000000000000000000000000000000000000000000000001
+    volumes:
+      - hydrogen-producer-node:/data
+    restart: on-failure
+    networks: ['hydrogen-producer', 'chain']
+
+  ##################################################################################
+  ## Emma the Energy Owner #########################################################
+  ##################################################################################
+
+  energy-owner-node:
+    image: digicatapult/dscp-node:latest
+    container_name: energy-owner-node
+    command: --base-path /data/
+      --bob
+      --unsafe-rpc-external
+      --rpc-cors all
+      --node-key 0000000000000000000000000000000000000000000000000000000000000002
+      --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+    volumes:
+      - energy-owner-node:/data
+    restart: on-failure
+    networks: ['energy-owner', 'chain']
+
+  ##################################################################################
+  ## Reginald the Regulator ########################################################
+  ##################################################################################
+
+  regulator-node:
+    image: digicatapult/dscp-node:latest
+    container_name: regulator-node
+    command: --base-path /data/
+      --charlie
+      --unsafe-rpc-external
+      --rpc-cors all
+      --node-key 0000000000000000000000000000000000000000000000000000000000000003
+      --bootnodes /dns4/alice/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
+    volumes:
+      - regulator-node:/data
+    restart: on-failure
+    networks: ['regulator', 'chain']
+
+volumes:
+  hydrogen-producer-node:
+  energy-owner-node:
+  regulator-node:
