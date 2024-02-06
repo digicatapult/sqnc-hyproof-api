@@ -22,7 +22,7 @@ services:
   hydrogen-producer-hyproof-api:
     container_name: hydrogen-producer-hyproof-api
     build:
-      context: './'
+      context: '../'
       dockerfile: 'Dockerfile'
     command: /bin/sh -c "
       sleep 20 &&
@@ -82,7 +82,7 @@ services:
   energy-owner-hyproof-api:
     container_name: energy-owner-hyproof-api
     build:
-      context: './'
+      context: '../'
       dockerfile: 'Dockerfile'
     command: /bin/sh -c "
       sleep 10 &&
@@ -141,7 +141,7 @@ services:
   regulator-hyproof-api:
     container_name: regulator-hyproof-api
     build:
-      context: './'
+      context: '../'
       dockerfile: 'Dockerfile'
     command: /bin/sh -c "
       sleep 10 &&
