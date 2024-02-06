@@ -62,7 +62,7 @@ services:
     environment:
       - NODE_HOST=energy-owner-node
     volumes:
-      - energy_owner-ipfs:/ipfs
+      - energy-owner-ipfs:/ipfs
     restart: on-failure
     networks: ['energy-owner', 'ipfs']
 
@@ -98,5 +98,5 @@ services:
 
 volumes:
   hydrogen-producer-ipfs:
-  energy_owner-ipfs:
+  energy-owner-ipfs:
   regulator-ipfs:
