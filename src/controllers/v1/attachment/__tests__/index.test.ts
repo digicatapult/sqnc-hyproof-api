@@ -18,35 +18,38 @@ describe('v1/attachment', () => {
   const database: Database = new Database()
   const ipfs: Ipfs = new Ipfs(new Env())
 
-  const stubs = {
-    getFile: sinon
-      .stub(ipfs, 'getFile' as any)
-      .callsFake(async () => ({ blob: { arrayBuffer: () => '0'.repeat(1024) }, filename: 'a' })),
-    addFile: sinon.stub(ipfs, 'addFile' as any).callsFake(async () => 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn'),
-    get: sinon.stub(database, 'get').callsFake(async () => [octetExample]),
-    update: sinon.stub(database, 'update' as any).callsFake(async (_, updates: any) => [
-      {
-        ...octetExample,
-        ...updates,
-      },
-    ]),
-    insert: sinon
-      .stub(database, 'insert' as any)
-      .callsFake((_, data: any) => [
-        { ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' },
+  const mkStubs = () => {
+    sinon.restore()
+    return {
+      getFile: sinon
+        .stub(ipfs, 'getFile' as any)
+        .callsFake(async () => ({ blob: { arrayBuffer: () => '0'.repeat(1024) }, filename: 'a' })),
+      addFile: sinon
+        .stub(ipfs, 'addFile' as any)
+        .callsFake(async () => 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn'),
+      get: sinon.stub(database, 'get').callsFake(async () => [octetExample]),
+      update: sinon.stub(database, 'update' as any).callsFake(async (_, updates: any) => [
+        {
+          ...octetExample,
+          ...updates,
+        },
       ]),
+      insert: sinon
+        .stub(database, 'insert' as any)
+        .callsFake((_, data: any) => [
+          { ...data, created_at: new Date('2024-01-09T08:41:16.243Z'), id: 'attachment-insert-test' },
+        ]),
+    }
   }
+  let stubs: ReturnType<typeof mkStubs>
 
   before(() => {
+    stubs = mkStubs()
     controller = new attachment(database, ipfs)
   })
 
   afterEach(() => {
-    stubs.get.resetHistory()
-    stubs.getFile.resetHistory()
-    stubs.insert.resetHistory()
-    stubs.get.resetHistory()
-    stubs.update.resetHistory()
+    stubs = mkStubs()
   })
 
   describe('create() - POST /', () => {
