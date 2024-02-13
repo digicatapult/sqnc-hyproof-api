@@ -9,7 +9,7 @@ import Database from '../../../../lib/db/index.js'
 import { octetExample, jsonExample } from './fixtures.js'
 import Ipfs from '../../../../lib/ipfs.js'
 import { BadRequest, InternalServerError, NotFound } from '../../../../lib/error-handler/index.js'
-import { AttachmentRow } from '../../../../lib/db/types.js'
+import { AttachmentRow, Where } from '../../../../lib/db/types.js'
 
 describe('v1/attachment', () => {
   let response: any
@@ -171,7 +171,8 @@ describe('v1/attachment', () => {
 
   describe('getAll() - GET /', () => {
     beforeEach(async () => {
-      stubs.get.callsFake(async () => [octetExample, jsonExample]), (response = await controller.getAll())
+      stubs.get.callsFake(async () => [octetExample, jsonExample])
+      response = await controller.getAll()
     })
 
     describe('if none found it', () => {
@@ -203,6 +204,19 @@ describe('v1/attachment', () => {
           size: 26,
         },
       ])
+    })
+
+    describe('passes created_after condition', () => {
+      beforeEach(async () => {
+        response = await controller.getAll('2024-01-01')
+      })
+
+      it('should fetch from db with conditions', () => {
+        const expectedCondition = [['created_at', '>=', new Date('2024-01-01')]] as Where<'attachment'>
+
+        expect(stubs.get.lastCall.args[0]).to.equal('attachment')
+        expect(stubs.get.lastCall.args[1]).to.deep.equal(expectedCondition)
+      })
     })
   })
 

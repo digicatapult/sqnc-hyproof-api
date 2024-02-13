@@ -43,8 +43,8 @@ describe('attachment', () => {
       expect(body).to.equal('attachment not found')
     })
 
-    it('returns 422 with invalid updated_since date', async () => {
-      const { status, body } = await get(app, `/v1/attachment?createdAt=foo`)
+    it('returns 422 with invalid created_after date', async () => {
+      const { status, body } = await get(app, `/v1/attachment?created_after=foo`)
       expect(status).to.equal(422)
       expect(body).to.contain({
         name: 'ValidateError',
@@ -75,7 +75,7 @@ describe('attachment', () => {
     })
 
     it('filters attachments based on created date', async () => {
-      const { status, body: attachments } = await get(app, `/v1/attachment?createdAt=2023-01-01T00:00:00.000Z`)
+      const { status, body: attachments } = await get(app, `/v1/attachment?created_after=2023-01-01T00:00:00.000Z`)
       expect(status).to.equal(200)
       expect(attachments).to.deep.equal([
         {
@@ -86,7 +86,7 @@ describe('attachment', () => {
     })
 
     it('returns empty array if none found based on created date', async () => {
-      const { status, body } = await get(app, `/v1/attachment?createdAt=3010-01-01T00:00:00.000Z`)
+      const { status, body } = await get(app, `/v1/attachment?created_after=3010-01-01T00:00:00.000Z`)
       expect(status).to.equal(200)
       expect(body).to.deep.equal([])
     })

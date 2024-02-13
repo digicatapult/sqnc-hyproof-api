@@ -4,6 +4,7 @@ import { singleton } from 'tsyringe'
 
 import { pgConfig } from './knexfile.js'
 import Zod, { tablesList, IDatabase, TABLE, Models, Where, Update, Order } from './types.js'
+import { reduceWhere } from './util.js'
 
 const clientSingleton = knex(pgConfig)
 
@@ -45,10 +46,7 @@ export default class Database {
       ...updates,
       updated_at: this.client.fn.now(),
     })
-    if (!Array.isArray(where)) {
-      where = [where]
-    }
-    query = where.reduce((acc, w) => (Array.isArray(w) ? acc.where(w[0], w[1], w[2]) : acc.where(w)), query)
+    query = reduceWhere(query, where)
 
     return z.array(Zod[model].get).parse(await query.returning('*'))
   }
@@ -60,12 +58,7 @@ export default class Database {
     limit?: number
   ): Promise<Models[typeof model]['get'][]> => {
     let query = this.db[model]()
-    if (where) {
-      if (!Array.isArray(where)) {
-        where = [where]
-      }
-      query = where.reduce((acc, w) => (Array.isArray(w) ? acc.where(w[0], w[1], w[2]) : acc.where(w)), query)
-    }
+    query = reduceWhere(query, where)
     if (order && order.length !== 0) {
       query = order.reduce((acc, [key, direction]) => acc.orderBy(key, direction), query)
     }
