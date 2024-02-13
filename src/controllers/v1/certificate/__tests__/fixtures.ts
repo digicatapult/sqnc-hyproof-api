@@ -1,8 +1,10 @@
+import { CertificateRow, TransactionRow, AttachmentRow } from '../../../../lib/db/types.js'
+
 export const attachmentExample = {
   filename: 'testing-revocation',
   size: 0,
   ipfs_hash: 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn',
-}
+} as AttachmentRow
 
 export const transactionExample = {
   id: 'initiate-cert-transaction-test',
@@ -10,7 +12,7 @@ export const transactionExample = {
   local_id: 'test-cert-1',
   state: 'submitted',
   transaction_type: 'initiate_cert',
-}
+} as TransactionRow
 
 export const certExamples = [
   { id: 'test-cert-1', state: 'issued', energy_owner: 'emma-test', regulator: 'ray-test', hydrogen_owner: 'heidi' },
@@ -48,4 +50,4 @@ export const certExamples = [
     production_end_time: new Date('2024-01-03T18:17:58.836Z'),
     energy_consumed_wh: '5000000',
   },
-]
+] as CertificateRow[]
