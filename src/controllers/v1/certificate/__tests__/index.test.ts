@@ -173,8 +173,46 @@ describe('v1/certificate', () => {
   })
 
   describe('getById() - GET /{id}', () => {
-    beforeEach(async () => {
-      response = await controller.getById('some-id')
+    describe('with UUID id', () => {
+      beforeEach(async () => {
+        stubs.get.callsFake((model, condition) => {
+          expect(model).to.equal('certificate')
+          expect(condition).to.deep.equal({ id: 'some-id' })
+          return Promise.resolve(certExamples.slice(0, 1))
+        })
+        response = await controller.getById('some-id')
+      })
+
+      it('returns certificate by given id', () => {
+        expect(response).to.deep.contain({
+          id: 'test-cert-1',
+          state: 'issued',
+          energy_owner: 'emma-test',
+          regulator: 'ray-test',
+          hydrogen_owner: 'heidi',
+        })
+      })
+    })
+
+    describe('with integer id', () => {
+      beforeEach(async () => {
+        stubs.get.callsFake((model, condition) => {
+          expect(model).to.equal('certificate')
+          expect(condition).to.deep.equal({ original_token_id: 42 })
+          return Promise.resolve(certExamples.slice(0, 1))
+        })
+        response = await controller.getById(42)
+      })
+
+      it('returns certificate by given id', () => {
+        expect(response).to.deep.contain({
+          id: 'test-cert-1',
+          state: 'issued',
+          energy_owner: 'emma-test',
+          regulator: 'ray-test',
+          hydrogen_owner: 'heidi',
+        })
+      })
     })
 
     describe('if certificate does not exist', () => {
@@ -186,16 +224,6 @@ describe('v1/certificate', () => {
       it('throws NotFound Error', () => {
         expect(response.message).to.equal('certificate not found')
         expect(response.code).to.equal(404)
-      })
-    })
-
-    it('returns certficiate by given id', () => {
-      expect(response).to.deep.contain({
-        id: 'test-cert-1',
-        state: 'issued',
-        energy_owner: 'emma-test',
-        regulator: 'ray-test',
-        hydrogen_owner: 'heidi',
       })
     })
   })
@@ -243,9 +271,13 @@ describe('v1/certificate', () => {
 
   describe('getIssuanceTransaction() - GET {id}/issuance/{transactionId}', () => {
     beforeEach(async () => {
-      stubs.get.resolves([
-        { ...transactionExample, transaction_type: 'issue_cert', id: 'issue-cert-transaction-test' },
-      ] as TransactionRow[])
+      stubs.get
+        .onCall(0)
+        .resolves(certExamples.slice(0, 1))
+        .onCall(1)
+        .resolves([
+          { ...transactionExample, transaction_type: 'issue_cert', id: 'issue-cert-transaction-test' },
+        ] as TransactionRow[])
       response = await controller.getInitiationTransaction('test-cert-1', 'issue-cert-transaction-test')
     })
 
@@ -360,7 +392,7 @@ describe('v1/certificate', () => {
       })
     })
 
-    it('gets selfs address from identity service', () => {
+    it('gets self address from identity service', () => {
       expect(stubs.getSelfAddress.callCount).to.equal(1)
     })
 
@@ -407,7 +439,7 @@ describe('v1/certificate', () => {
     })
   })
 
-  describe('issueOnChain() - POST {id}/issueance', () => {
+  describe('issueOnChain() - POST {id}/issuance', () => {
     beforeEach(async () => {
       stubs.getSelfAddress.resetHistory()
       stubs.get.resetHistory()
@@ -416,7 +448,7 @@ describe('v1/certificate', () => {
       response = await controller.issueOnChain('test-cert-3', { embodied_co2: 100 }).catch((err) => err)
     })
 
-    it('gets selfs address from identity service', () => {
+    it('gets self address from identity service', () => {
       expect(stubs.getSelfAddress.callCount).to.equal(1)
     })
 
@@ -479,7 +511,7 @@ describe('v1/certificate', () => {
       response = await controller.revokeOnChain('test-cert-3', { reason: 'some-attachment-id' }).catch((err) => err)
     })
 
-    it('gets selfs address from identity service', () => {
+    it('gets self address from identity service', () => {
       expect(stubs.getSelfAddress.callCount).to.equal(1)
     })
 
@@ -514,15 +546,19 @@ describe('v1/certificate', () => {
   describe('getInitiationTransactions() - GET {id}/initiation', () => {
     beforeEach(async () => {
       stubs.get.resetHistory()
-      stubs.get.onCall(0).resolves([
-        { ...transactionExample, id: '1' },
-        { ...transactionExample, id: '2' },
-      ] as TransactionRow[])
+      stubs.get
+        .onCall(0)
+        .resolves(certExamples.slice(0, 1))
+        .onCall(1)
+        .resolves([
+          { ...transactionExample, id: '1' },
+          { ...transactionExample, id: '2' },
+        ] as TransactionRow[])
 
       response = await controller.getInitiationTransactions('test-cert-1')
     })
 
-    it('returns all initiations for a given cerfiticate id', () => {
+    it('returns all initiations for a given certificate id', () => {
       expect(response).to.be.an('Array')
       expect(response[0]).to.deep.contain({
         id: '1',
@@ -543,15 +579,19 @@ describe('v1/certificate', () => {
   describe('getIssuanceTransactions() - GET {id}/issuance', () => {
     beforeEach(async () => {
       stubs.get.resetHistory()
-      stubs.get.onCall(0).resolves([
-        { ...transactionExample, transaction_type: 'issue_cert', id: '1' },
-        { ...transactionExample, transaction_type: 'issue_cert', id: '2' },
-      ] as TransactionRow[])
+      stubs.get
+        .onCall(0)
+        .resolves(certExamples.slice(0, 1))
+        .onCall(1)
+        .resolves([
+          { ...transactionExample, transaction_type: 'issue_cert', id: '1' },
+          { ...transactionExample, transaction_type: 'issue_cert', id: '2' },
+        ] as TransactionRow[])
 
       response = await controller.getInitiationTransactions('test-cert-1')
     })
 
-    it('returns all initiations for a given cerfiticate id', () => {
+    it('returns all initiations for a given certificate id', () => {
       expect(response).to.be.an('Array')
       expect(response[0]).to.deep.contain({
         id: '1',
@@ -573,15 +613,19 @@ describe('v1/certificate', () => {
   describe('getRevocationTransactions()- GET {id}/revocation', () => {
     beforeEach(async () => {
       stubs.get.resetHistory()
-      stubs.get.onCall(0).resolves([
-        { ...transactionExample, transaction_type: 'revoke_cert', id: '1' },
-        { ...transactionExample, transaction_type: 'revoke_cert', id: '2' },
-      ] as TransactionRow[])
+      stubs.get
+        .onCall(0)
+        .resolves(certExamples.slice(0, 1))
+        .onCall(1)
+        .resolves([
+          { ...transactionExample, transaction_type: 'revoke_cert', id: '1' },
+          { ...transactionExample, transaction_type: 'revoke_cert', id: '2' },
+        ] as TransactionRow[])
 
       response = await controller.getInitiationTransactions('test-cert-1')
     })
 
-    it('returns all initiations for a given cerfiticate id', () => {
+    it('returns all initiations for a given certificate id', () => {
       expect(response).to.be.an('Array')
       expect(response[0]).to.deep.contain({
         id: '1',

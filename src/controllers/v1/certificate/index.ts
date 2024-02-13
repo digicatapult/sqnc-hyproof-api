@@ -31,6 +31,7 @@ import type {
 } from '../../../models/certificate.js'
 import type { GetTransactionResponse, ListTransactionResponse } from '../../../models/transaction.js'
 import type { DATE, UUID } from '../../../models/strings.js'
+import type { INT } from '../../../models/numbers.js'
 import ChainNode from '../../../lib/chainNode.js'
 import { processInitiateCert, processIssueCert, processRevokeCert } from '../../../lib/payload.js'
 import { TransactionState } from '../../../models/transaction.js'
@@ -78,6 +79,10 @@ export class CertificateController extends Controller {
     )
   }
 
+  private async mapIdentity(cert: CertificateRow): Promise<CertificateRow> {
+    return (await this.mapIdentities([cert]))[0]
+  }
+
   private transformCertNumbers(cert: CertificateRow) {
     return {
       ...cert,
@@ -85,6 +90,13 @@ export class CertificateController extends Controller {
       energy_consumed_wh: cert.energy_consumed_wh === null ? null : Number.parseFloat(cert.energy_consumed_wh),
       embodied_co2: cert.embodied_co2 === null ? null : Number.parseFloat(cert.embodied_co2),
     }
+  }
+
+  private async getCertificate(idOrOrigToken: UUID | number): Promise<CertificateRow> {
+    const condition = typeof idOrOrigToken === 'number' ? { original_token_id: idOrOrigToken } : { id: idOrOrigToken }
+    const [certificate]: CertificateRow[] = await this.db.get('certificate', condition)
+    if (!certificate) throw new NotFound('' + idOrOrigToken)
+    return certificate
   }
 
   /**
@@ -168,37 +180,35 @@ export class CertificateController extends Controller {
 
   /**
    * @summary returns certificate by id
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}')
-  public async getById(@Path() id: UUID): Promise<GetCertificateResponse> {
+  public async getById(@Path() id: UUID | INT): Promise<GetCertificateResponse> {
     if (!id) throw new BadRequest()
-    let certificates = await this.db.get('certificate', { id })
-    certificates = await this.mapIdentities(certificates)
-    const certificate = certificates[0]
-    if (!certificate) throw new NotFound(id)
+    const certificate = await this.getCertificate(id).then((c) => this.mapIdentity(c))
     return this.transformCertNumbers(certificate)
   }
 
   /**
    * @summary updates certificate by id
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Put('{id}')
   public async updateById(
-    @Path() id: UUID,
+    @Path() id: UUID | INT,
     @Body() { commitment_salt, ...update }: UpdatePayload
   ): Promise<GetCertificateResponse> {
     if (!id) throw new BadRequest()
 
-    const [certificate]: CertificateRow[] = await this.db.get('certificate', { id })
-    if (!certificate) throw new NotFound(id)
+    const certificate = await this.getCertificate(id)
     if (update.production_end_time <= update.production_start_time)
       throw new BadRequest('Production end time must be greater than start time')
     if (certificate.commitment_salt) throw new BadRequest('Commitment has already been applied')
@@ -208,7 +218,7 @@ export class CertificateController extends Controller {
 
     const updated = await this.db.update(
       'certificate',
-      { id },
+      { id: certificate.id },
       { ...update, commitment_salt, energy_consumed_wh: BigInt(update.energy_consumed_wh).toString() }
     )
     const updatedWithAliases = await this.mapIdentities(updated)
@@ -218,37 +228,41 @@ export class CertificateController extends Controller {
 
   /**
    * @summary returns certificate transaction by certificate and transaction ids
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}/initiation/{transactionId}')
-  public async getInitiationTransaction(@Path() id: UUID, transactionId: UUID): Promise<GetTransactionResponse> {
+  public async getInitiationTransaction(@Path() id: UUID | INT, transactionId: UUID): Promise<GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
+    const certificate = await this.getCertificate(id)
 
     const [transaction] = await this.db.get('transaction', {
-      local_id: id,
+      local_id: certificate.id,
       id: transactionId,
       api_type: 'certificate',
       transaction_type: 'initiate_cert',
     })
-    if (!transaction) throw new NotFound(id)
+    if (!transaction) throw new NotFound(transactionId)
     return transaction
   }
 
   /**
    * @summary returns transactions by certificate local id
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}/initiation')
-  public async getInitiationTransactions(@Path() id: UUID): Promise<ListTransactionResponse> {
+  public async getInitiationTransactions(@Path() id: UUID | INT): Promise<ListTransactionResponse> {
     if (!id) throw new BadRequest()
+    const certificate = await this.getCertificate(id)
     return await this.db.get('transaction', {
-      local_id: id,
+      local_id: certificate.id,
       api_type: 'certificate',
       transaction_type: 'initiate_cert',
     })
@@ -257,15 +271,16 @@ export class CertificateController extends Controller {
   /**
    * Create a initiated version of the certificate on-chain
    * @summary Initialise a new certificate on-chain
+   * @param id the local certificate's id or original_token_id
    * @param demandAId The certificate's identifier
    */
   @Post('{id}/initiation')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async createOnChain(@Path() id: UUID): Promise<GetTransactionResponse> {
+  public async createOnChain(@Path() id: UUID | INT): Promise<GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
 
-    const [certificate] = await this.db.get('certificate', { id })
+    const certificate = await this.getCertificate(id)
     if (certificate.state !== 'pending') throw new BadRequest('certificate must not be issued or revoked')
     if (certificate.hydrogen_owner !== self_address)
       throw new BadRequest('can only initialise certificates owned by self')
@@ -288,52 +303,59 @@ export class CertificateController extends Controller {
 
   /**
    * @summary returns certificate transaction by certificate and transaction ids
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}/issuance/{transactionId}')
-  public async getIssuanceTransaction(@Path() id: UUID, transactionId: UUID): Promise<GetTransactionResponse> {
+  public async getIssuanceTransaction(@Path() id: UUID | INT, transactionId: UUID): Promise<GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
 
+    const certificate = await this.getCertificate(id)
     const [transaction] = await this.db.get('transaction', {
-      local_id: id,
+      local_id: certificate.id,
       id: transactionId,
       api_type: 'certificate',
       transaction_type: 'issue_cert',
     })
-    if (!transaction) throw new NotFound(id)
+    if (!transaction) throw new NotFound(transactionId)
     return transaction
   }
 
   /**
    * @summary returns transactions by certificate local id
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}/issuance')
-  public async getIssuanceTransactions(@Path() id: UUID): Promise<ListTransactionResponse> {
+  public async getIssuanceTransactions(@Path() id: UUID | INT): Promise<ListTransactionResponse> {
     if (!id) throw new BadRequest()
-    return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'issue_cert' })
+    const certificate = await this.getCertificate(id)
+    return await this.db.get('transaction', {
+      local_id: certificate.id,
+      api_type: 'certificate',
+      transaction_type: 'issue_cert',
+    })
   }
 
   /**
    * Update a certificate on-chain to include
-   * @summary updates initiated certitificate status to issued on chain
+   * @summary updates initiated certificate status to issued on chain
    * along with the embodied_co2
-   * @param id the local certificate's identifier
+   * @param id the local certificate's id or original_token_id
    */
   @Post('{id}/issuance')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async issueOnChain(@Path() id: UUID, @Body() body: IssuancePayload): Promise<GetTransactionResponse> {
+  public async issueOnChain(@Path() id: UUID | INT, @Body() body: IssuancePayload): Promise<GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
 
-    const [certificate] = await this.db.get('certificate', { id })
-    if (!certificate) throw new NotFound(id)
+    const certificate = await this.getCertificate(id)
     if (certificate.state !== 'initiated') throw new BadRequest('certificate must be initiated to issue')
     if (certificate.energy_owner !== self_address)
       throw new BadRequest('can only issue certificates where self is the energy_owner')
@@ -379,53 +401,62 @@ export class CertificateController extends Controller {
   }
 
   /**
-   * @summary returns certificate transaction by certificate and transaction id
-   * @param id - the local certificate's identifier
+   * @summary returns certificate transaction by certificate id/original_token_id and transaction id
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}/revocation/{transactionId}')
-  public async getRevocationTransaction(@Path() id: UUID, transactionId: UUID): Promise<GetTransactionResponse> {
+  public async getRevocationTransaction(@Path() id: UUID | INT, transactionId: UUID): Promise<GetTransactionResponse> {
     if (!id || !transactionId) throw new BadRequest()
 
+    const certificate = await this.getCertificate(id)
     const [transaction] = await this.db.get('transaction', {
-      local_id: id,
+      local_id: certificate.id,
       id: transactionId,
       api_type: 'certificate',
       transaction_type: 'revoke_cert',
     })
-    if (!transaction) throw new NotFound(id)
+    if (!transaction) throw new NotFound(transactionId)
     return transaction
   }
 
   /**
-   * @summary returns transactions by certificate local id
+   * @summary returns transactions by certificate local id or original_token_id
+   * @param id the local certificate's id or original_token_id
    * @example id "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Response<ValidateError>(422, 'Validation Failed')
   @Response<NotFound>(404, '<item> not found')
-  @Response<BadRequest>(400, 'ID must be supplied in UUID format')
+  @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Get('{id}/revocation')
-  public async getRevocationTransactions(@Path() id: UUID): Promise<ListTransactionResponse> {
+  public async getRevocationTransactions(@Path() id: UUID | INT): Promise<ListTransactionResponse> {
     if (!id) throw new BadRequest()
-    return await this.db.get('transaction', { local_id: id, api_type: 'certificate', transaction_type: 'revoke_cert' })
+    const certificate = await this.getCertificate(id)
+    return await this.db.get('transaction', {
+      local_id: certificate.id,
+      api_type: 'certificate',
+      transaction_type: 'revoke_cert',
+    })
   }
 
   /**
    * Updates a certificate on-chain to include
    * @summary changes issued certificate to revoked
-   * @param id - the local certificate's identifier
+   * @param id the local certificate's id or original_token_id
    */
   @Post('{id}/revocation')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async revokeOnChain(@Path() id: UUID, @Body() { reason }: RevokePayload): Promise<GetTransactionResponse> {
+  public async revokeOnChain(
+    @Path() id: UUID | INT,
+    @Body() { reason }: RevokePayload
+  ): Promise<GetTransactionResponse> {
     const { address: self_address } = await this.identity.getMemberBySelf()
-    const [certificate] = await this.db.get('certificate', { id })
 
-    if (!certificate) throw new NotFound(id)
+    const certificate = await this.getCertificate(id)
     if (certificate.state !== 'issued') throw new BadRequest('certificate must be issued to revoke')
     if (certificate.regulator !== self_address) throw new BadRequest('certificates can be revoked only by a regulator')
 
