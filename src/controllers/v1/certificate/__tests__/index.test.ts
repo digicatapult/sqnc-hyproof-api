@@ -21,38 +21,38 @@ describe('v1/certificate', () => {
   const node: ChainNode = new ChainNode(new Env(), database)
   const emissions = new EmissionsCalculator()
 
-  const stubs = {
-    build: sinon.stub(commitment, 'build' as any).callsFake(() => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
-    getSelfAddress: sinon
-      .stub(identity, 'getMemberBySelf' as any)
-      .callsFake((alias) => ({ address: 'member-self-test', alias })),
-    getMemberByAlias: sinon
-      .stub(identity, 'getMemberByAlias' as any)
-      .callsFake((alias) => ({ address: 'member-by-alias-test', alias })),
-    prepareRunProcess: sinon
-      .stub(node, 'prepareRunProcess' as any)
-      .callsFake(() =>
-        Promise.resolve({ hash: { toHex: () => '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19' } })
-      ),
-    submitRunProcess: sinon.stub(node, 'submitRunProcess' as any).callsFake(() => Promise.resolve()),
-    get: sinon.stub(database, 'get').resolves(certExamples as CertificateRow[]),
-    insert: sinon.stub(database, 'insert' as any).callsFake((_, data) => [data]),
-    getLastFinalisedBlockHash: sinon
-      .stub(node, 'getLastFinalisedBlockHash')
-      .callsFake(() => '0x9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19' as any),
+  const mkStubs = () => {
+    sinon.restore()
+    return {
+      build: sinon.stub(commitment, 'build' as any).callsFake(() => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+      getSelfAddress: sinon
+        .stub(identity, 'getMemberBySelf' as any)
+        .callsFake((alias) => ({ address: 'member-self-test', alias })),
+      getMemberByAlias: sinon
+        .stub(identity, 'getMemberByAlias' as any)
+        .callsFake((alias) => ({ address: 'member-by-alias-test', alias })),
+      prepareRunProcess: sinon
+        .stub(node, 'prepareRunProcess' as any)
+        .callsFake(() =>
+          Promise.resolve({ hash: { toHex: () => '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19' } })
+        ),
+      submitRunProcess: sinon.stub(node, 'submitRunProcess' as any).callsFake(() => Promise.resolve()),
+      get: sinon.stub(database, 'get').resolves(certExamples as CertificateRow[]),
+      insert: sinon.stub(database, 'insert' as any).callsFake((_, data) => [data]),
+      getLastFinalisedBlockHash: sinon
+        .stub(node, 'getLastFinalisedBlockHash')
+        .callsFake(() => '0x9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19' as any),
+    }
   }
+  let stubs: ReturnType<typeof mkStubs>
 
   before(() => {
+    stubs = mkStubs()
     controller = new CertificateController(identity, database, node, commitment, emissions)
   })
 
   afterEach(() => {
-    stubs.submitRunProcess.resetHistory()
-    stubs.prepareRunProcess.resetHistory()
-    stubs.build.resetHistory()
-    stubs.getMemberByAlias.resetHistory()
-    stubs.getSelfAddress.resetHistory()
-    stubs.insert.resetHistory()
+    stubs = mkStubs()
   })
 
   describe('postDraft() - POST /', () => {
@@ -229,10 +229,6 @@ describe('v1/certificate', () => {
         response = await controller.getInitiationTransaction('test-cert-1', 'non-existant-id').catch((err) => err)
       })
 
-      it('calls external services', () => {
-        expect(1).to.equal(1)
-      })
-
       it('throws NotFound Error', () => {
         expect(response).to.be.instanceOf(NotFound)
         expect(response.code).to.equal(404)
@@ -267,11 +263,11 @@ describe('v1/certificate', () => {
 
     it('returns updated certificate', () => {
       expect(response).to.deep.contain({
-        energy_owner: 'emma-test',
-        hydrogen_owner: 'heidi',
-        id: 'test-cert-1',
-        regulator: 'ray-test',
-        state: 'issued',
+        id: 'issue-cert-transaction-test',
+        api_type: 'certificate',
+        local_id: 'test-cert-1',
+        state: 'submitted',
+        transaction_type: 'issue_cert',
       })
     })
   })
@@ -302,11 +298,11 @@ describe('v1/certificate', () => {
 
     it('returns transaction', () => {
       expect(response).to.deep.contain({
-        id: 'test-cert-1',
-        state: 'issued',
-        energy_owner: 'emma-test',
-        regulator: 'ray-test',
-        hydrogen_owner: 'heidi',
+        id: 'revoke-cert-transaction-test',
+        api_type: 'certificate',
+        local_id: 'test-cert-1',
+        state: 'submitted',
+        transaction_type: 'revoke_cert',
       })
     })
   })

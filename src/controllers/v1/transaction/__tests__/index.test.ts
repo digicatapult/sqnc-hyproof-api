@@ -19,14 +19,21 @@ describe('v1/transaction', () => {
   let controller: TransactionController
 
   const database: Database = new Database()
-  const getStub = sinon.stub(database, 'get' as any).callsFake(() => [{ ...example, id: 'test-1' }, example])
+
+  const mkStub = () => {
+    sinon.restore()
+    return sinon.stub(database, 'get' as any).callsFake(() => [{ ...example, id: 'test-1' }, example])
+  }
+
+  let getStub: ReturnType<typeof mkStub>
 
   before(() => {
+    getStub = mkStub()
     controller = new TransactionController(database)
   })
 
   afterEach(() => {
-    getStub.resetHistory()
+    getStub = mkStub()
   })
 
   describe('get() - GET /', () => {
