@@ -43,7 +43,19 @@ describe('v1/transaction', () => {
           response = await controller.get(api_type)
 
           expect(getStub.lastCall.args[0]).to.equal('transaction')
-          expect(getStub.lastCall.args[1]).to.to.deep.contain({ api_type })
+          expect(getStub.lastCall.args[1].length).to.equal(1)
+          expect(getStub.lastCall.args[1][0]).to.deep.contain({ api_type })
+          expect(response[1]).to.deep.contain(example)
+        })
+
+        it(` - [${api_type}] with args`, async () => {
+          response = await controller.get(api_type, 'finalised', '2024-01-01', '2024-01-02')
+
+          expect(getStub.lastCall.args[0]).to.equal('transaction')
+          expect(getStub.lastCall.args[1].length).to.equal(3)
+          expect(getStub.lastCall.args[1][0]).to.deep.equal({ api_type, state: 'finalised' })
+          expect(getStub.lastCall.args[1][1]).to.deep.equal(['created_at', '>=', new Date('2024-01-01')])
+          expect(getStub.lastCall.args[1][2]).to.deep.equal(['updated_at', '>=', new Date('2024-01-02')])
           expect(response[1]).to.deep.contain(example)
         })
       })
@@ -60,7 +72,7 @@ describe('v1/transaction', () => {
       })
     })
 
-    it('returns transactions by updated_since query param', async () => {
+    it('returns transactions by updated_after query param', async () => {
       response = await controller.get(undefined, undefined, '2024-01-10')
 
       expect(getStub.lastCall.args[0]).to.equal('transaction')

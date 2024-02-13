@@ -55,10 +55,10 @@ export class attachment extends Controller {
 
   @Get('/')
   @SuccessResponse(200, 'returns all attachment')
-  public async getAll(@Query() createdAt?: DATE): Promise<ListAttachmentsResponse> {
+  public async getAll(@Query() created_after?: DATE): Promise<ListAttachmentsResponse> {
     this.log.debug('retrieving all attachments')
 
-    return await this.db.get('attachment', createdAt ? [['created_at', '>=', new Date(createdAt)]] : undefined)
+    return await this.db.get('attachment', created_after ? [['created_at', '>=', new Date(created_after)]] : undefined)
   }
 
   @Post('/')

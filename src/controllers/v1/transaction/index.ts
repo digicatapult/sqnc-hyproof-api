@@ -12,6 +12,7 @@ import type {
   ListTransactionResponse,
   TransactionState,
 } from '../../../models/transaction.js'
+import { Where } from '../../../lib/db/types.js'
 
 @injectable()
 @Route('v1/transaction')
@@ -36,13 +37,17 @@ export class TransactionController extends Controller {
   public async get(
     @Query() api_type?: TransactionApiType,
     @Query() state?: TransactionState,
-    @Query() updated_since?: DATE
+    @Query() created_after?: DATE,
+    @Query() updated_after?: DATE
   ): Promise<ListTransactionResponse> {
-    const where: { state?: TransactionState; api_type?: TransactionApiType; updated_since?: DATE } = {
-      state,
-      api_type,
-      updated_since,
-    }
+    const where: Where<'transaction'> = [
+      {
+        state,
+        api_type,
+      },
+    ]
+    if (created_after) where.push(['created_at', '>=', new Date(created_after)])
+    if (updated_after) where.push(['updated_at', '>=', new Date(updated_after)])
 
     return this.db.get('transaction', where)
   }

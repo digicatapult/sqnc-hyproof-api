@@ -9,7 +9,7 @@ import ChainNode from '../../../../lib/chainNode.js'
 import Commitment from '../../../../lib/services/commitment.js'
 import EmissionsCalculator from '../../../../lib/services/emissionsCalculator.js'
 import { BadRequest, InternalServerError, NotFound } from '../../../../lib/error-handler/index.js'
-import { CertificateRow, TransactionRow } from '../../../../lib/db/types.js'
+import { CertificateRow, TransactionRow, Where } from '../../../../lib/db/types.js'
 import { certExamples, attachmentExample, transactionExample } from './fixtures.js'
 
 describe('v1/certificate', () => {
@@ -168,6 +168,22 @@ describe('v1/certificate', () => {
         energy_owner: 'emma2-test',
         regulator: 'ray-test',
         hydrogen_owner: 'heidi',
+      })
+    })
+
+    describe('with params', () => {
+      beforeEach(async () => {
+        response = await controller.getAll('2024-01-01', '2024-01-02')
+      })
+
+      it('should fetch from db with conditions', () => {
+        const expectedCondition = [
+          ['created_at', '>=', new Date('2024-01-01')],
+          ['updated_at', '>=', new Date('2024-01-02')],
+        ] as Where<'certificate'>
+
+        expect(stubs.get.lastCall.args[0]).to.equal('certificate')
+        expect(stubs.get.lastCall.args[1]).to.deep.equal(expectedCondition)
       })
     })
   })

@@ -168,9 +168,10 @@ export class CertificateController extends Controller {
    */
   @Get('/')
   @Response<NotFound>(404, '<item> not found')
-  public async getAll(@Query() createdAt?: DATE): Promise<ListCertificatesResponse> {
-    const where: Where<'certificate'> = {}
-    if (createdAt) where.created_at = new Date(createdAt)
+  public async getAll(@Query() created_after?: DATE, @Query() updated_after?: DATE): Promise<ListCertificatesResponse> {
+    const where: Where<'certificate'> = []
+    if (created_after) where.push(['created_at', '>=', new Date(created_after)])
+    if (updated_after) where.push(['updated_at', '>=', new Date(updated_after)])
 
     const found = await this.db.get('certificate', where)
     const certificates = await this.mapIdentities(found)

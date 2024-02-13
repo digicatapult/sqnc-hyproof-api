@@ -17,6 +17,5 @@ export type HEX = `0x${string}`
  * ISO 8601 date string
  * @pattern (\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))
  * @format date
- * @example "2023-05-04T09:47:32.393Z"
  */
 export type DATE = string
