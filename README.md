@@ -1,8 +1,8 @@
-# dscp-hyproof-api
+# sqnc-hyproof-api
 
 ## Description
 
-An API service for issuing hydrogen certificates
+An API service for issuing hydrogen certificates using the Sequence (SQNC) ledger-based infrastructure
 
 ## Configuration
 
@@ -14,15 +14,15 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | LOG_LEVEL              | N        | `debug`            | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
 | DB_PORT                | N        | `5432`             | The port for the database                                                                                                                         |
 | DB_HOST                | Y        | -                  | The database hostname / host                                                                                                                      |
-| DB_NAME                | N        | `dscp-hyproof-api` | The database name                                                                                                                                 |
+| DB_NAME                | N        | `sqnc-hyproof-api` | The database name                                                                                                                                 |
 | DB_USERNAME            | Y        | -                  | The database username                                                                                                                             |
 | DB_PASSWORD            | Y        | -                  | The database password                                                                                                                             |
-| IDENTITY_SERVICE_HOST  | Y        | -                  | Hostname of the `dscp-identity-service`                                                                                                           |
-| IDENTITY_SERVICE_PORT  | N        | `3000`             | Port of the `dscp-identity-service`                                                                                                               |
-| NODE_HOST              | Y        | -                  | The hostname of the `dscp-node` the API should connect to                                                                                         |
-| NODE_PORT              | N        | `9944`             | The port of the `dscp-node` the API should connect to                                                                                             |
+| IDENTITY_SERVICE_HOST  | Y        | -                  | Hostname of the `sqnc-identity-service`                                                                                                           |
+| IDENTITY_SERVICE_PORT  | N        | `3000`             | Port of the `sqnc-identity-service`                                                                                                               |
+| NODE_HOST              | Y        | -                  | The hostname of the `sqnc-node` the API should connect to                                                                                         |
+| NODE_PORT              | N        | `9944`             | The port of the `sqnc-node` the API should connect to                                                                                             |
 | LOG_LEVEL              | N        | `info`             | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                                                              |
-| USER_URI               | Y        | -                  | The Substrate `URI` representing the private key to use when making `dscp-node` transactions                                                      |
+| USER_URI               | Y        | -                  | The Substrate `URI` representing the private key to use when making `sqnc-node` transactions                                                      |
 | IPFS_HOST              | Y        | -                  | Hostname of the `IPFS` node to use for metadata storage                                                                                           |
 | IPFS_PORT              | N        | `5001`             | Port of the `IPFS` node to use for metadata storage                                                                                               |
 | WATCHER_POLL_PERIOD_MS | N        | `10000`            | Number of ms between polling of service state                                                                                                     |
@@ -98,9 +98,9 @@ npm run test
 
 ## Process Flows
 
-To ensure integrity of data within transactions (and therefore on chain), it's possible to define custom processes that validate transactions. [More info](https://github.com/digicatapult/dscp-documentation/blob/main/docs/tokenModels/guardRails.md).
+To ensure integrity of data within transactions (and therefore on chain), it's possible to define custom processes that validate transactions. [More info](https://github.com/digicatapult/sqnc-documentation/blob/main/docs/tokenModels/guardRails.md).
 
-Process flows covering this API's transactions are in [`processFlows.json`](./processFlows.json). The file is an array of process flows that can be supplied to the [`dscp-process-management`](https://github.com/digicatapult/dscp-process-management) CLI for creating processes on chain:
+Process flows covering this API's transactions are in [`processFlows.json`](./processFlows.json). The file is an array of process flows that can be supplied to the [`sqnc-process-management`](https://github.com/digicatapult/sqnc-process-management) CLI for creating processes on chain:
 
 ```
 npm run flows
@@ -108,7 +108,7 @@ npm run flows
 
 ## API design
 
-`dscp-hyproof-api` provides a RESTful OpenAPI-based interface for third parties and front-ends to interact with the `DSCP` system. The design prioritises:
+`sqnc-hyproof-api` provides a RESTful OpenAPI-based interface for third parties and front-ends to interact with the `Sequence` (SQNC) system. The design prioritises:
 
 1. RESTful design principles:
    - all endpoints describing discrete operations on path derived entities.
@@ -139,17 +139,17 @@ docker-compose -f docker-compose-3-persona.yml logs -f | grep regulator
 ```
 
 > single persona
-> Run `docker compose up -d` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker compose up -d` to start the required dependencies to fully demo `sqnc-hyproof-api`.
 
 > multiple persona
-> Run `docker-compose -f docker-compose-3-persona.yml up` to start the required dependencies to fully demo `dscp-hyproof-api`.
+> Run `docker-compose -f docker-compose-3-persona.yml up` to start the required dependencies to fully demo `sqnc-hyproof-api`.
 
 > services
 
-- dscp-hyproof-api (+ PostgreSQL)
-- dscp-identity-service (+ PostgreSQL)
+- sqnc-hyproof-api (+ PostgreSQL)
+- sqnc-identity-service (+ PostgreSQL)
 - ipfs
-- dscp-node
+- sqnc-node
 
 You can run a full 3-party demonstration using `docker-compose -f docker-compose-3-persona.yml up --build -d`.
 
@@ -183,6 +183,6 @@ The single-party version only uses:
 
 ### Using the HyProof API
 
-You can find a basic cli walk-through for using the API in **`scripts/basic-demo.md`** or alternatively, you can view more details in the **[digicatapult/dscp-documentation](https://github.com/digicatapult/dscp-documentation)** repository ( in the **`./docs/hyproof/`** folder ).
+You can find a basic cli walk-through for using the API in **`scripts/basic-demo.md`** or alternatively, you can view more details in the **[digicatapult/sqnc-documentation](https://github.com/digicatapult/sqnc-documentation)** repository ( in the **`./docs/hyproof/`** folder ).
 
 ---

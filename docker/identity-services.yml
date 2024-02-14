@@ -16,11 +16,11 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-identity
+      - POSTGRES_DB=sqnc-identity
     networks: ['hydrogen-producer']
 
   hydrogen-producer-identity:
-    image: digicatapult/dscp-identity-service:latest
+    image: digicatapult/sqnc-identity-service:latest
     container_name: hydrogen-producer-identity
     command: /bin/sh -c "
       sleep 10 &&
@@ -39,7 +39,7 @@ services:
       - API_PORT=9944
       - DB_HOST=hydrogen-producer-postgres-identity
       - DB_PORT=5432
-      - DB_NAME=dscp-identity
+      - DB_NAME=sqnc-identity
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
@@ -64,11 +64,11 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-identity
+      - POSTGRES_DB=sqnc-identity
     networks: ['energy-owner']
 
   energy-owner-identity:
-    image: digicatapult/dscp-identity-service:latest
+    image: digicatapult/sqnc-identity-service:latest
     container_name: energy-owner-identity
     command: /bin/sh -c "
       sleep 10 &&
@@ -87,7 +87,7 @@ services:
       - API_PORT=9944
       - DB_HOST=energy-owner-postgres-identity
       - DB_PORT=5432
-      - DB_NAME=dscp-identity
+      - DB_NAME=sqnc-identity
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
@@ -112,11 +112,11 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-identity
+      - POSTGRES_DB=sqnc-identity
     networks: ['regulator']
 
   regulator-identity:
-    image: digicatapult/dscp-identity-service:latest
+    image: digicatapult/sqnc-identity-service:latest
     container_name: regulator-identity
     command: /bin/sh -c "
       sleep 10 &&
@@ -135,7 +135,7 @@ services:
       - API_PORT=9944
       - DB_HOST=regulator-postgres-identity
       - DB_PORT=5432
-      - DB_NAME=dscp-identity
+      - DB_NAME=sqnc-identity
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y

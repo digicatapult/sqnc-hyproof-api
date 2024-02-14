@@ -1,7 +1,7 @@
 {
-  "name": "@digicatapult/dscp-hyproof-api",
+  "name": "@digicatapult/sqnc-hyproof-api",
   "version": "0.11.3",
-  "description": "An OpenAPI API service for DSCP",
+  "description": "An OpenAPI API service for SQNC",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
@@ -20,11 +20,11 @@
     "db:cmd": "node --import=tsimp/import ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest --knexfile src/lib/db/knexfile.ts",
     "db:rollback": "npm run db:cmd -- migrate:rollback --knexfile src/lib/db/knexfile.ts",
-    "flows": "npx @digicatapult/dscp-process-management@latest create -h localhost -p 9944 -u //Alice -f ./processFlows.json"
+    "flows": "npx @digicatapult/sqnc-process-management@latest create -h localhost -p 9944 -u //Alice -f ./processFlows.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/digicatapult/dscp-hyproof-api.git"
+    "url": "git+https://github.com/digicatapult/sqnc-hyproof-api.git"
   },
   "engines": {
     "node": "20.x.x",
@@ -36,9 +36,9 @@
   "author": "Digital Catapult",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/digicatapult/dscp-hyproof-api/issues"
+    "url": "https://github.com/digicatapult/sqnc-hyproof-api/issues"
   },
-  "homepage": "https://github.com/digicatapult/dscp-hyproof-api#readme",
+  "homepage": "https://github.com/digicatapult/sqnc-hyproof-api#readme",
   "devDependencies": {
     "@polkadot/types": "^10.11.2",
     "@types/chai": "^4.3.11",

@@ -11,7 +11,7 @@ services:
   ##################################################################################
 
   hydrogen-producer-node:
-    image: digicatapult/dscp-node:latest
+    image: digicatapult/sqnc-node:latest
     container_name: hydrogen-producer-node
     command: --base-path /data
       --alice
@@ -28,7 +28,7 @@ services:
   ##################################################################################
 
   energy-owner-node:
-    image: digicatapult/dscp-node:latest
+    image: digicatapult/sqnc-node:latest
     container_name: energy-owner-node
     command: --base-path /data/
       --bob
@@ -46,7 +46,7 @@ services:
   ##################################################################################
 
   regulator-node:
-    image: digicatapult/dscp-node:latest
+    image: digicatapult/sqnc-node:latest
     container_name: regulator-node
     command: --base-path /data/
       --charlie
