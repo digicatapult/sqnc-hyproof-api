@@ -7,7 +7,7 @@ const env = container.resolve(Env)
 
 export const logger = pino(
   {
-    name: 'dscp-hyproof-api',
+    name: 'sqnc-hyproof-api',
     timestamp: true,
     level: env.get('LOG_LEVEL'),
   },

@@ -27,6 +27,6 @@ import { logger } from './lib/logger.js'
   }
 
   app.listen(env.get('PORT'), () => {
-    logger.info(`dscp-hyproof-api listening on ${env.get('PORT')} port`)
+    logger.info(`sqnc-hyproof-api listening on ${env.get('PORT')} port`)
   })
 })()

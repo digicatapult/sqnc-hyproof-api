@@ -16,7 +16,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-hyproof-api
+      - POSTGRES_DB=sqnc-hyproof-api
     networks: ['hydrogen-producer']
 
   hydrogen-producer-hyproof-api:
@@ -27,7 +27,7 @@ services:
     command: /bin/sh -c "
       sleep 20 &&
       npx knex migrate:latest --knexfile build/lib/db/knexfile &&
-      npx @digicatapult/dscp-process-management@latest create -h hydrogen-producer-node -p 9944 -u //Alice -f ./processFlows.json &&
+      npx @digicatapult/sqnc-process-management@latest create -h hydrogen-producer-node -p 9944 -u //Alice -f ./processFlows.json &&
       npm start"
     environment:
       - PORT=8000
@@ -36,7 +36,7 @@ services:
       - NODE_PORT=9944
       - DB_HOST=hydrogen-producer-postgres-hyproof-api
       - DB_PORT=5432
-      - DB_NAME=dscp-hyproof-api
+      - DB_NAME=sqnc-hyproof-api
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - IDENTITY_SERVICE_HOST=hydrogen-producer-identity
@@ -76,7 +76,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-hyproof-api
+      - POSTGRES_DB=sqnc-hyproof-api
     networks: ['energy-owner']
 
   energy-owner-hyproof-api:
@@ -95,7 +95,7 @@ services:
       - NODE_PORT=9944
       - DB_HOST=energy-owner-postgres-hyproof-api
       - DB_PORT=5432
-      - DB_NAME=dscp-hyproof-api
+      - DB_NAME=sqnc-hyproof-api
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - IDENTITY_SERVICE_HOST=energy-owner-identity
@@ -135,7 +135,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-hyproof-api
+      - POSTGRES_DB=sqnc-hyproof-api
     networks: ['regulator']
 
   regulator-hyproof-api:
@@ -154,7 +154,7 @@ services:
       - NODE_PORT=9944
       - DB_HOST=regulator-postgres-hyproof-api
       - DB_PORT=5432
-      - DB_NAME=dscp-hyproof-api
+      - DB_NAME=sqnc-hyproof-api
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - IDENTITY_SERVICE_HOST=regulator-identity

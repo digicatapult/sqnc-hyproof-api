@@ -11,7 +11,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-hyproof-api
+      - POSTGRES_DB=sqnc-hyproof-api
 
   postgres-identity-service:
     image: postgres:16.1-alpine
@@ -23,10 +23,10 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=dscp-identity-service
+      - POSTGRES_DB=sqnc-identity-service
 
-  dscp-identity-service:
-    image: digicatapult/dscp-identity-service:latest
+  sqnc-identity-service:
+    image: digicatapult/sqnc-identity-service:latest
     container_name: identity-service
     command: /bin/sh -c "
       sleep 30 &&
@@ -36,17 +36,17 @@ services:
       - 3002:3002
     environment:
       - PORT=3002
-      - API_HOST=dscp-node
+      - API_HOST=sqnc-node
       - DB_HOST=postgres-identity-service
       - DB_PORT=5432
-      - DB_NAME=dscp-identity-service
+      - DB_NAME=sqnc-identity-service
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
       - AUTH_TYPE=${AUTH_TYPE:-NONE}
 
-  dscp-node:
-    image: digicatapult/dscp-node:latest
+  sqnc-node:
+    image: digicatapult/sqnc-node:latest
     container_name: node
     command: --base-path /data/
       --dev

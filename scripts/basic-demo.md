@@ -8,7 +8,7 @@ This document walks through a basic command-line demo of certificate issuance an
 
 In order to be able to reproduce the steps described in this document, you first need to have the three persona testnet operational using `docker-compose`.
 
-Use the following command to build and run the 3-persona testnet from the root directory of `dscp-hyproof-api`:
+Use the following command to build and run the 3-persona testnet from the root directory of `sqnc-hyproof-api`:
 
 ```sh
 docker-compose -f docker-compose-3-persona.yml up --build -d
@@ -38,7 +38,7 @@ The 3-party demonstration creates 3 personas with different roles, given below. 
 
 ## Running the Demo
 
-The `scripts` folder within the `dscp-hyproof-api` project contains a series of shell scripts (numbered initially with `1` through `5`).
+The `scripts` folder within the `sqnc-hyproof-api` project contains a series of shell scripts (numbered initially with `1` through `5`).
 
 - `1_load_identities.sh`
 - `2_initiate_token.sh`
