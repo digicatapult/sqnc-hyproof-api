@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.6
+# syntax=docker/dockerfile:1.7
 FROM node:lts-alpine as builder
 
 WORKDIR /sqnc-hyproof-api
