@@ -31,6 +31,10 @@ services:
       ./app/index.js;'
     environment:
       - NODE_HOST=hydrogen-producer-node
+      - |
+        IPFS_SWARM_KEY=/key/swarm/psk/1.0.0/
+        /base16/
+        0000000000000000000000000000000000000000000000000000000000000000
     volumes:
       - hydrogen-producer-ipfs:/ipfs
     restart: on-failure
@@ -61,6 +65,10 @@ services:
       ./app/index.js;'
     environment:
       - NODE_HOST=energy-owner-node
+      - |
+        IPFS_SWARM_KEY=/key/swarm/psk/1.0.0/
+        /base16/
+        0000000000000000000000000000000000000000000000000000000000000000
     volumes:
       - energy-owner-ipfs:/ipfs
     restart: on-failure
@@ -91,6 +99,10 @@ services:
       ./app/index.js;'
     environment:
       - NODE_HOST=regulator-node
+      - |
+        IPFS_SWARM_KEY=/key/swarm/psk/1.0.0/
+        /base16/
+        0000000000000000000000000000000000000000000000000000000000000000
     volumes:
       - regulator-ipfs:/ipfs
     restart: on-failure
