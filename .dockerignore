@@ -1,0 +1,10 @@
+.github
+node_modules
+scripts
+build
+bin
+
+.eslintignore
+.eslintrc
+.prettierrc
+*.md

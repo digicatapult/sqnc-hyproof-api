@@ -1,0 +1,94 @@
+version: '3'
+
+networks:
+  veritable:
+    ipam:
+      driver: default
+
+services:
+  ##################################################################################
+  ## Heidi the Hydrogen Producer ###################################################
+  ##################################################################################
+
+  hydrogen-producer-veritable:
+    image: digicatapult/veritable-cloudagent:latest
+    container_name: hydrogen-producer-veritable
+    depends_on:
+      hydrogen-producer-ipfs:
+        condition: service_healthy
+    ports:
+      - 10000:3000
+    command: |
+      --label hydrogen-producer-agent
+      --wallet-id hydrogen-producer-id
+      --wallet-key hydrogen-producer-key
+      --endpoint "http://hydrogen-producer-veritable:5000", "ws://hydrogen-producer-veritable:5001"
+      --outbound-transport http ws
+      --inbound-transport http 5000 ws 5001
+      --auto-accept-connections true
+      --auto-accept-credentials always
+      --auto-accept-proofs always
+      --admin-port 3000
+      --ipfs-origin http://hydrogen-producer-ipfs:5001
+      --persona-title "Veritable Cloudagent - Heidi"
+      --persona-color "#e4f2f3"
+    restart: on-failure
+    networks: ['hydrogen-producer', 'veritable']
+
+  ##################################################################################
+  ## Emma the Energy Owner #########################################################
+  ##################################################################################
+
+  energy-owner-veritable:
+    image: digicatapult/veritable-cloudagent:latest
+    container_name: energy-owner-veritable
+    depends_on:
+      energy-owner-ipfs:
+        condition: service_healthy
+    ports:
+      - 10010:3000
+    command: |
+      --label energy-owner-agent
+      --wallet-id energy-owner-id
+      --wallet-key energy-owner-key
+      --endpoint "http://energy-owner-veritable:5000", "ws://energy-owner-veritable:5001"
+      --outbound-transport http ws
+      --inbound-transport http 5000 ws 5001
+      --auto-accept-connections true
+      --auto-accept-credentials always
+      --auto-accept-proofs always
+      --admin-port 3000
+      --ipfs-origin http://energy-owner-ipfs:5001
+      --persona-title "Veritable Cloudagent - Emma"
+      --persona-color "#e7f6e6"
+    restart: on-failure
+    networks: ['energy-owner', 'veritable']
+
+  ##################################################################################
+  ## Reginald the Regulator ########################################################
+  ##################################################################################
+
+  regulator-veritable:
+    image: digicatapult/veritable-cloudagent:latest
+    container_name: regulator-veritable
+    depends_on:
+      regulator-ipfs:
+        condition: service_healthy
+    ports:
+      - 10020:3000
+    command: |
+      --label regulator-agent
+      --wallet-id regulator-id
+      --wallet-key regulator-key
+      --endpoint "http://regulator-veritable:5000", "ws://regulator-veritable:5001"
+      --outbound-transport http ws
+      --inbound-transport http 5000 ws 5001
+      --auto-accept-connections true
+      --auto-accept-credentials always
+      --auto-accept-proofs always
+      --admin-port 3000
+      --ipfs-origin http://regulator-ipfs:5001
+      --persona-title "Veritable Cloudagent - Reginald"
+      --persona-color "#f8dddd"
+    restart: on-failure
+    networks: ['regulator', 'veritable']

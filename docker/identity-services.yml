@@ -1,0 +1,151 @@
+version: '3'
+
+services:
+  ##################################################################################
+  ## Heidi the Hydrogen Producer ###################################################
+  ##################################################################################
+
+  hydrogen-producer-postgres-identity:
+    image: postgres:16.1-alpine
+    container_name: hydrogen-producer-postgres-identity
+    depends_on:
+      hydrogen-producer-node:
+        condition: service_healthy
+    volumes:
+      - hydrogen-producer-identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sqnc-identity
+    networks: ['hydrogen-producer']
+
+  hydrogen-producer-identity:
+    image: digicatapult/sqnc-identity-service:latest
+    container_name: hydrogen-producer-identity
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 9000:9000
+    depends_on:
+      hydrogen-producer-node:
+        condition: service_healthy
+      hydrogen-producer-postgres-identity:
+        condition: service_started
+    environment:
+      - PORT=9000
+      - API_HOST=hydrogen-producer-node
+      - API_PORT=9944
+      - DB_HOST=hydrogen-producer-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=sqnc-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - 'API_SWAGGER_BG_COLOR=#e4f2f3'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Heidi'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Heidi'
+    networks: ['hydrogen-producer']
+
+  ##################################################################################
+  ## Emma the Energy Owner #########################################################
+  ##################################################################################
+
+  energy-owner-postgres-identity:
+    image: postgres:16.1-alpine
+    container_name: energy-owner-postgres-identity
+    depends_on:
+      energy-owner-node:
+        condition: service_healthy
+    volumes:
+      - energy-owner-identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sqnc-identity
+    networks: ['energy-owner']
+
+  energy-owner-identity:
+    image: digicatapult/sqnc-identity-service:latest
+    container_name: energy-owner-identity
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 9010:9010
+    depends_on:
+      energy-owner-node:
+        condition: service_healthy
+      energy-owner-postgres-identity:
+        condition: service_started
+    environment:
+      - PORT=9010
+      - API_HOST=energy-owner-node
+      - API_PORT=9944
+      - DB_HOST=energy-owner-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=sqnc-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - 'API_SWAGGER_BG_COLOR=#e7f6e6'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Emma'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Emma'
+    networks: ['energy-owner']
+
+  ##################################################################################
+  ## Reginald the Regulator ########################################################
+  ##################################################################################
+
+  regulator-postgres-identity:
+    image: postgres:16.1-alpine
+    container_name: regulator-postgres-identity
+    depends_on:
+      regulator-node:
+        condition: service_healthy
+    volumes:
+      - regulator-identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sqnc-identity
+    networks: ['regulator']
+
+  regulator-identity:
+    image: digicatapult/sqnc-identity-service:latest
+    container_name: regulator-identity
+    command: /bin/sh -c "
+      sleep 10 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 9020:9020
+    depends_on:
+      regulator-node:
+        condition: service_healthy
+      regulator-postgres-identity:
+        condition: service_started
+    environment:
+      - PORT=9020
+      - API_HOST=regulator-node
+      - API_PORT=9944
+      - DB_HOST=regulator-postgres-identity
+      - DB_PORT=5432
+      - DB_NAME=sqnc-identity
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+      - 'API_SWAGGER_BG_COLOR=#f8dddd'
+      - 'API_SWAGGER_TITLE=HyProof Identity API - Reginald'
+      - 'API_SWAGGER_HEADING=HyProof Identity API - Reginald'
+    networks: ['regulator']
+
+volumes:
+  hydrogen-producer-identity-storage:
+  energy-owner-identity-storage:
+  regulator-identity-storage:

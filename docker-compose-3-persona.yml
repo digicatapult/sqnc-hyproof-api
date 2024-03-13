@@ -1,0 +1,34 @@
+#docker-compose -f docker-compose-3-persona.yml up --build -d
+
+##################################################################################
+## Docker-Compose for a 3-persona testnet ########################################
+##
+## Heidi the Hydrogen Producer
+## Address:              5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+## HyProof API:          localhost:8000/swagger
+## Identity Service:     localhost:9000/v1/swagger
+## Veritable Cloudagent: localhost:10000/docs
+##
+## Emma the Energy Owner
+## Address:              5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty
+## HyProof API:          localhost:8010/swagger
+## Identity Service:     localhost:9010/v1/swagger
+## Veritable Cloudagent: localhost:10010/docs
+##
+## Reginald the Regulator
+## Address:              5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y
+## HyProof API:          localhost:8020/swagger
+## Identity Service:     localhost:9020/v1/swagger
+## Veritable Cloudagent: localhost:10020/docs
+##
+##################################################################################
+
+version: '3'
+
+include:
+  - ./docker/persona-networks.yml
+  - ./docker/nodes.yml
+  - ./docker/identity-services.yml
+  - ./docker/hyproof-apis.yml
+  - ./docker/ipfs.yml
+  - ./docker/veritable.yml

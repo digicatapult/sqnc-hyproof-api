@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+  postgres-hyproof-api:
+    image: postgres:16.2-alpine
+    container_name: postgres-hyproof-api
+    ports:
+      - 5432:5432
+    volumes:
+      - hyproof-api-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sqnc-hyproof-api
+
+  postgres-identity-service:
+    image: postgres:16.2-alpine
+    container_name: postgres-identity
+    ports:
+      - 5433:5432
+    volumes:
+      - identity-storage:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sqnc-identity-service
+
+  sqnc-identity-service:
+    image: digicatapult/sqnc-identity-service:latest
+    container_name: identity-service
+    command: /bin/sh -c "
+      sleep 30 &&
+      npx knex migrate:latest &&
+      node app/index.js"
+    ports:
+      - 3002:3002
+    environment:
+      - PORT=3002
+      - API_HOST=sqnc-node
+      - DB_HOST=postgres-identity-service
+      - DB_PORT=5432
+      - DB_NAME=sqnc-identity-service
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - SELF_ADDRESS=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - AUTH_TYPE=${AUTH_TYPE:-NONE}
+
+  sqnc-node:
+    image: digicatapult/sqnc-node:latest
+    container_name: node
+    command: --base-path /data/
+      --dev
+      --unsafe-rpc-external
+      --rpc-max-connections 512
+      --rpc-cors all
+    ports:
+      - 30333:30333
+      - 9944:9944
+      - 9933:9933
+    restart: on-failure
+
+  ipfs:
+    image: ipfs/go-ipfs:v0.27.0
+    container_name: ipfs
+    environment:
+      - |
+        IPFS_SWARM_KEY=/key/swarm/psk/1.0.0/
+        /base16/
+        0000000000000000000000000000000000000000000000000000000000000000
+    ports:
+      - 4001:4001
+      - 8080:8080
+      - 5001:5001
+volumes:
+  hyproof-api-storage:
+  identity-storage:
