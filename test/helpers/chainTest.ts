@@ -64,7 +64,11 @@ export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) =
   })
 }
 
-export const withInitialisedCertFromNotSelf = async (context: { app: Express; db: Database; cert: CertificateRow }) => {
+export const withInitialisedCertFromNotSelf = async (
+  context: { app: Express; db: Database; cert: CertificateRow },
+  productionStartTime?: Date,
+  productionEndTime?: Date
+) => {
   const node = new ChainNode(
     mockEnv({
       USER_URI: '//Bob',
@@ -87,8 +91,8 @@ export const withInitialisedCertFromNotSelf = async (context: { app: Express; db
   const [{ id }] = await db.get('certificate', { latest_token_id: tokenId })
 
   const { status, body } = await put(context.app, `/v1/certificate/${id}`, {
-    production_start_time: new Date('2023-12-01T00:00:00.000Z'),
-    production_end_time: new Date('2023-12-02T00:00:00.000Z'),
+    production_start_time: productionStartTime || new Date('2023-12-01T00:00:00.000Z'),
+    production_end_time: productionEndTime || new Date('2023-12-02T00:00:00.000Z'),
     energy_consumed_wh: 2000000,
     commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   })
