@@ -1,6 +1,7 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 import { spy } from 'sinon'
+import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator.js'
 import { InternalServerError } from '../../error-handler/index.js'
@@ -54,7 +55,34 @@ const withExtendedRanges: IntensityResponseData = new Array(25).fill(null).map((
 })
 
 describe('EmissionsCalculator', function () {
+  const mockCarbon = new MockAgent().get(`https://api.carbonintensity.org.uk`)
+
   describe('fetchEmissions', function () {
+    const startDateBelow30Min = new Date('2023-01-01T07:00:00.000Z')
+    const endDateBelow30Min = new Date('2023-01-01T07:10:00.000Z')
+
+    this.beforeEach(() => {
+      setGlobalDispatcher(mockCarbon)
+      mockCarbon
+        .intercept({
+          path: '/intensity/2023-01-01T06:00:00.000Z/2023-01-01T07:10:00.000Z',
+          method: 'GET',
+        })
+        .reply(200, {
+          data: [
+            {
+              from: '2023-01-01T06:00:00.000Z',
+              to: '2023-01-01T07:10:00.000Z',
+              intensity: {
+                actual: 123.456789123,
+                forecast: 100,
+                index: 'moderate',
+              },
+            },
+          ],
+        })
+        .persist()
+    })
     it('should add an hour even if times are under 30 mins to avoid empty response from co2', async function () {
       const calc = new EmissionsCalculator()
       const calculateEmissionsStub = spy(calc, 'calculateEmissions')
@@ -63,21 +91,18 @@ describe('EmissionsCalculator', function () {
       expect(calculateEmissionsStub.calledOnce).to.equal(true)
       expect(calculateEmissionsStub.getCall(0).args[0]).to.deep.equal([
         {
-          from: new Date('2023-01-01T05:30:00.000Z'),
-          to: new Date('2023-01-01T06:00:00.000Z'),
-          intensity: { forecast: 74, actual: 73, index: 'low' },
-        },
-        {
           from: new Date('2023-01-01T06:00:00.000Z'),
-          to: new Date('2023-01-01T06:30:00.000Z'),
-          intensity: { forecast: 76, actual: 73, index: 'low' },
-        },
-        {
-          from: new Date('2023-01-01T06:30:00.000Z'),
-          to: new Date('2023-01-01T07:00:00.000Z'),
-          intensity: { forecast: 75, actual: 72, index: 'low' },
+          to: new Date('2023-01-01T07:10:00.000Z'),
+          intensity: {
+            actual: 123.456789123,
+            forecast: 100,
+            index: 'moderate',
+          },
         },
       ])
+      // validate that emissions calculator has been called with not updated times for co2 value
+      expect(calculateEmissionsStub.getCall(0).args[1]).to.deep.equal(startDateBelow30Min)
+      expect(calculateEmissionsStub.getCall(0).args[2]).to.deep.equal(endDateBelow30Min)
     })
   })
 
