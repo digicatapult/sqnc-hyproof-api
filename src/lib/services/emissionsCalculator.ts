@@ -35,7 +35,7 @@ export default class EmissionsCalculator {
     productionEndDate: Date,
     energyConsumedWh: number
   ): Promise<number> {
-    const url = this.intensityUrl(productionStartDate, productionEndDate)
+    const url = this.intensityUrl(new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60), productionEndDate)
     const response = await fetch(url)
     if (response.status !== 200) {
       throw new InternalServerError('Unexpected error fetching carbon intensity data')
@@ -81,8 +81,6 @@ export default class EmissionsCalculator {
   }
 
   private intensityUrl(productionStartDate: Date, productionEndDate: Date): string {
-    const from = new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60).toISOString()
-    const to = new Date(new Date(productionEndDate).getTime() + 1000 * 60 * 60).toISOString()
-    return `https://api.carbonintensity.org.uk/intensity/${from}/${to}`
+    return `https://api.carbonintensity.org.uk/intensity/${productionStartDate.toISOString()}/${productionEndDate.toISOString()}`
   }
 }

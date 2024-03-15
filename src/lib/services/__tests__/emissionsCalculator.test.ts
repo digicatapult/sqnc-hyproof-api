@@ -55,16 +55,29 @@ const withExtendedRanges: IntensityResponseData = new Array(25).fill(null).map((
 
 describe('EmissionsCalculator', function () {
   describe('fetchEmissions', function () {
-    const endDate = new Date('2023-01-01T10:10Z')
-    const startDate = new Date('2023-01-01T10:00Z')
-    it('ensures that start and end times are at least 1 hour apart', async function () {
+    it('should add an hour even if times are under 30 mins to avoid empty response from co2', async function () {
       const calc = new EmissionsCalculator()
       const calculateEmissionsStub = spy(calc, 'calculateEmissions')
-      await calc.fetchEmissions(startDate, endDate, 10000000)
+      await calc.fetchEmissions(new Date('2023-01-01T07:00:00.000Z'), new Date('2023-01-01T07:10:00.000Z'), 1000000)
 
       expect(calculateEmissionsStub.calledOnce).to.equal(true)
-      expect(calculateEmissionsStub.lastCall.args[1]).to.deep.equal(new Date('2023-01-01T10:00:00.000Z'))
-      expect(calculateEmissionsStub.lastCall.args[2]).to.deep.equal(new Date('2023-01-01T10:10:00.000Z'))
+      expect(calculateEmissionsStub.getCall(0).args[0]).to.deep.equal([
+        {
+          from: new Date('2023-01-01T05:30:00.000Z'),
+          to: new Date('2023-01-01T06:00:00.000Z'),
+          intensity: { forecast: 74, actual: 73, index: 'low' },
+        },
+        {
+          from: new Date('2023-01-01T06:00:00.000Z'),
+          to: new Date('2023-01-01T06:30:00.000Z'),
+          intensity: { forecast: 76, actual: 73, index: 'low' },
+        },
+        {
+          from: new Date('2023-01-01T06:30:00.000Z'),
+          to: new Date('2023-01-01T07:00:00.000Z'),
+          intensity: { forecast: 75, actual: 72, index: 'low' },
+        },
+      ])
     })
   })
 
