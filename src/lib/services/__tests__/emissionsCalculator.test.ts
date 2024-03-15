@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import { expect } from 'chai'
 import { spy } from 'sinon'
-import { MockAgent, setGlobalDispatcher } from 'undici'
+import { MockAgent, setGlobalDispatcher, getGlobalDispatcher } from 'undici'
 
 import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator.js'
 import { InternalServerError } from '../../error-handler/index.js'
@@ -75,6 +75,7 @@ const withExtendedRanges: IntensityResponseData = new Array(25).fill(null).map((
 })
 
 describe('EmissionsCalculator', function () {
+  const originalDispatcher = getGlobalDispatcher()
   const mockCarbon = new MockAgent().get(`https://api.carbonintensity.org.uk`)
 
   describe('fetchEmissions', function () {
@@ -93,8 +94,7 @@ describe('EmissionsCalculator', function () {
     })
 
     afterEach(function () {
-      mockCarbon.close()
-      mockCarbon.destroy()
+      setGlobalDispatcher(originalDispatcher)
     })
 
     it('should add an hour even if times are under 30 mins to avoid empty response from co2', async function () {
