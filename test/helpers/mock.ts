@@ -90,7 +90,7 @@ export function withExternalServicesMock() {
 
     mockCarbon
       .intercept({
-        path: '/intensity/2023-12-01T09:00:00.000Z/2023-12-02T11:00:00.000Z',
+        path: '/intensity/2023-12-01T09:00:00.000Z/2023-12-02T10:00:00.000Z',
         method: 'GET',
       })
       .reply(200, {
