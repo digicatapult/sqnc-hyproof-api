@@ -5,8 +5,8 @@ import { spy } from 'sinon'
 import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator.js'
 import { InternalServerError } from '../../error-handler/index.js'
 
-const date1 = new Date('2023-01-01T00:00Z')
-const date2 = new Date('2023-01-02T00:00Z')
+const date1 = new Date('2023-01-01T10:00Z')
+const date2 = new Date('2023-01-02T10:00Z')
 
 const fullBoundData: IntensityResponseData = [
   {
@@ -55,16 +55,16 @@ const withExtendedRanges: IntensityResponseData = new Array(25).fill(null).map((
 
 describe('EmissionsCalculator', function () {
   describe('fetchEmissions', function () {
+    const endDate = new Date('2023-01-01T10:10Z')
+    const startDate = new Date('2023-01-01T10:00Z')
     it('ensures that start and end times are at least 1 hour apart', async function () {
       const calc = new EmissionsCalculator()
       const calculateEmissionsStub = spy(calc, 'calculateEmissions')
-      const result = await calc.fetchEmissions(new Date(), new Date(), 10000000)
+      await calc.fetchEmissions(startDate, endDate, 10000000)
 
       expect(calculateEmissionsStub.calledOnce).to.equal(true)
-      expect(calculateEmissionsStub.lastCall.args[1]).to.equal(new Date())
-      expect(calculateEmissionsStub.lastCall.args[2]).to.equal(new Date())
-
-      expect(Math.round(result)).to.equal(10 * 1000 * 100)
+      expect(calculateEmissionsStub.lastCall.args[1]).to.deep.equal(new Date('2023-01-01T10:00:00.000Z'))
+      expect(calculateEmissionsStub.lastCall.args[2]).to.deep.equal(new Date('2023-01-01T10:10:00.000Z'))
     })
   })
 

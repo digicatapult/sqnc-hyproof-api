@@ -90,14 +90,14 @@ export function withExternalServicesMock() {
 
     mockCarbon
       .intercept({
-        path: '/intensity/2023-12-01T00:00:00.000Z/2023-12-02T00:00:00.000Z',
+        path: '/intensity/2023-12-01T09:00:00.000Z/2023-12-02T11:00:00.000Z',
         method: 'GET',
       })
       .reply(200, {
         data: [
           {
-            from: '2023-12-01T00:00:00.000Z',
-            to: '2023-12-02T00:00:00.000Z',
+            from: '2023-12-01T09:00:00.000Z',
+            to: '2023-12-02T11:00:00.000Z',
             intensity: {
               actual: 123.456789123,
               forecast: 100,
@@ -110,14 +110,14 @@ export function withExternalServicesMock() {
 
     mockCarbon
       .intercept({
-        path: '/intensity/2023-12-01T09:00:00.000Z/2023-12-02T09:00:00.000Z',
+        path: '/intensity/2023-01-01T09:00:00.000Z/2023-01-01T11:10:00.000Z',
         method: 'GET',
       })
       .reply(200, {
         data: [
           {
-            from: '2023-12-01T09:00:00.000Z',
-            to: '2023-12-02T11:00:00.000Z',
+            from: '2023-01-01T09:00:00.000Z',
+            to: '2023-01-01T11:10:00.000Z',
             intensity: {
               actual: 123.456789123,
               forecast: 100,
