@@ -1,11 +1,33 @@
-import { describe, it } from 'mocha'
+import { afterEach, beforeEach, describe, it } from 'mocha'
 import { expect } from 'chai'
+import { spy } from 'sinon'
+import { MockAgent, setGlobalDispatcher, getGlobalDispatcher } from 'undici'
 
 import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator.js'
 import { InternalServerError } from '../../error-handler/index.js'
 
-const date1 = new Date('2023-01-01T00:00Z')
-const date2 = new Date('2023-01-02T00:00Z')
+const date1 = new Date('2023-01-01T10:00Z')
+const date2 = new Date('2023-01-02T10:00Z')
+const co2ShortDateIntervalRes = [
+  {
+    from: new Date('2023-01-01T06:00:00.000Z'),
+    to: new Date('2023-01-01T06:30:00.000Z'),
+    intensity: {
+      actual: 154.456789123,
+      forecast: 100,
+      index: 'moderate',
+    },
+  },
+  {
+    from: new Date('2023-01-01T06:30:00.000Z'),
+    to: new Date('2023-01-01T07:00:00.000Z'),
+    intensity: {
+      actual: 120.456789123,
+      forecast: 100,
+      index: 'low',
+    },
+  },
+]
 
 const fullBoundData: IntensityResponseData = [
   {
@@ -53,6 +75,41 @@ const withExtendedRanges: IntensityResponseData = new Array(25).fill(null).map((
 })
 
 describe('EmissionsCalculator', function () {
+  const originalDispatcher = getGlobalDispatcher()
+  const mockCarbon = new MockAgent().get(`https://api.carbonintensity.org.uk`)
+
+  describe('fetchEmissions', function () {
+    const startDateBelow30Min = new Date('2023-01-01T07:00:00.000Z')
+    const endDateBelow30Min = new Date('2023-01-01T07:10:00.000Z')
+
+    beforeEach(function () {
+      setGlobalDispatcher(mockCarbon)
+      mockCarbon
+        .intercept({
+          path: '/intensity/2023-01-01T06:00:00.000Z/2023-01-01T07:10:00.000Z',
+          method: 'GET',
+        })
+        .reply(200, { data: co2ShortDateIntervalRes })
+        .persist()
+    })
+
+    afterEach(function () {
+      setGlobalDispatcher(originalDispatcher)
+    })
+
+    it('should add an hour even if times are under 30 mins to avoid empty response from co2', async function () {
+      const calc = new EmissionsCalculator()
+      const calculateEmissionsStub = spy(calc, 'calculateEmissions')
+      await calc.fetchEmissions(new Date('2023-01-01T07:00:00.000Z'), new Date('2023-01-01T07:10:00.000Z'), 1000000)
+
+      expect(calculateEmissionsStub.calledOnce).to.equal(true)
+      expect(calculateEmissionsStub.getCall(0).args[0]).to.deep.equal(co2ShortDateIntervalRes)
+      // validate that emissions calculator has been called with not updated times for co2 value
+      expect(calculateEmissionsStub.getCall(0).args[1]).to.deep.equal(startDateBelow30Min)
+      expect(calculateEmissionsStub.getCall(0).args[2]).to.deep.equal(endDateBelow30Min)
+    })
+  })
+
   describe('calculateEmissions', function () {
     it('should throw if calculation returns NaN', function () {
       const calc = new EmissionsCalculator()
