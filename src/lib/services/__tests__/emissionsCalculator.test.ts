@@ -1,4 +1,4 @@
-import { beforeEach, describe, it } from 'mocha'
+import { afterEach, beforeEach, describe, it } from 'mocha'
 import { expect } from 'chai'
 import { spy } from 'sinon'
 import { MockAgent, setGlobalDispatcher } from 'undici'
@@ -91,6 +91,12 @@ describe('EmissionsCalculator', function () {
         .reply(200, { data: co2ShortDateIntervalRes })
         .persist()
     })
+
+    afterEach(function () {
+      mockCarbon.close()
+      mockCarbon.destroy()
+    })
+
     it('should add an hour even if times are under 30 mins to avoid empty response from co2', async function () {
       const calc = new EmissionsCalculator()
       const calculateEmissionsStub = spy(calc, 'calculateEmissions')
