@@ -1,5 +1,6 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
+import { spy } from 'sinon'
 
 import EmissionsCalculator, { IntensityResponseData } from '../emissionsCalculator.js'
 import { InternalServerError } from '../../error-handler/index.js'
@@ -53,6 +54,20 @@ const withExtendedRanges: IntensityResponseData = new Array(25).fill(null).map((
 })
 
 describe('EmissionsCalculator', function () {
+  describe('fetchEmissions', function () {
+    it('ensures that start and end times are at least 1 hour apart', async function () {
+      const calc = new EmissionsCalculator()
+      const calculateEmissionsStub = spy(calc, 'calculateEmissions')
+      const result = await calc.fetchEmissions(new Date(), new Date(), 10000000)
+
+      expect(calculateEmissionsStub.calledOnce).to.equal(true)
+      expect(calculateEmissionsStub.lastCall.args[1]).to.equal(new Date())
+      expect(calculateEmissionsStub.lastCall.args[2]).to.equal(new Date())
+
+      expect(Math.round(result)).to.equal(10 * 1000 * 100)
+    })
+  })
+
   describe('calculateEmissions', function () {
     it('should throw if calculation returns NaN', function () {
       const calc = new EmissionsCalculator()

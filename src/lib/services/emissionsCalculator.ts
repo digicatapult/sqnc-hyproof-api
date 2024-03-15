@@ -81,12 +81,8 @@ export default class EmissionsCalculator {
   }
 
   private intensityUrl(productionStartDate: Date, productionEndDate: Date): string {
-    if ((new Date(productionEndDate).getTime() - new Date(productionStartDate).getTime()) / (1000 * 60 * 60) < 1) {
-      const from = new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60).toISOString()
-      const to = new Date(new Date(productionEndDate).getTime() + 1000 * 60 * 60).toISOString()
-      return `https://api.carbonintensity.org.uk/intensity/${from}/${to}`
-    }
-
-    return `https://api.carbonintensity.org.uk/intensity/${productionStartDate.toISOString()}/${productionEndDate.toISOString()}`
+    const from = new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60).toISOString()
+    const to = new Date(new Date(productionEndDate).getTime() + 1000 * 60 * 60).toISOString()
+    return `https://api.carbonintensity.org.uk/intensity/${from}/${to}`
   }
 }

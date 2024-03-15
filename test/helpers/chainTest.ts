@@ -91,8 +91,8 @@ export const withInitialisedCertFromNotSelf = async (
   const [{ id }] = await db.get('certificate', { latest_token_id: tokenId })
 
   const { status, body } = await put(context.app, `/v1/certificate/${id}`, {
-    production_start_time: productionStartTime || new Date('2023-12-01T00:00:00.000Z'),
-    production_end_time: productionEndTime || new Date('2023-12-02T00:00:00.000Z'),
+    production_start_time: productionStartTime || new Date('2023-12-01T10:00:00.000Z'),
+    production_end_time: productionEndTime || new Date('2023-12-02T00:10:00.000Z'),
     energy_consumed_wh: 2000000,
     commitment_salt: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   })
