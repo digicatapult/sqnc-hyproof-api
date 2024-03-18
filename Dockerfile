@@ -24,7 +24,7 @@ RUN npm -g install npm@10.x.x
 COPY package*.json ./
 COPY processFlows.json ./
 
-RUN npm ci --production
+RUN npm ci --omit=dev
 
 RUN npm install @digicatapult/sqnc-process-management@latest
 
