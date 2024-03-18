@@ -43,22 +43,7 @@ const peersValidator = z.object({
   Peers: z.array(
     z.object({
       Addr: z.string(),
-      Direction: z.number(),
-      Identify: z.object({
-        Addresses: z.array(z.string()),
-        AgentVersion: z.string(),
-        ID: z.string(),
-        Protocols: z.array(z.string()),
-        PublicKey: z.string(),
-      }),
-      Latency: z.string(),
-      Muxer: z.string(),
       Peer: z.string(),
-      Streams: z.array(
-        z.object({
-          Protocol: z.string(),
-        })
-      ),
     })
   ),
 })
@@ -144,6 +129,10 @@ export default class Ipfs {
         fetch(this.peersURL, { method: 'POST' }),
       ])
       if (results.some((result) => !result.ok)) {
+        logStatusError(this.logger, {
+          versionCheckResult: results[0].statusText,
+          peersCheckResult: results[1].statusText,
+        })
         return {
           status: serviceState.DOWN,
           detail: {
@@ -167,6 +156,7 @@ export default class Ipfs {
         },
       }
     } catch (err) {
+      logStatusError(this.logger, err)
       return {
         status: serviceState.DOWN,
         detail: {
@@ -174,6 +164,15 @@ export default class Ipfs {
         },
       }
     }
+  }
+}
+
+const logStatusError = (logger: Logger, details: unknown) => {
+  if (details instanceof Error) {
+    logger.error('Error getting status from IPFS node. Message: %s', details.message)
+    logger.debug('Error getting status from IPFS node. Stack: %j', details.stack)
+  } else {
+    logger.error('Error getting status from IPFS node: %s', JSON.stringify(details))
   }
 }
 
