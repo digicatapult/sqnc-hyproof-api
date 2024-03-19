@@ -232,6 +232,17 @@ export default class Indexer {
           }
         }
       }
+
+      if (changeSet.certificateEvents) {
+        for (const [, certificateEvent] of changeSet.certificateEvents) {
+          const { type, ...record } = certificateEvent
+          switch (type) {
+            case 'insert':
+              await db.insert('certificate_event', record)
+              break
+          }
+        }
+      }
     })
   }
 }

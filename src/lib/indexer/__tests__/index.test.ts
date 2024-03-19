@@ -187,17 +187,21 @@ describe('Indexer', function () {
       expect((db.insert as sinon.SinonStub).thirdCall.args).to.deep.equal(['attachment', { id: '47' }])
     })
 
-    it('should insert certificates and certificate entries from changeset', async function () {
+    it('should insert attachments, certificates and certificate events entries from changeset', async function () {
       const db = withInitialLastProcessedBlock({ hash: '1-hash', parent: '0-hash', height: 1 })
       const node = withHappyChainNode()
       const handleBlock = sinon.stub().resolves({
         certificates: new Map([
-          ['123', { type: 'insert', id: '42' }],
-          ['456', { type: 'insert', id: '43' }],
+          ['123', { type: 'insert', id: '42', mockData: 1 }],
+          ['456', { type: 'insert', id: '43', mockData: 2 }],
         ]),
         attachments: new Map([
-          ['111', { type: 'insert', id: '46' }],
-          ['121', { type: 'insert', id: '47' }],
+          ['111', { type: 'insert', id: '46', mockData: 3 }],
+          ['121', { type: 'insert', id: '47', mockData: 4 }],
+        ]),
+        certificateEvents: new Map([
+          ['111', { type: 'insert', mockData: 5 }],
+          ['121', { type: 'insert', mockData: 6 }],
         ]),
       })
 
@@ -205,15 +209,17 @@ describe('Indexer', function () {
       await indexer.start()
       await indexer.processNextBlock('2-hash')
 
-      expect((db.insert as sinon.SinonStub).getCalls().length).to.equal(5)
+      expect((db.insert as sinon.SinonStub).getCalls().length).to.equal(7)
       expect((db.insert as sinon.SinonStub).getCall(0).args).to.deep.equal([
         'processed_blocks',
         { hash: '2-hash', height: 2, parent: '1-hash' },
       ])
-      expect((db.insert as sinon.SinonStub).getCall(1).args).to.deep.equal(['attachment', { id: '46' }])
-      expect((db.insert as sinon.SinonStub).getCall(2).args).to.deep.equal(['attachment', { id: '47' }])
-      expect((db.insert as sinon.SinonStub).getCall(3).args).to.deep.equal(['certificate', {}])
-      expect((db.insert as sinon.SinonStub).getCall(4).args).to.deep.equal(['certificate', {}])
+      expect((db.insert as sinon.SinonStub).getCall(1).args).to.deep.equal(['attachment', { id: '46', mockData: 3 }])
+      expect((db.insert as sinon.SinonStub).getCall(2).args).to.deep.equal(['attachment', { id: '47', mockData: 4 }])
+      expect((db.insert as sinon.SinonStub).getCall(3).args).to.deep.equal(['certificate', { mockData: 1 }])
+      expect((db.insert as sinon.SinonStub).getCall(4).args).to.deep.equal(['certificate', { mockData: 2 }])
+      expect((db.insert as sinon.SinonStub).getCall(5).args).to.deep.equal(['certificate_event', { mockData: 5 }])
+      expect((db.insert as sinon.SinonStub).getCall(6).args).to.deep.equal(['certificate_event', { mockData: 6 }])
     })
 
     describe('exception cases', function () {
