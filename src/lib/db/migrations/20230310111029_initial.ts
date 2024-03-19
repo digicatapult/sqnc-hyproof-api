@@ -46,6 +46,22 @@ export async function up(knex: Knex): Promise<void> {
     def.foreign('revocation_reason').references('id').inTable('attachment').onDelete('CASCADE').onUpdate('CASCADE')
   })
 
+  await knex.schema.createTable('certificate_event', (def) => {
+    def.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
+    def.uuid('certificate_id').notNullable()
+    def
+      .enum('event', ['initiated', 'issued', 'revoked'], {
+        useNative: true,
+        enumName: 'cert_event',
+      })
+      .notNullable()
+    def.datetime('occurred_at').notNullable()
+    def.datetime('created_at').notNullable().defaultTo(now())
+
+    def.primary(['id'])
+    def.foreign('certificate_id').references('id').inTable('certificate').onDelete('CASCADE').onUpdate('CASCADE')
+  })
+
   await knex.schema.createTable('processed_blocks', (def) => {
     def.specificType('hash', 'CHAR(64)').notNullable()
     def.bigInteger('height').unsigned().notNullable().unique()
@@ -85,10 +101,12 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTable('certificate_event')
   await knex.schema.dropTable('certificate')
   await knex.schema.dropTable('attachment')
   await knex.schema.dropTable('transaction')
   await knex.schema.dropTable('processed_blocks')
+  await knex.raw('DROP TYPE certificate_event')
   await knex.raw('DROP TYPE certificate_state')
   await knex.raw('DROP TYPE transaction_state')
   await knex.raw('DROP TYPE transaction_type')

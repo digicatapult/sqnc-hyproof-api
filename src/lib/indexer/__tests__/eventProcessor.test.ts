@@ -4,12 +4,20 @@ import { expect } from 'chai'
 import eventProcessors from '../eventProcessor.js'
 import { TransactionRow } from '../../db/types.js'
 
+const blockTime = new Date('2024-01-01')
+
 describe('eventProcessor', function () {
   describe('initiate_cert', function () {
     it('should error with version != 1', function () {
       let error: Error | null = null
       try {
-        eventProcessors['initiate_cert']({ version: 0, sender: 'alice', inputs: [], outputs: [] })
+        eventProcessors['initiate_cert']({
+          version: 0,
+          blockTime,
+          sender: 'alice',
+          inputs: [],
+          outputs: [],
+        })
       } catch (err) {
         error = err instanceof Error ? err : null
       }
@@ -19,6 +27,7 @@ describe('eventProcessor', function () {
     it('should return update to certificate if transaction exists', function () {
       const result = eventProcessors['initiate_cert']({
         version: 1,
+        blockTime,
         transaction: { local_id: '42' } as TransactionRow,
         sender: 'alice',
         inputs: [],
@@ -35,6 +44,7 @@ describe('eventProcessor', function () {
     it("should return new certificate if transaction doesn't exist", function () {
       const result = eventProcessors['initiate_cert']({
         version: 1,
+        blockTime,
         sender: 'alice',
         inputs: [],
         outputs: [
@@ -71,6 +81,7 @@ describe('eventProcessor', function () {
       try {
         eventProcessors['initiate_cert']({
           version: 1,
+          blockTime,
           sender: 'alice',
           inputs: [],
           outputs: [
@@ -96,7 +107,7 @@ describe('eventProcessor', function () {
     it('should error with version != 1', function () {
       let error: Error | null = null
       try {
-        eventProcessors['issue_cert']({ version: 0, sender: 'alice', inputs: [], outputs: [] })
+        eventProcessors['issue_cert']({ version: 0, blockTime, sender: 'alice', inputs: [], outputs: [] })
       } catch (err) {
         error = err instanceof Error ? err : null
       }
@@ -106,6 +117,7 @@ describe('eventProcessor', function () {
     it('should update the certificate', function () {
       const result = eventProcessors['issue_cert']({
         version: 1,
+        blockTime,
         sender: 'alice',
         inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
         outputs: [
@@ -138,6 +150,7 @@ describe('eventProcessor', function () {
       try {
         eventProcessors['issue_cert']({
           version: 1,
+          blockTime,
           sender: 'alice',
           inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
           outputs: [
@@ -159,6 +172,7 @@ describe('eventProcessor', function () {
       try {
         eventProcessors['issue_cert']({
           version: 1,
+          blockTime,
           sender: 'alice',
           inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
           outputs: [
@@ -180,7 +194,7 @@ describe('eventProcessor', function () {
     it('should error with version != 1', function () {
       let error: Error | null = null
       try {
-        eventProcessors['revoke_cert']({ version: 0, sender: 'alice', inputs: [], outputs: [] })
+        eventProcessors['revoke_cert']({ version: 0, blockTime, sender: 'alice', inputs: [], outputs: [] })
       } catch (err) {
         error = err instanceof Error ? err : null
       }
@@ -190,6 +204,7 @@ describe('eventProcessor', function () {
     it('should update without attachment if transaction is present', function () {
       const result = eventProcessors['revoke_cert']({
         version: 1,
+        blockTime,
         sender: 'alice',
         transaction: { local_id: '42' } as TransactionRow,
         inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
@@ -221,6 +236,7 @@ describe('eventProcessor', function () {
     it('should update with attachment if transaction is not present', function () {
       const result = eventProcessors['revoke_cert']({
         version: 1,
+        blockTime,
         sender: 'alice',
         inputs: [{ id: 1, local_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541' }],
         outputs: [

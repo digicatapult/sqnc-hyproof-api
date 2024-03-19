@@ -294,8 +294,7 @@ export class CertificateController extends Controller {
       transaction_type: 'initiate_cert',
     })
     if (!transaction) throw new InternalServerError('Transaction must exist')
-
-    this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
+    await this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
       this.db.update('transaction', { id: transaction.id }, { state })
     )
 
@@ -394,7 +393,7 @@ export class CertificateController extends Controller {
     })
     if (!transaction) throw new InternalServerError('Transaction must exist')
 
-    this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
+    await this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
       this.db.update('transaction', { id: transaction.id }, { state })
     )
 
@@ -473,7 +472,7 @@ export class CertificateController extends Controller {
     })
     if (!transaction) throw new InternalServerError('Transaction must exist')
 
-    this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
+    await this.node.submitRunProcess(extrinsic, (state: TransactionState) =>
       this.db.update('transaction', { id: transaction.id }, { state })
     )
 

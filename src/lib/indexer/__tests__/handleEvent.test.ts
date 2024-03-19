@@ -41,7 +41,7 @@ describe('EventHandler', function () {
     const stub = eventProcessors['initiate_cert'] as SinonStub
     expect(stub.calledOnce).to.equal(true)
     expect(stub.firstCall.args).to.deep.equal([
-      { version: 1, transaction: tx, sender: 'alice', inputs: [], outputs: [] },
+      { version: 1, blockTime: new Date('2024-01-01'), transaction: tx, sender: 'alice', inputs: [], outputs: [] },
     ])
   })
 
@@ -67,6 +67,7 @@ describe('EventHandler', function () {
     expect(stub.firstCall.args).to.deep.equal([
       {
         version: 1,
+        blockTime: new Date('2024-01-01'),
         sender: 'alice',
         inputs: [
           { id: 1, local_id: '1' },
@@ -114,6 +115,7 @@ describe('EventHandler', function () {
     expect(stub.firstCall.args).to.deep.equal([
       {
         version: 1,
+        blockTime: new Date('2024-01-01'),
         transaction: null,
         sender: 'alice',
         inputs: [

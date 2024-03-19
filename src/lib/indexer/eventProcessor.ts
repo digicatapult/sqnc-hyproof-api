@@ -15,6 +15,7 @@ export const ValidateProcessName = (name: string): name is PROCESSES => processN
 export type EventProcessors = {
   [key in PROCESSES]: (args: {
     version: number
+    blockTime: Date
     transaction?: TransactionRow
     sender: string
     inputs: { id: number; local_id: UUID }[]
