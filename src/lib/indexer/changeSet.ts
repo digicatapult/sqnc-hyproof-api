@@ -36,6 +36,7 @@ export type CertificateRecord =
 
 export type CertificateEventRecord = {
   type: 'insert'
+  id: string
   certificate_id: UUID
   event: 'initiated' | 'issued' | 'revoked'
   occurred_at: Date

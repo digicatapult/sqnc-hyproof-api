@@ -34,10 +34,19 @@ describe('eventProcessor', function () {
         outputs: [{ id: 1, roles: new Map(), metadata: new Map() }],
       })
 
-      expect(result).to.deep.equal({
-        certificates: new Map([
-          ['42', { type: 'update', id: '42', state: 'initiated', latest_token_id: 1, original_token_id: 1 }],
-        ]),
+      expect(result).to.not.have.property('attachments')
+      expect(result.certificates).to.deep.equal(
+        new Map([['42', { type: 'update', id: '42', state: 'initiated', latest_token_id: 1, original_token_id: 1 }]])
+      )
+      const events = [...(result.certificateEvents || [])]
+      expect(events.length).to.equal(1)
+      const event = events[0]
+      expect(event[1]).to.deep.equal({
+        type: 'insert',
+        id: event[0],
+        certificate_id: '42',
+        occurred_at: blockTime,
+        event: 'initiated',
       })
     })
 
@@ -63,6 +72,7 @@ describe('eventProcessor', function () {
         ],
       })
 
+      expect(result).to.not.have.property('attachments')
       const [[, certificate]] = [...(result.certificates || [])]
       expect(certificate).to.deep.contain({
         type: 'insert',
@@ -74,9 +84,19 @@ describe('eventProcessor', function () {
         original_token_id: 1,
         commitment: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       })
+      const events = [...(result.certificateEvents || [])]
+      expect(events.length).to.equal(1)
+      const event = events[0]
+      expect(event[1]).to.deep.equal({
+        type: 'insert',
+        id: event[0],
+        certificate_id: certificate.id,
+        occurred_at: blockTime,
+        event: 'initiated',
+      })
     })
 
-    it("should return new certificate if transaction doesn't exist", function () {
+    it('should error if hydrogen_quantity_wh is not a number ', function () {
       let error: Error | null = null
       try {
         eventProcessors['initiate_cert']({
@@ -92,7 +112,10 @@ describe('eventProcessor', function () {
                 ['energy_owner', 'emma-emma-producer'],
                 ['regulator', 'reginald-regulator'],
               ]),
-              metadata: new Map([['hydrogen_quantity_wh', 'not a number']]),
+              metadata: new Map([
+                ['hydrogen_quantity_wh', 'not a number'],
+                ['commitment', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
+              ]),
             },
           ],
         })
@@ -129,8 +152,9 @@ describe('eventProcessor', function () {
         ],
       })
 
-      expect(result).to.deep.equal({
-        certificates: new Map([
+      expect(result).to.not.have.property('attachments')
+      expect(result.certificates).to.deep.equal(
+        new Map([
           [
             'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
             {
@@ -141,7 +165,17 @@ describe('eventProcessor', function () {
               embodied_co2: '42',
             },
           ],
-        ]),
+        ])
+      )
+      const events = [...(result.certificateEvents || [])]
+      expect(events.length).to.equal(1)
+      const event = events[0]
+      expect(event[1]).to.deep.equal({
+        type: 'insert',
+        id: event[0],
+        certificate_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
+        occurred_at: blockTime,
+        event: 'issued',
       })
     })
 
@@ -217,8 +251,9 @@ describe('eventProcessor', function () {
         ],
       })
 
-      expect(result).to.deep.equal({
-        certificates: new Map([
+      expect(result).to.not.have.property('attachments')
+      expect(result.certificates).to.deep.equal(
+        new Map([
           [
             'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
             {
@@ -229,7 +264,17 @@ describe('eventProcessor', function () {
               revocation_reason: '90234681-8808-4eaa-ac65-c643c22e3524',
             },
           ],
-        ]),
+        ])
+      )
+      const events = [...(result.certificateEvents || [])]
+      expect(events.length).to.equal(1)
+      const event = events[0]
+      expect(event[1]).to.deep.equal({
+        type: 'insert',
+        id: event[0],
+        certificate_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
+        occurred_at: blockTime,
+        event: 'revoked',
       })
     })
 
@@ -251,8 +296,8 @@ describe('eventProcessor', function () {
       const attachmentId = result.attachments?.keys().next().value
       expect(attachmentId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
 
-      expect(result).to.deep.equal({
-        attachments: new Map([
+      expect(result.attachments).to.deep.equal(
+        new Map([
           [
             attachmentId,
             {
@@ -263,8 +308,10 @@ describe('eventProcessor', function () {
               ipfs_hash: 'QmXVStDC6kTpVHY1shgBQmyA4SuSrYnNRnHSak5iB6Eehn',
             },
           ],
-        ]),
-        certificates: new Map([
+        ])
+      )
+      expect(result.certificates).to.deep.equal(
+        new Map([
           [
             'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
             {
@@ -275,7 +322,17 @@ describe('eventProcessor', function () {
               revocation_reason: attachmentId,
             },
           ],
-        ]),
+        ])
+      )
+      const events = [...(result.certificateEvents || [])]
+      expect(events.length).to.equal(1)
+      const event = events[0]
+      expect(event[1]).to.deep.equal({
+        type: 'insert',
+        id: event[0],
+        certificate_id: 'caa699b7-b0b6-4e0e-ac15-698b7b1f6541',
+        occurred_at: blockTime,
+        event: 'revoked',
       })
     })
   })
