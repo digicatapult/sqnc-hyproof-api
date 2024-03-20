@@ -92,6 +92,13 @@ export class CertificateController extends Controller {
     }
   }
 
+  private async getCertificateEvents(certificateId: UUID): Promise<GetCertificateResponse['events']> {
+    const rawEvents = await this.db.get('certificate_event', { certificate_id: certificateId }, [
+      ['certificate_id', 'desc'],
+    ])
+    return rawEvents.map(({ event, occurred_at }) => ({ event, occurred_at }))
+  }
+
   private async getCertificate(idOrOrigToken: UUID | number): Promise<CertificateRow> {
     const condition = typeof idOrOrigToken === 'number' ? { original_token_id: idOrOrigToken } : { id: idOrOrigToken }
     const [certificate]: CertificateRow[] = await this.db.get('certificate', condition)
@@ -159,6 +166,7 @@ export class CertificateController extends Controller {
       energy_consumed_wh,
       commitment_salt: salt,
       commitment: digest,
+      events: [],
     }
   }
 
@@ -174,9 +182,16 @@ export class CertificateController extends Controller {
     if (updated_after) where.push(['updated_at', '>=', new Date(updated_after)])
 
     const found = await this.db.get('certificate', where)
-    const certificates = await this.mapIdentities(found)
+    const withIds = await this.mapIdentities(found)
+    const withNumbers = withIds.map(this.transformCertNumbers)
+    const withEvents = await Promise.all(
+      withNumbers.map(async (certificate) => ({
+        ...certificate,
+        events: await this.getCertificateEvents(certificate.id),
+      }))
+    )
 
-    return certificates.map(this.transformCertNumbers)
+    return withEvents
   }
 
   /**
@@ -191,7 +206,10 @@ export class CertificateController extends Controller {
   public async getById(@Path() id: UUID | INT): Promise<GetCertificateResponse> {
     if (!id) throw new BadRequest()
     const certificate = await this.getCertificate(id).then((c) => this.mapIdentity(c))
-    return this.transformCertNumbers(certificate)
+    return {
+      ...this.transformCertNumbers(certificate),
+      events: await this.getCertificateEvents(certificate.id),
+    }
   }
 
   /**
@@ -224,7 +242,10 @@ export class CertificateController extends Controller {
     )
     const updatedWithAliases = await this.mapIdentities(updated)
     if (updatedWithAliases.length !== 1) throw new InternalServerError('Unknown error updating commitment')
-    return this.transformCertNumbers(updatedWithAliases[0])
+    return {
+      ...this.transformCertNumbers(updatedWithAliases[0]),
+      events: await this.getCertificateEvents(updatedWithAliases[0].id),
+    }
   }
 
   /**

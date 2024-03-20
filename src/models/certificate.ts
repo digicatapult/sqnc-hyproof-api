@@ -19,6 +19,10 @@ export type GetCertificateResponse = {
   production_end_time?: Date | null
   energy_consumed_wh?: INT | null
   revocation_reason?: UUID | null
+  events: {
+    event: 'initiated' | 'issued' | 'revoked'
+    occurred_at: Date
+  }[]
 }
 export type ListCertificatesResponse = GetCertificateResponse[]
 

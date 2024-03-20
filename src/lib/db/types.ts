@@ -140,7 +140,7 @@ type WhereComparison<M extends TABLE> = {
     Extract<Models[M]['get'][key], Knex.Value>,
   ]
 }
-type WhereMatch<M extends TABLE> = {
+export type WhereMatch<M extends TABLE> = {
   [key in keyof Models[M]['get']]?: Models[M]['get'][key]
 }
 
