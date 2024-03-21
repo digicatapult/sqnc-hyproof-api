@@ -1,4 +1,4 @@
-import { CertificateRow, TransactionRow, AttachmentRow } from '../../../../lib/db/types.js'
+import { CertificateRow, TransactionRow, AttachmentRow, CertificateEventRow } from '../../../../lib/db/types.js'
 
 export const attachmentExample = {
   filename: 'testing-revocation',
@@ -51,3 +51,19 @@ export const certExamples = [
     energy_consumed_wh: '5000000',
   },
 ] as CertificateRow[]
+
+const baseEvent = {
+  id: 'id',
+  created_at: new Date('2024-01-02'),
+  certificate_id: 'id',
+}
+export const eventExamplesById = {
+  ['test-cert-1']: [
+    { event: 'issued', occurred_at: new Date('2024-01-02'), ...baseEvent },
+    { event: 'initiated', occurred_at: new Date('2024-01-01'), ...baseEvent },
+  ],
+  ['test-cert-4']: [{ event: 'initiated', occurred_at: new Date('2024-01-01'), ...baseEvent }],
+  ['test-cert-3']: [{ event: 'initiated', occurred_at: new Date('2024-01-01'), ...baseEvent }],
+  ['test-cert-2']: [],
+  ['test-cert-5']: [{ event: 'initiated', occurred_at: new Date('2024-01-01'), ...baseEvent }],
+} as { [key in string]: CertificateEventRow[] }

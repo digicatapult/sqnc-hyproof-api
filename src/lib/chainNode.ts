@@ -26,6 +26,7 @@ export interface NodeCtorConfig {
 export interface ProcessRanEvent {
   callHash: HEX
   blockHash: HEX
+  blockTime: Date
   sender: string
   process: {
     id: string
@@ -238,6 +239,11 @@ export default class ChainNode {
     }
 
     const block = await this.api.rpc.chain.getBlock(blockhash)
+    const blockExtrinsics = block.block.extrinsics
+    const timestampExtrinsic = blockExtrinsics.find(({ method: { section } }) => section === 'timestamp')
+    const timestampArg = timestampExtrinsic?.method?.args[0]?.toPrimitive() as number
+    const blockTime = new Date(timestampArg)
+
     const events = (await apiAtBlock.query.system.events()) as unknown as {
       event: { data: unknown[] }
       phase: { get asApplyExtrinsic(): number }
@@ -247,8 +253,9 @@ export default class ChainNode {
       const extrinsicIndex = event.phase.asApplyExtrinsic
       const process = event.event.data[1] as { id: string; version: { toNumber: () => number } }
       return {
-        callHash: block.block.extrinsics[extrinsicIndex].hash.toString() as HEX,
+        callHash: blockExtrinsics[extrinsicIndex].hash.toString() as HEX,
         blockHash: blockhash,
+        blockTime,
         sender: (event.event.data[0] as { toString: () => string }).toString(),
         process: {
           id: Buffer.from(process.id).toString('ascii'),

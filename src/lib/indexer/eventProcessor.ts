@@ -2,7 +2,7 @@ import { v4 as UUIDv4 } from 'uuid'
 
 import { UUID } from '../../models/strings.js'
 import { TransactionRow } from '../../lib/db/types.js'
-import { ChangeSet, CertificateRecord, AttachmentRecord } from './changeSet.js'
+import { ChangeSet, CertificateRecord, AttachmentRecord, CertificateEventRecord } from './changeSet.js'
 
 const processNames = ['initiate_cert', 'issue_cert', 'revoke_cert'] as const
 type PROCESSES_TUPLE = typeof processNames
@@ -15,6 +15,7 @@ export const ValidateProcessName = (name: string): name is PROCESSES => processN
 export type EventProcessors = {
   [key in PROCESSES]: (args: {
     version: number
+    blockTime: Date
     transaction?: TransactionRow
     sender: string
     inputs: { id: number; local_id: UUID }[]
@@ -44,9 +45,16 @@ const attachmentPayload = (map: Map<string, string>, key: string): AttachmentRec
 })
 
 const DefaultEventProcessors: EventProcessors = {
-  initiate_cert: ({ version, transaction, outputs }) => {
+  initiate_cert: ({ version, blockTime, transaction, outputs }) => {
     if (version !== 1) throw new Error(`Incompatible version ${version} for initiate_cert process`)
     const { id: latest_token_id, ...cert } = outputs[0]
+
+    const baseEvent: Omit<CertificateEventRecord, 'certificate_id'> = {
+      type: 'insert',
+      id: UUIDv4(),
+      event: 'initiated',
+      occurred_at: blockTime,
+    }
 
     if (transaction) {
       const id = transaction.local_id
@@ -63,6 +71,7 @@ const DefaultEventProcessors: EventProcessors = {
             },
           ],
         ]),
+        certificateEvents: new Map([[baseEvent.id, { ...baseEvent, certificate_id: id }]]),
       }
     }
 
@@ -85,9 +94,10 @@ const DefaultEventProcessors: EventProcessors = {
 
     return {
       certificates: new Map([[certificate.id, certificate]]),
+      certificateEvents: new Map([[baseEvent.id, { ...baseEvent, certificate_id: certificate.id }]]),
     }
   },
-  issue_cert: ({ version, inputs, outputs }) => {
+  issue_cert: ({ version, blockTime, inputs, outputs }) => {
     if (version !== 1) throw new Error(`Incompatible version ${version} for issue_cert process`)
     const { local_id } = inputs[0]
     const { id: latest_token_id, ...cert } = outputs[0]
@@ -101,12 +111,20 @@ const DefaultEventProcessors: EventProcessors = {
       state: 'issued',
       embodied_co2,
     }
+    const event: CertificateEventRecord = {
+      type: 'insert',
+      id: UUIDv4(),
+      certificate_id: local_id,
+      event: 'issued',
+      occurred_at: blockTime,
+    }
 
     return {
       certificates: new Map([[local_id, update]]),
+      certificateEvents: new Map([[event.id, event]]),
     }
   },
-  revoke_cert: ({ version, transaction, inputs, outputs }) => {
+  revoke_cert: ({ version, blockTime, transaction, inputs, outputs }) => {
     if (version !== 1) throw new Error(`Incompatible version ${version} for issue_cert process`)
 
     const { local_id } = inputs[0]
@@ -117,6 +135,13 @@ const DefaultEventProcessors: EventProcessors = {
       id: local_id,
       latest_token_id,
       state: 'revoked',
+    }
+    const event: CertificateEventRecord = {
+      type: 'insert',
+      id: UUIDv4(),
+      certificate_id: local_id,
+      event: 'revoked',
+      occurred_at: blockTime,
     }
 
     if (transaction) {
@@ -130,6 +155,7 @@ const DefaultEventProcessors: EventProcessors = {
             },
           ],
         ]),
+        certificateEvents: new Map([[event.id, event]]),
       }
     }
 
@@ -139,6 +165,7 @@ const DefaultEventProcessors: EventProcessors = {
     return {
       certificates: new Map([[local_id, update]]),
       attachments: new Map([[attachment.id, attachment]]),
+      certificateEvents: new Map([[event.id, event]]),
     }
   },
 }

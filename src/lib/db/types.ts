@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 
-export const tablesList = ['attachment', 'certificate', 'transaction', 'processed_blocks'] as const
+export const tablesList = ['attachment', 'certificate', 'certificate_event', 'transaction', 'processed_blocks'] as const
 
 const insertAttachment = z.object({
   filename: z
@@ -58,6 +58,12 @@ const insertCertificate = z.object({
   energy_consumed_wh: z.union([z.string(), z.null()]),
 })
 
+const insertCertificateEvent = z.object({
+  certificate_id: z.string(),
+  event: z.union([z.literal('initiated'), z.literal('issued'), z.literal('revoked')]),
+  occurred_at: z.date(),
+})
+
 const Zod = {
   attachment: {
     insert: insertAttachment,
@@ -92,15 +98,25 @@ const Zod = {
       revocation_reason: z.union([z.string(), z.null()]),
     }),
   },
+  certificate_event: {
+    insert: insertCertificateEvent,
+    get: insertCertificateEvent.extend({
+      id: z.string(),
+      created_at: z.date(),
+    }),
+  },
 }
 
-const { transaction, attachment, processed_blocks, certificate } = Zod
+const { transaction, attachment, processed_blocks, certificate, certificate_event } = Zod
 
 export type InsertTransaction = z.infer<typeof transaction.insert>
 export type TransactionRow = z.infer<typeof transaction.get>
 
 export type InsertCertificateRow = z.infer<typeof certificate.insert>
 export type CertificateRow = z.infer<typeof certificate.get>
+
+export type InsertCertificateEventRow = z.infer<typeof certificate_event.insert>
+export type CertificateEventRow = z.infer<typeof certificate_event.get>
 
 export type InsertProcessedBlockRow = z.infer<typeof processed_blocks.insert>
 export type ProcessedBlockRow = z.infer<typeof processed_blocks.get>
@@ -124,7 +140,7 @@ type WhereComparison<M extends TABLE> = {
     Extract<Models[M]['get'][key], Knex.Value>,
   ]
 }
-type WhereMatch<M extends TABLE> = {
+export type WhereMatch<M extends TABLE> = {
   [key in keyof Models[M]['get']]?: Models[M]['get'][key]
 }
 

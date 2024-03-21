@@ -2,6 +2,7 @@ import { ProcessRanEvent } from '../../../chainNode.js'
 
 export const complexEvent: ProcessRanEvent = {
   blockHash: '0x01',
+  blockTime: new Date('2024-01-01'),
   callHash: '0x02',
   inputs: [1, 2, 3],
   outputs: [4, 5, 6],
@@ -14,6 +15,7 @@ export const complexEvent: ProcessRanEvent = {
 
 export const noInputsOutputs: ProcessRanEvent = {
   blockHash: '0x01',
+  blockTime: new Date('2024-01-01'),
   callHash: '0x02',
   inputs: [],
   outputs: [],
@@ -26,6 +28,7 @@ export const noInputsOutputs: ProcessRanEvent = {
 
 export const invalidProcess: ProcessRanEvent = {
   blockHash: '0x01',
+  blockTime: new Date('2024-01-01'),
   callHash: '0x02',
   inputs: [],
   outputs: [],

@@ -9,8 +9,8 @@ import ChainNode from '../../../../lib/chainNode.js'
 import Commitment from '../../../../lib/services/commitment.js'
 import EmissionsCalculator from '../../../../lib/services/emissionsCalculator.js'
 import { BadRequest, InternalServerError, NotFound } from '../../../../lib/error-handler/index.js'
-import { CertificateRow, TransactionRow, Where } from '../../../../lib/db/types.js'
-import { certExamples, attachmentExample, transactionExample } from './fixtures.js'
+import { CertificateRow, TransactionRow, Where, WhereMatch } from '../../../../lib/db/types.js'
+import { certExamples, eventExamplesById, attachmentExample, transactionExample } from './fixtures.js'
 
 describe('v1/certificate', () => {
   let response: any
@@ -37,7 +37,15 @@ describe('v1/certificate', () => {
           Promise.resolve({ hash: { toHex: () => '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19' } })
         ),
       submitRunProcess: sinon.stub(node, 'submitRunProcess' as any).callsFake(() => Promise.resolve()),
-      get: sinon.stub(database, 'get').resolves(certExamples as CertificateRow[]),
+      get: sinon.stub(database, 'get').callsFake((table, where) => {
+        if (table === 'certificate') return Promise.resolve(certExamples as CertificateRow[])
+        if (table === 'certificate_event') {
+          const id = (where as WhereMatch<'certificate_event'>)?.certificate_id || ''
+          const result = eventExamplesById[id]
+          return Promise.resolve(result)
+        }
+        throw new Error(`Unexpected table in query ${table}`)
+      }),
       insert: sinon.stub(database, 'insert' as any).callsFake((_, data) => [data]),
       getLastFinalisedBlockHash: sinon
         .stub(node, 'getLastFinalisedBlockHash')
@@ -56,14 +64,36 @@ describe('v1/certificate', () => {
   })
 
   describe('postDraft() - POST /', () => {
-    beforeEach(async () => {
-      response = await controller.postDraft({
-        hydrogen_quantity_wh: 10000000,
-        energy_owner: 'emma-test',
-        regulator: 'reginald-test',
-        production_start_time: new Date('2023-12-25T07:11:58.837Z'),
-        production_end_time: new Date('2023-12-25T09:11:58.837Z'),
-        energy_consumed_wh: 5000000,
+    describe('happy path', () => {
+      beforeEach(async () => {
+        response = await controller.postDraft({
+          hydrogen_quantity_wh: 10000000,
+          energy_owner: 'emma-test',
+          regulator: 'reginald-test',
+          production_start_time: new Date('2023-12-25T07:11:58.837Z'),
+          production_end_time: new Date('2023-12-25T09:11:58.837Z'),
+          energy_consumed_wh: 5000000,
+        })
+      })
+
+      it('gets identities from identity service API', () => {
+        expect(stubs.getMemberByAlias.getCall(1).args[0]).to.equal('reginald-test')
+        expect(stubs.getMemberByAlias.getCall(0).args[0]).to.equal('emma-test')
+      })
+
+      it('persist and returns a draft certificate', () => {
+        expect(response).to.deep.contain({
+          hydrogen_quantity_wh: 10000000,
+          energy_owner: 'emma-test',
+          regulator: 'reginald-test',
+          latest_token_id: null,
+          original_token_id: null,
+          production_start_time: new Date('2023-12-25T07:11:58.837Z'),
+          production_end_time: new Date('2023-12-25T09:11:58.837Z'),
+          energy_consumed_wh: 5000000,
+          events: [],
+        })
+        expect(response).to.have.property('commitment')
       })
     })
 
@@ -128,46 +158,34 @@ describe('v1/certificate', () => {
         expect(response.code).to.equal(500)
       })
     })
-
-    it('gets identities from identity service API', () => {
-      expect(stubs.getMemberByAlias.getCall(1).args[0]).to.equal('reginald-test')
-      expect(stubs.getMemberByAlias.getCall(0).args[0]).to.equal('emma-test')
-    })
-
-    it('persist and returns a draft certificate', () => {
-      expect(response).to.deep.contain({
-        hydrogen_quantity_wh: 10000000,
-        energy_owner: 'emma-test',
-        regulator: 'reginald-test',
-        latest_token_id: null,
-        original_token_id: null,
-        production_start_time: new Date('2023-12-25T07:11:58.837Z'),
-        production_end_time: new Date('2023-12-25T09:11:58.837Z'),
-        energy_consumed_wh: 5000000,
-      })
-      expect(response).to.have.property('commitment')
-    })
   })
 
   describe('getAll() - GET /', () => {
-    beforeEach(async () => {
-      response = await controller.getAll()
-    })
-
-    it('returns all certificates with mapped identities', () => {
-      expect(response[0]).to.deep.contain({
-        id: 'test-cert-1',
-        state: 'issued',
-        energy_owner: 'emma-test',
-        regulator: 'ray-test',
-        hydrogen_owner: 'heidi',
+    describe('happy path', () => {
+      beforeEach(async () => {
+        response = await controller.getAll()
       })
-      expect(response[1]).to.deep.contain({
-        id: 'test-cert-4',
-        state: 'initiated',
-        energy_owner: 'emma2-test',
-        regulator: 'ray-test',
-        hydrogen_owner: 'heidi',
+
+      it('returns all certificates with mapped identities', () => {
+        expect(response[0]).to.deep.contain({
+          id: 'test-cert-1',
+          state: 'issued',
+          energy_owner: 'emma-test',
+          regulator: 'ray-test',
+          hydrogen_owner: 'heidi',
+          events: [
+            { event: 'issued', occurred_at: new Date('2024-01-02') },
+            { event: 'initiated', occurred_at: new Date('2024-01-01') },
+          ],
+        })
+        expect(response[1]).to.deep.contain({
+          id: 'test-cert-4',
+          state: 'initiated',
+          energy_owner: 'emma2-test',
+          regulator: 'ray-test',
+          hydrogen_owner: 'heidi',
+          events: [{ event: 'initiated', occurred_at: new Date('2024-01-01') }],
+        })
       })
     })
 
@@ -182,8 +200,8 @@ describe('v1/certificate', () => {
           ['updated_at', '>=', new Date('2024-01-02')],
         ] as Where<'certificate'>
 
-        expect(stubs.get.lastCall.args[0]).to.equal('certificate')
-        expect(stubs.get.lastCall.args[1]).to.deep.equal(expectedCondition)
+        expect(stubs.get.firstCall.args[0]).to.equal('certificate')
+        expect(stubs.get.firstCall.args[1]).to.deep.equal(expectedCondition)
       })
     })
   })
@@ -191,12 +209,7 @@ describe('v1/certificate', () => {
   describe('getById() - GET /{id}', () => {
     describe('with UUID id', () => {
       beforeEach(async () => {
-        stubs.get.callsFake((model, condition) => {
-          expect(model).to.equal('certificate')
-          expect(condition).to.deep.equal({ id: 'some-id' })
-          return Promise.resolve(certExamples.slice(0, 1))
-        })
-        response = await controller.getById('some-id')
+        response = await controller.getById('test-cert-1')
       })
 
       it('returns certificate by given id', () => {
@@ -206,16 +219,25 @@ describe('v1/certificate', () => {
           energy_owner: 'emma-test',
           regulator: 'ray-test',
           hydrogen_owner: 'heidi',
+          events: [
+            { event: 'issued', occurred_at: new Date('2024-01-02') },
+            { event: 'initiated', occurred_at: new Date('2024-01-01') },
+          ],
         })
       })
     })
 
     describe('with integer id', () => {
       beforeEach(async () => {
-        stubs.get.callsFake((model, condition) => {
-          expect(model).to.equal('certificate')
-          expect(condition).to.deep.equal({ original_token_id: 42 })
-          return Promise.resolve(certExamples.slice(0, 1))
+        stubs.get.callsFake((table, where) => {
+          if (table === 'certificate' && (where as WhereMatch<'certificate'>)?.original_token_id === 42)
+            return Promise.resolve([certExamples[0]] as CertificateRow[])
+          if (table === 'certificate_event') {
+            const id = (where as WhereMatch<'certificate_event'>)?.certificate_id || ''
+            const result = eventExamplesById[id]
+            return Promise.resolve(result)
+          }
+          throw new Error(`Unexpected table in query ${table}`)
         })
         response = await controller.getById(42)
       })
@@ -227,6 +249,10 @@ describe('v1/certificate', () => {
           energy_owner: 'emma-test',
           regulator: 'ray-test',
           hydrogen_owner: 'heidi',
+          events: [
+            { event: 'issued', occurred_at: new Date('2024-01-02') },
+            { event: 'initiated', occurred_at: new Date('2024-01-01') },
+          ],
         })
       })
     })
@@ -245,9 +271,15 @@ describe('v1/certificate', () => {
   })
 
   describe('getInitiationTransaction()', () => {
-    beforeEach(async () => {
-      stubs.get.resolves([transactionExample] as TransactionRow[])
-      response = await controller.getInitiationTransaction('test-cert-1', 'initiate-cert-transaction-test')
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.get.resolves([transactionExample] as TransactionRow[])
+        response = await controller.getInitiationTransaction('test-cert-1', 'initiate-cert-transaction-test')
+      })
+
+      it('returns initiation transaction by given certificate id and transaction', async () => {
+        expect(response).to.equal(transactionExample)
+      })
     })
 
     describe('if certificate does not exist', () => {
@@ -279,22 +311,30 @@ describe('v1/certificate', () => {
         expect(response.message).to.equal('transaction not found')
       })
     })
-
-    it('returns initiation transaction by given certificate id and transaction', async () => {
-      expect(response).to.equal(transactionExample)
-    })
   })
 
   describe('getIssuanceTransaction() - GET {id}/issuance/{transactionId}', () => {
-    beforeEach(async () => {
-      stubs.get
-        .onCall(0)
-        .resolves(certExamples.slice(0, 1))
-        .onCall(1)
-        .resolves([
-          { ...transactionExample, transaction_type: 'issue_cert', id: 'issue-cert-transaction-test' },
-        ] as TransactionRow[])
-      response = await controller.getInitiationTransaction('test-cert-1', 'issue-cert-transaction-test')
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.get
+          .onCall(0)
+          .resolves(certExamples.slice(0, 1))
+          .onCall(1)
+          .resolves([
+            { ...transactionExample, transaction_type: 'issue_cert', id: 'issue-cert-transaction-test' },
+          ] as TransactionRow[])
+        response = await controller.getInitiationTransaction('test-cert-1', 'issue-cert-transaction-test')
+      })
+
+      it('returns updated certificate', () => {
+        expect(response).to.deep.contain({
+          id: 'issue-cert-transaction-test',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'issue_cert',
+        })
+      })
     })
 
     describe('if issuance transaction does not exist', () => {
@@ -308,24 +348,26 @@ describe('v1/certificate', () => {
         expect(response).to.be.instanceOf(NotFound)
       })
     })
-
-    it('returns updated certificate', () => {
-      expect(response).to.deep.contain({
-        id: 'issue-cert-transaction-test',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'issue_cert',
-      })
-    })
   })
 
   describe('getRevocationTransaction() - GET {id}/issuance/{transactionId}', () => {
-    beforeEach(async () => {
-      stubs.get.resolves([
-        { ...transactionExample, transaction_type: 'revoke_cert', id: 'revoke-cert-transaction-test' },
-      ] as TransactionRow[])
-      response = await controller.getRevocationTransaction('test-cert-1', 'revoke-cert-transaction-test')
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.get.resolves([
+          { ...transactionExample, transaction_type: 'revoke_cert', id: 'revoke-cert-transaction-test' },
+        ] as TransactionRow[])
+        response = await controller.getRevocationTransaction('test-cert-1', 'revoke-cert-transaction-test')
+      })
+
+      it('returns transaction', () => {
+        expect(response).to.deep.contain({
+          id: 'revoke-cert-transaction-test',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'revoke_cert',
+        })
+      })
     })
 
     describe('if revocation transaction does not exist', () => {
@@ -343,36 +385,70 @@ describe('v1/certificate', () => {
         expect(response.message).to.equal('transaction not found')
       })
     })
-
-    it('returns transaction', () => {
-      expect(response).to.deep.contain({
-        id: 'revoke-cert-transaction-test',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'revoke_cert',
-      })
-    })
   })
 
   describe('createOnChain() - POST {id}/initiation', () => {
-    beforeEach(async () => {
-      stubs.getSelfAddress.resetHistory()
-      stubs.insert.resetHistory()
-      stubs.insert.callsFake((_, data) => [data])
-      stubs.get.onCall(0).resolves([certExamples[3]] as CertificateRow[])
-      stubs.get.onCall(1).resolves([transactionExample] as TransactionRow[])
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.getSelfAddress.resetHistory()
+        stubs.insert.resetHistory()
+        stubs.insert.callsFake((_, data) => [data])
+        stubs.get.onCall(0).resolves([certExamples[3]] as CertificateRow[])
+        stubs.get.onCall(1).resolves([transactionExample] as TransactionRow[])
 
-      response = await controller.createOnChain('test-cert-3').catch((err) => err)
-    })
+        response = await controller.createOnChain('test-cert-3').catch((err) => err)
+      })
 
-    afterEach(() => {
-      stubs.get.resetHistory()
+      it('gets self address from identity service', () => {
+        expect(stubs.getSelfAddress.callCount).to.equal(1)
+      })
+
+      it('validates the current certificate status', () => {
+        expect(stubs.get.lastCall.args[0]).to.equal('certificate')
+        expect(stubs.get.lastCall.args[1]).to.deep.contain({ id: 'test-cert-3' })
+      })
+
+      it('prepares a run process', () => {
+        const [{ process, outputs }] = stubs.prepareRunProcess.lastCall.args
+
+        expect(process).to.deep.contain({ id: 'initiate_cert', version: 1 })
+        expect(outputs[0].roles).to.deep.contain({
+          regulator: 'ray-test',
+          hydrogen_owner: 'member-self-test',
+          energy_owner: 'member-self-test',
+        })
+        expect(outputs[0].metadata).to.deep.contain({
+          '@version': {
+            type: 'LITERAL',
+            value: '1',
+          },
+          '@type': {
+            type: 'LITERAL',
+            value: 'InitiatedCert',
+          },
+          hydrogen_quantity_wh: {
+            type: 'LITERAL',
+            value: '10000000',
+          },
+        })
+      })
+
+      it('inserts a transaction', () => {
+        expect(stubs.insert.lastCall.args[1]).to.deep.contain({
+          api_type: 'certificate',
+          hash: '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19',
+          transaction_type: 'initiate_cert',
+        })
+      })
+
+      it('submits a run process', () => {
+        expect(stubs.submitRunProcess.lastCall.args[0]).to.have.property('hash')
+      })
     })
 
     describe('if certificate is in invalid state', () => {
       beforeEach(async () => {
-        stubs.get.resolves([certExamples[3]] as CertificateRow[])
+        stubs.get.resolves([certExamples[0]] as CertificateRow[])
         response = await controller.createOnChain('test-cert-1').catch((err) => err)
       })
 
@@ -407,255 +483,220 @@ describe('v1/certificate', () => {
         expect(stubs.insert.notCalled).to.equal(true)
       })
     })
-
-    it('gets self address from identity service', () => {
-      expect(stubs.getSelfAddress.callCount).to.equal(1)
-    })
-
-    it('validates the current certificate status', () => {
-      expect(stubs.get.lastCall.args[0]).to.equal('certificate')
-      expect(stubs.get.lastCall.args[1]).to.deep.contain({ id: 'test-cert-3' })
-    })
-
-    it('prepares a run process', () => {
-      const [{ process, outputs }] = stubs.prepareRunProcess.lastCall.args
-
-      expect(process).to.deep.contain({ id: 'initiate_cert', version: 1 })
-      expect(outputs[0].roles).to.deep.contain({
-        regulator: 'ray-test',
-        hydrogen_owner: 'member-self-test',
-        energy_owner: 'member-self-test',
-      })
-      expect(outputs[0].metadata).to.deep.contain({
-        '@version': {
-          type: 'LITERAL',
-          value: '1',
-        },
-        '@type': {
-          type: 'LITERAL',
-          value: 'InitiatedCert',
-        },
-        hydrogen_quantity_wh: {
-          type: 'LITERAL',
-          value: '10000000',
-        },
-      })
-    })
-
-    it('inserts a transaction', () => {
-      expect(stubs.insert.lastCall.args[1]).to.deep.contain({
-        api_type: 'certificate',
-        hash: '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19',
-        transaction_type: 'initiate_cert',
-      })
-    })
-
-    it('submits a run process', () => {
-      expect(stubs.submitRunProcess.lastCall.args[0]).to.have.property('hash')
-    })
   })
 
   describe('issueOnChain() - POST {id}/issuance', () => {
-    beforeEach(async () => {
-      stubs.getSelfAddress.resetHistory()
-      stubs.get.resetHistory()
-      stubs.get.onCall(0).resolves([certExamples[2]] as CertificateRow[])
-      stubs.get.onCall(1).resolves([transactionExample] as TransactionRow[])
-      response = await controller.issueOnChain('test-cert-3', { embodied_co2: 100 }).catch((err) => err)
-    })
-
-    it('gets self address from identity service', () => {
-      expect(stubs.getSelfAddress.callCount).to.equal(1)
-    })
-
-    it('validates the current certificate status', () => {
-      expect(stubs.get.lastCall.args[0]).to.equal('certificate')
-      expect(stubs.get.lastCall.args[1]).to.deep.contain({ id: 'test-cert-3' })
-    })
-
-    it('prepares a run process', () => {
-      const [{ process, inputs, outputs }] = stubs.prepareRunProcess.lastCall.args
-      expect(process).to.deep.contain({
-        id: 'issue_cert',
-        version: 1,
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.getSelfAddress.resetHistory()
+        stubs.get.resetHistory()
+        stubs.get.onCall(0).resolves([certExamples[2]] as CertificateRow[])
+        stubs.get.onCall(1).resolves([transactionExample] as TransactionRow[])
+        response = await controller.issueOnChain('test-cert-3', { embodied_co2: 100 }).catch((err) => err)
       })
-      expect(inputs[0]).to.equal(3)
-      expect(outputs[0].roles).to.deep.contain({
-        regulator: 'ray-test',
-        hydrogen_owner: 'member-self-test',
-        energy_owner: 'member-self-test',
-      })
-      expect(outputs[0].metadata).to.deep.contain({
-        '@version': {
-          type: 'LITERAL',
-          value: '1',
-        },
-        '@type': {
-          type: 'LITERAL',
-          value: 'IssuedCert',
-        },
-        // '@original_id': [Object],
-        embodied_co2: {
-          type: 'LITERAL',
-          value: '100',
-        },
-      })
-    })
 
-    it('inserts a transaction', () => {
-      expect(stubs.insert.lastCall.args[1]).to.deep.contain({
-        api_type: 'certificate',
-        hash: '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19',
-        local_id: 'test-cert-3',
-        transaction_type: 'issue_cert',
+      it('gets self address from identity service', () => {
+        expect(stubs.getSelfAddress.callCount).to.equal(1)
       })
-    })
 
-    it('submits a run process', () => {
-      expect(stubs.submitRunProcess.lastCall.args[0]).to.have.property('hash')
+      it('validates the current certificate status', () => {
+        expect(stubs.get.lastCall.args[0]).to.equal('certificate')
+        expect(stubs.get.lastCall.args[1]).to.deep.contain({ id: 'test-cert-3' })
+      })
+
+      it('prepares a run process', () => {
+        const [{ process, inputs, outputs }] = stubs.prepareRunProcess.lastCall.args
+        expect(process).to.deep.contain({
+          id: 'issue_cert',
+          version: 1,
+        })
+        expect(inputs[0]).to.equal(3)
+        expect(outputs[0].roles).to.deep.contain({
+          regulator: 'ray-test',
+          hydrogen_owner: 'member-self-test',
+          energy_owner: 'member-self-test',
+        })
+        expect(outputs[0].metadata).to.deep.contain({
+          '@version': {
+            type: 'LITERAL',
+            value: '1',
+          },
+          '@type': {
+            type: 'LITERAL',
+            value: 'IssuedCert',
+          },
+          // '@original_id': [Object],
+          embodied_co2: {
+            type: 'LITERAL',
+            value: '100',
+          },
+        })
+      })
+
+      it('inserts a transaction', () => {
+        expect(stubs.insert.lastCall.args[1]).to.deep.contain({
+          api_type: 'certificate',
+          hash: '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19',
+          local_id: 'test-cert-3',
+          transaction_type: 'issue_cert',
+        })
+      })
+
+      it('submits a run process', () => {
+        expect(stubs.submitRunProcess.lastCall.args[0]).to.have.property('hash')
+      })
     })
   })
 
   describe('revokeOnChain() - Post {id}/revocation', () => {
-    beforeEach(async () => {
-      stubs.getSelfAddress.resetHistory()
-      stubs.get.resetHistory()
-      stubs.getSelfAddress.callsFake(() => ({ address: 'ray-test', alias: 'ray-test' })),
-        stubs.get.onCall(0).returns([certExamples[0]] as any)
-      stubs.get.onCall(1).returns([attachmentExample] as any)
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.getSelfAddress.resetHistory()
+        stubs.get.resetHistory()
+        stubs.getSelfAddress.callsFake(() => ({ address: 'ray-test', alias: 'ray-test' })),
+          stubs.get.onCall(0).returns([certExamples[0]] as any)
+        stubs.get.onCall(1).returns([attachmentExample] as any)
 
-      response = await controller.revokeOnChain('test-cert-3', { reason: 'some-attachment-id' }).catch((err) => err)
-    })
-
-    it('gets self address from identity service', () => {
-      expect(stubs.getSelfAddress.callCount).to.equal(1)
-    })
-
-    it('validates status and confirms that attachment is present', () => {
-      expect(stubs.get.lastCall.args[0]).to.equal('attachment')
-      expect(stubs.get.lastCall.args[1]).to.deep.contain({ id: 'some-attachment-id' })
-    })
-
-    it('prepares a run process', () => {
-      const [{ process }] = stubs.prepareRunProcess.lastCall.args
-
-      expect(process).to.deep.contain({
-        id: 'revoke_cert',
-        version: 1,
+        response = await controller.revokeOnChain('test-cert-3', { reason: 'some-attachment-id' }).catch((err) => err)
       })
-    })
 
-    it('inserts a transaction', () => {
-      expect(stubs.insert.lastCall.args[1]).to.deep.contain({
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        hash: '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19',
-        transaction_type: 'revoke_cert',
+      it('gets self address from identity service', () => {
+        expect(stubs.getSelfAddress.callCount).to.equal(1)
       })
-    })
 
-    it('submits a run process', () => {
-      expect(stubs.submitRunProcess.lastCall.args[0]).to.have.property('hash')
+      it('validates status and confirms that attachment is present', () => {
+        expect(stubs.get.lastCall.args[0]).to.equal('attachment')
+        expect(stubs.get.lastCall.args[1]).to.deep.contain({ id: 'some-attachment-id' })
+      })
+
+      it('prepares a run process', () => {
+        const [{ process }] = stubs.prepareRunProcess.lastCall.args
+
+        expect(process).to.deep.contain({
+          id: 'revoke_cert',
+          version: 1,
+        })
+      })
+
+      it('inserts a transaction', () => {
+        expect(stubs.insert.lastCall.args[1]).to.deep.contain({
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          hash: '9d441a0fe4fb942070f4d3014e2367496d4afc3bc9b983f1ac5b3813467a0c19',
+          transaction_type: 'revoke_cert',
+        })
+      })
+
+      it('submits a run process', () => {
+        expect(stubs.submitRunProcess.lastCall.args[0]).to.have.property('hash')
+      })
     })
   })
 
   describe('getInitiationTransactions() - GET {id}/initiation', () => {
-    beforeEach(async () => {
-      stubs.get.resetHistory()
-      stubs.get
-        .onCall(0)
-        .resolves(certExamples.slice(0, 1))
-        .onCall(1)
-        .resolves([
-          { ...transactionExample, id: '1' },
-          { ...transactionExample, id: '2' },
-        ] as TransactionRow[])
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.get.resetHistory()
+        stubs.get
+          .onCall(0)
+          .resolves(certExamples.slice(0, 1))
+          .onCall(1)
+          .resolves([
+            { ...transactionExample, id: '1' },
+            { ...transactionExample, id: '2' },
+          ] as TransactionRow[])
 
-      response = await controller.getInitiationTransactions('test-cert-1')
-    })
-
-    it('returns all initiations for a given certificate id', () => {
-      expect(response).to.be.an('Array')
-      expect(response[0]).to.deep.contain({
-        id: '1',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'initiate_cert',
+        response = await controller.getInitiationTransactions('test-cert-1')
       })
-      expect(response[1]).to.deep.contain({
-        id: '2',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'initiate_cert',
+
+      it('returns all initiations for a given certificate id', () => {
+        expect(response).to.be.an('Array')
+        expect(response[0]).to.deep.contain({
+          id: '1',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'initiate_cert',
+        })
+        expect(response[1]).to.deep.contain({
+          id: '2',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'initiate_cert',
+        })
       })
     })
   })
+
   describe('getIssuanceTransactions() - GET {id}/issuance', () => {
-    beforeEach(async () => {
-      stubs.get.resetHistory()
-      stubs.get
-        .onCall(0)
-        .resolves(certExamples.slice(0, 1))
-        .onCall(1)
-        .resolves([
-          { ...transactionExample, transaction_type: 'issue_cert', id: '1' },
-          { ...transactionExample, transaction_type: 'issue_cert', id: '2' },
-        ] as TransactionRow[])
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.get.resetHistory()
+        stubs.get
+          .onCall(0)
+          .resolves(certExamples.slice(0, 1))
+          .onCall(1)
+          .resolves([
+            { ...transactionExample, transaction_type: 'issue_cert', id: '1' },
+            { ...transactionExample, transaction_type: 'issue_cert', id: '2' },
+          ] as TransactionRow[])
 
-      response = await controller.getInitiationTransactions('test-cert-1')
-    })
-
-    it('returns all initiations for a given certificate id', () => {
-      expect(response).to.be.an('Array')
-      expect(response[0]).to.deep.contain({
-        id: '1',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'issue_cert',
+        response = await controller.getInitiationTransactions('test-cert-1')
       })
-      expect(response[1]).to.deep.contain({
-        id: '2',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'issue_cert',
+
+      it('returns all initiations for a given certificate id', () => {
+        expect(response).to.be.an('Array')
+        expect(response[0]).to.deep.contain({
+          id: '1',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'issue_cert',
+        })
+        expect(response[1]).to.deep.contain({
+          id: '2',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'issue_cert',
+        })
       })
     })
   })
 
   describe('getRevocationTransactions()- GET {id}/revocation', () => {
-    beforeEach(async () => {
-      stubs.get.resetHistory()
-      stubs.get
-        .onCall(0)
-        .resolves(certExamples.slice(0, 1))
-        .onCall(1)
-        .resolves([
-          { ...transactionExample, transaction_type: 'revoke_cert', id: '1' },
-          { ...transactionExample, transaction_type: 'revoke_cert', id: '2' },
-        ] as TransactionRow[])
+    describe('happy path', () => {
+      beforeEach(async () => {
+        stubs.get.resetHistory()
+        stubs.get
+          .onCall(0)
+          .resolves(certExamples.slice(0, 1))
+          .onCall(1)
+          .resolves([
+            { ...transactionExample, transaction_type: 'revoke_cert', id: '1' },
+            { ...transactionExample, transaction_type: 'revoke_cert', id: '2' },
+          ] as TransactionRow[])
 
-      response = await controller.getInitiationTransactions('test-cert-1')
-    })
-
-    it('returns all initiations for a given certificate id', () => {
-      expect(response).to.be.an('Array')
-      expect(response[0]).to.deep.contain({
-        id: '1',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'revoke_cert',
+        response = await controller.getInitiationTransactions('test-cert-1')
       })
-      expect(response[1]).to.deep.contain({
-        id: '2',
-        api_type: 'certificate',
-        local_id: 'test-cert-1',
-        state: 'submitted',
-        transaction_type: 'revoke_cert',
+
+      it('returns all initiations for a given certificate id', () => {
+        expect(response).to.be.an('Array')
+        expect(response[0]).to.deep.contain({
+          id: '1',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'revoke_cert',
+        })
+        expect(response[1]).to.deep.contain({
+          id: '2',
+          api_type: 'certificate',
+          local_id: 'test-cert-1',
+          state: 'submitted',
+          transaction_type: 'revoke_cert',
+        })
       })
     })
   })

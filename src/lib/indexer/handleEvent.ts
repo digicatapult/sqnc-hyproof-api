@@ -51,6 +51,7 @@ export default class EventHandler {
 
     const eventChangeSet = this.eventProcessors[event.process.id]({
       version: event.process.version,
+      blockTime: event.blockTime,
       transaction,
       sender: event.sender,
       inputs,

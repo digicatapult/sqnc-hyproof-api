@@ -34,6 +34,14 @@ export type CertificateRecord =
     }
   | never
 
+export type CertificateEventRecord = {
+  type: 'insert'
+  id: string
+  certificate_id: UUID
+  event: 'initiated' | 'issued' | 'revoked'
+  occurred_at: Date
+}
+
 export type AttachmentRecord =
   | {
       type: 'insert'
@@ -47,6 +55,7 @@ export type AttachmentRecord =
 export type ChangeSet = {
   attachments?: Map<string, AttachmentRecord>
   certificates?: Map<string, CertificateRecord>
+  certificateEvents?: Map<string, CertificateEventRecord>
 }
 
 const mergeMaps = <T extends Change>(base?: Map<string, T>, update?: Map<string, T>) => {
@@ -69,12 +78,14 @@ const mergeMaps = <T extends Change>(base?: Map<string, T>, update?: Map<string,
 }
 
 export const mergeChangeSets = (base: ChangeSet, update: ChangeSet) => {
+  const certificateEvents = mergeMaps(base.certificateEvents, update.certificateEvents)
   const certificates = mergeMaps(base.certificates, update.certificates)
   const attachments = mergeMaps(base.attachments, update.attachments)
 
   const result: ChangeSet = {
     ...(attachments ? { attachments } : {}),
     ...(certificates ? { certificates } : {}),
+    ...(certificateEvents ? { certificateEvents } : {}),
   }
 
   return result

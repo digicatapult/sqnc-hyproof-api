@@ -6,6 +6,7 @@ export const events2: ProcessRanEvent[] = [
   {
     callHash: '0x0a',
     blockHash: '0x0b',
+    blockTime: new Date('2024-01-01'),
     sender: 'b',
     process: {
       id: 'c',
@@ -17,6 +18,7 @@ export const events2: ProcessRanEvent[] = [
   {
     callHash: '0x0c',
     blockHash: '0x0d',
+    blockTime: new Date('2024-01-02'),
     sender: 'e',
     process: {
       id: 'f',

@@ -220,7 +220,7 @@ export default class Indexer {
         for (const [, certificate] of changeSet.certificates) {
           switch (certificate.type) {
             case 'insert': {
-              const { type, id, ...record } = certificate
+              const { type, ...record } = certificate
               await db.insert('certificate', record)
               break
             }
@@ -229,6 +229,17 @@ export default class Indexer {
               await db.update('certificate', { id: id }, record)
               break
             }
+          }
+        }
+      }
+
+      if (changeSet.certificateEvents) {
+        for (const [, certificateEvent] of changeSet.certificateEvents) {
+          const { type, ...record } = certificateEvent
+          switch (type) {
+            case 'insert':
+              await db.insert('certificate_event', record)
+              break
           }
         }
       }
