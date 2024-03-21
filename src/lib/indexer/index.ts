@@ -220,7 +220,7 @@ export default class Indexer {
         for (const [, certificate] of changeSet.certificates) {
           switch (certificate.type) {
             case 'insert': {
-              const { type, id, ...record } = certificate
+              const { type, ...record } = certificate
               await db.insert('certificate', record)
               break
             }

@@ -95,6 +95,13 @@ describe('on-chain', function () {
         })
         expect(cert.commitment).to.match(/^[0-9a-f]{32}$/)
         expect(cert.commitment_salt).to.match(/^[0-9a-f]{32}$/)
+
+        const events = await db.get('certificate_event', { certificate_id: certId })
+        expect(events.length).to.equal(1)
+        expect(events[0]).to.deep.contain({
+          certificate_id: certId,
+          event: 'initiated',
+        })
       })
     })
 
@@ -126,6 +133,17 @@ describe('on-chain', function () {
           embodied_co2: '3',
           latest_token_id: lastTokenId + 1,
         })
+
+        const events = await db.get('certificate_event', { certificate_id: context.cert.id }, [['occurred_at', 'asc']])
+        expect(events.length).to.equal(2)
+        expect(events[0]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'initiated',
+        })
+        expect(events[1]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'issued',
+        })
       })
 
       it('should issue a certificate on-chain based on grid emissions', async function () {
@@ -151,6 +169,17 @@ describe('on-chain', function () {
           state: 'issued',
           embodied_co2: '246914',
           latest_token_id: lastTokenId + 1,
+        })
+
+        const events = await db.get('certificate_event', { certificate_id: context.cert.id }, [['occurred_at', 'asc']])
+        expect(events.length).to.equal(2)
+        expect(events[0]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'initiated',
+        })
+        expect(events[1]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'issued',
         })
       })
     })
@@ -180,6 +209,21 @@ describe('on-chain', function () {
           state: 'revoked',
           revocation_reason: attachmentId,
           latest_token_id: expectedTokenId,
+        })
+
+        const events = await db.get('certificate_event', { certificate_id: context.cert.id }, [['occurred_at', 'asc']])
+        expect(events.length).to.equal(3)
+        expect(events[0]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'initiated',
+        })
+        expect(events[1]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'issued',
+        })
+        expect(events[2]).to.deep.contain({
+          certificate_id: context.cert.id,
+          event: 'revoked',
         })
       })
     })

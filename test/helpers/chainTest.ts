@@ -1,4 +1,4 @@
-import { before, after } from 'mocha'
+import { beforeEach, afterEach } from 'mocha'
 import { Express } from 'express'
 import { container } from 'tsyringe'
 import { SubmittableResult } from '@polkadot/api'
@@ -10,6 +10,7 @@ import { CertificateRow } from '../../src/lib/db/types.js'
 import Database from '../../src/lib/db/index.js'
 import ChainNode from '../../src/lib/chainNode.js'
 import { logger } from '../../src/lib/logger.js'
+import { trim0x } from '../../src/lib/utils/shared.js'
 import { put } from './routeHelper.js'
 import { mockEnv, notSelfAddress, regulatorAddress, selfAddress } from './mock.js'
 import { processInitiateCert, processIssueCert } from '../../src/lib/payload.js'
@@ -34,7 +35,7 @@ const submitRunProcessExtrinsicAndSeal = async (
 }
 
 export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) => {
-  before(async function () {
+  beforeEach(async function () {
     context.app = await createHttpServer()
     const node = container.resolve(ChainNode)
 
@@ -42,9 +43,9 @@ export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) =
     const blockHeader = await node.getHeader(blockHash)
     await db
       .insert('processed_blocks', {
-        hash: blockHash,
+        hash: trim0x(blockHash),
         height: blockHeader.height,
-        parent: blockHash,
+        parent: trim0x(blockHash),
       })
       .catch(() => {
         // intentional ignorance of errors
@@ -59,7 +60,7 @@ export const withAppAndIndexer = (context: { app: Express; indexer: Indexer }) =
     )
   })
 
-  after(async function () {
+  afterEach(async function () {
     await context.indexer.close()
   })
 }

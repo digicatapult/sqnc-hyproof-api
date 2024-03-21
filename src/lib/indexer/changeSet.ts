@@ -78,14 +78,14 @@ const mergeMaps = <T extends Change>(base?: Map<string, T>, update?: Map<string,
 }
 
 export const mergeChangeSets = (base: ChangeSet, update: ChangeSet) => {
-  const certificatesEvents = mergeMaps(base.certificateEvents, update.certificateEvents)
+  const certificateEvents = mergeMaps(base.certificateEvents, update.certificateEvents)
   const certificates = mergeMaps(base.certificates, update.certificates)
   const attachments = mergeMaps(base.attachments, update.attachments)
 
   const result: ChangeSet = {
     ...(attachments ? { attachments } : {}),
     ...(certificates ? { certificates } : {}),
-    ...(certificatesEvents ? { certificatesEvents } : {}),
+    ...(certificateEvents ? { certificateEvents } : {}),
   }
 
   return result
