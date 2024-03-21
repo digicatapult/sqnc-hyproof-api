@@ -115,15 +115,17 @@ export class CertificateController extends Controller {
   @SuccessResponse('201')
   public async postDraft(
     @Body()
-    {
+    body: InitiatePayload
+  ): Promise<GetCertificateResponse> {
+    const {
       hydrogen_quantity_wh,
       energy_owner,
       regulator,
       production_start_time,
       production_end_time,
       energy_consumed_wh,
-    }: InitiatePayload
-  ): Promise<GetCertificateResponse> {
+    } = body
+
     this.log.trace({ identity: this.identity, energy_owner, regulator })
 
     if (production_end_time <= production_start_time) {
@@ -221,10 +223,8 @@ export class CertificateController extends Controller {
   @Response<NotFound>(404, '<item> not found')
   @Response<BadRequest>(400, 'ID must be a UUID or a positive integer')
   @Put('{id}')
-  public async updateById(
-    @Path() id: UUID | INT,
-    @Body() { commitment_salt, ...update }: UpdatePayload
-  ): Promise<GetCertificateResponse> {
+  public async updateById(@Path() id: UUID | INT, @Body() body: UpdatePayload): Promise<GetCertificateResponse> {
+    const { commitment_salt, ...update } = body
     if (!id) throw new BadRequest()
 
     const certificate = await this.getCertificate(id)
@@ -471,10 +471,8 @@ export class CertificateController extends Controller {
   @Post('{id}/revocation')
   @Response<NotFound>(404, 'Item not found')
   @SuccessResponse('201')
-  public async revokeOnChain(
-    @Path() id: UUID | INT,
-    @Body() { reason }: RevokePayload
-  ): Promise<GetTransactionResponse> {
+  public async revokeOnChain(@Path() id: UUID | INT, @Body() body: RevokePayload): Promise<GetTransactionResponse> {
+    const { reason } = body
     const { address: self_address } = await this.identity.getMemberBySelf()
 
     const certificate = await this.getCertificate(id)
