@@ -106,7 +106,7 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('attachment')
   await knex.schema.dropTable('transaction')
   await knex.schema.dropTable('processed_blocks')
-  await knex.raw('DROP TYPE certificate_event')
+  await knex.raw('DROP TYPE cert_event')
   await knex.raw('DROP TYPE certificate_state')
   await knex.raw('DROP TYPE transaction_state')
   await knex.raw('DROP TYPE transaction_type')
