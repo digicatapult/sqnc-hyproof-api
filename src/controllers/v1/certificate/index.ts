@@ -144,7 +144,7 @@ export class CertificateController extends Controller {
       energy_consumed_wh,
     })
 
-    // errors: handled by middlewar, thrown by the library e.g. this.lib.fn()
+    // errors: handled by middleware, thrown by the library e.g. this.lib.fn()
     const [certificate] = await this.db.insert('certificate', {
       hydrogen_quantity_wh: BigInt(hydrogen_quantity_wh).toString(),
       hydrogen_owner: identities.hydrogen_owner.address,
