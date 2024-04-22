@@ -36,30 +36,19 @@ export default class EmissionsCalculator {
     energyConsumedWh: number
   ): Promise<number> {
     const url = this.intensityUrl(new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60), productionEndDate)
-    let response = null
-    let hasError = false
+    const hardcodedFactor = 0.07
+    let data: IntensityResponseData | [] = []
     try {
-      response = await fetch(url)
+      const response = await fetch(url)
+      if (response.status !== 200) {
+        throw new InternalServerError('Unexpected error fetching carbon intensity data')
+      }
+      data = intensityResponseValidator.parse(await response.json()).data
     } catch (e) {
-      logger.info('CarbonintensityFetchError %s', JSON.stringify(e))
-      hasError = true
+      logger.info('Detected off-line mode when using fetch - %s. Using default value.', JSON.stringify(e))
+      return Math.floor(hardcodedFactor * energyConsumedWh)
     }
-    // const response = await fetch(url)
-    if (response && response.status !== 200) {
-      throw new InternalServerError('Unexpected error fetching carbon intensity data')
-    }
-    if (hasError) {
-      logger.info('HasError')
-      const emissionsOfflineValue = Math.floor(energyConsumedWh * 0.07)
-      return emissionsOfflineValue
-    }
-    const data = intensityResponseValidator.parse(await response?.json()).data
-    // const j = await response.json()
-    // logger.info(JSON.stringify(j))
-    logger.info('GotData')
-    logger.info(this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh))
-    const emissionsValue = this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
-    return emissionsValue
+    return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
   }
 
   public calculateEmissions(
