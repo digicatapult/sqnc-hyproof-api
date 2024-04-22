@@ -36,12 +36,30 @@ export default class EmissionsCalculator {
     energyConsumedWh: number
   ): Promise<number> {
     const url = this.intensityUrl(new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60), productionEndDate)
-    const response = await fetch(url)
-    if (response.status !== 200) {
+    let response = null
+    let hasError = false
+    try {
+      response = await fetch(url)
+    } catch (e) {
+      logger.info('CarbonintensityFetchError %s', JSON.stringify(e))
+      hasError = true
+    }
+    // const response = await fetch(url)
+    if (response && response.status !== 200) {
       throw new InternalServerError('Unexpected error fetching carbon intensity data')
     }
-    const { data } = intensityResponseValidator.parse(await response.json())
-    return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
+    if (hasError) {
+      logger.info('HasError')
+      const emissionsOfflineValue = Math.floor(energyConsumedWh * 0.07)
+      return emissionsOfflineValue
+    }
+    const data = intensityResponseValidator.parse(await response?.json()).data
+    // const j = await response.json()
+    // logger.info(JSON.stringify(j))
+    logger.info('GotData')
+    logger.info(this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh))
+    const emissionsValue = this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
+    return emissionsValue
   }
 
   public calculateEmissions(
