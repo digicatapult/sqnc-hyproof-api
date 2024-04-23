@@ -44,11 +44,11 @@ export default class EmissionsCalculator {
         throw new InternalServerError('Unexpected error fetching carbon intensity data')
       }
       data = intensityResponseValidator.parse(await response.json()).data
+      return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
     } catch (e) {
       logger.info('Detected off-line mode when using fetch - %s. Using default value.', JSON.stringify(e))
       return Math.floor(hardcodedFactor * energyConsumedWh)
     }
-    return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
   }
 
   public calculateEmissions(
