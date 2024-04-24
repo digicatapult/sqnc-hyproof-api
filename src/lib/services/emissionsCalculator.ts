@@ -36,7 +36,7 @@ export default class EmissionsCalculator {
     energyConsumedWh: number
   ): Promise<number> {
     const url = this.intensityUrl(new Date(new Date(productionStartDate).getTime() - 1000 * 60 * 60), productionEndDate)
-    const hardcodedFactor = 0.07
+    const hardcodedFactorLimits: number[] = [0.03, 0.11]
     let data: IntensityResponseData | [] = []
     try {
       const response = await fetch(url)
@@ -47,7 +47,8 @@ export default class EmissionsCalculator {
       return this.calculateEmissions(data, productionStartDate, productionEndDate, energyConsumedWh)
     } catch (e) {
       logger.info('Detected off-line mode when using fetch - %s. Using default value.', JSON.stringify(e))
-      return Math.floor(hardcodedFactor * energyConsumedWh)
+      const factor = Math.random() * (hardcodedFactorLimits[1] - hardcodedFactorLimits[0]) + hardcodedFactorLimits[0]
+      return Math.floor(factor * energyConsumedWh)
     }
   }
 
