@@ -45,7 +45,7 @@ export default class EmissionsCalculator {
       }
       data = intensityResponseValidator.parse(await response.json()).data
     } catch (e) {
-      logger.info('Detected off-line mode when using fetch - %s. Using default value.', JSON.stringify(e))
+      logger.info('Detected off-line mode when using fetch - %s. Randomising value instead.', JSON.stringify(e))
       const factor = Math.random() * (hardcodedFactorLimits[1] - hardcodedFactorLimits[0]) + hardcodedFactorLimits[0]
       return Math.floor(factor * energyConsumedWh)
     }
