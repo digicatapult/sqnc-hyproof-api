@@ -2,7 +2,7 @@ version: '3'
 
 services:
   postgres-hyproof-api:
-    image: postgres:16.2-alpine
+    image: postgres:16.3-alpine
     container_name: postgres-hyproof-api
     ports:
       - 5432:5432
@@ -14,7 +14,7 @@ services:
       - POSTGRES_DB=sqnc-hyproof-api
 
   postgres-identity-service:
-    image: postgres:16.2-alpine
+    image: postgres:16.3-alpine
     container_name: postgres-identity
     ports:
       - 5433:5432
