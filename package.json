@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/sqnc-hyproof-api",
-  "version": "0.13.58",
+  "version": "0.13.59",
   "description": "An OpenAPI API service for SQNC",
   "main": "src/index.ts",
   "type": "module",
@@ -90,7 +90,7 @@
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.2.1",
     "tsyringe": "^4.8.0",
-    "uuid": "^9.0.1",
+    "uuid": "^10.0.0",
     "zod": "^3.23.8"
   }
 }
