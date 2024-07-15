@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/sqnc-hyproof-api",
-  "version": "0.13.68",
+  "version": "0.13.69",
   "description": "An OpenAPI API service for SQNC",
   "main": "src/index.ts",
   "type": "module",
@@ -74,7 +74,7 @@
   "dependencies": {
     "@polkadot/api": "^12.1.1",
     "@polkadot/util-crypto": "^12.6.2",
-    "@tsoa/runtime": "^6.3.0",
+    "@tsoa/runtime": "^6.4.0",
     "base-x": "^5.0.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
