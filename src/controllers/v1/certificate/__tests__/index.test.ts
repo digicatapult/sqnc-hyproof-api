@@ -553,8 +553,8 @@ describe('v1/certificate', () => {
       beforeEach(async () => {
         stubs.getSelfAddress.resetHistory()
         stubs.get.resetHistory()
-        stubs.getSelfAddress.callsFake(() => ({ address: 'ray-test', alias: 'ray-test' })),
-          stubs.get.onCall(0).returns([certExamples[0]] as any)
+        stubs.getSelfAddress.callsFake(() => ({ address: 'ray-test', alias: 'ray-test' }))
+        stubs.get.onCall(0).returns([certExamples[0]] as any)
         stubs.get.onCall(1).returns([attachmentExample] as any)
 
         response = await controller.revokeOnChain('test-cert-3', { reason: 'some-attachment-id' }).catch((err) => err)

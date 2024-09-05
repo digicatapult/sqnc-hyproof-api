@@ -182,7 +182,7 @@ describe('v1/attachment', () => {
       })
 
       it('returns an empty array', () => {
-        expect(response).to.be.empty
+        expect(response.length).to.equal(0)
       })
     })
 
@@ -274,10 +274,10 @@ describe('v1/attachment', () => {
         ])
         stubs.getFile.callsFake(async () => ({
           blob: { arrayBuffer: () => JSON.stringify({ json: 'attachment' }), filename: 'json' },
-        })),
-          (response = await controller
-            .getById({ headers: { accept: 'application/json' } } as any, 'attachment-id')
-            .catch((err) => err))
+        }))
+        response = await controller
+          .getById({ headers: { accept: 'application/json' } } as any, 'attachment-id')
+          .catch((err) => err)
       })
 
       it('returns parsed json', () => {
