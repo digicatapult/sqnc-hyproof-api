@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/sqnc-hyproof-api",
-  "version": "0.13.94",
+  "version": "0.13.95",
   "description": "An OpenAPI API service for SQNC",
   "main": "src/index.ts",
   "type": "module",
@@ -54,7 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "chai": "^5.1.1",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
