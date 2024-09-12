@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/sqnc-hyproof-api",
-  "version": "0.13.98",
+  "version": "0.13.99",
   "description": "An OpenAPI API service for SQNC",
   "main": "src/index.ts",
   "type": "module",
@@ -51,8 +51,8 @@
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.4.0",
-    "@typescript-eslint/parser": "^8.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.5.0",
+    "@typescript-eslint/parser": "^8.5.0",
     "chai": "^5.1.1",
     "concurrently": "^9.0.0",
     "depcheck": "^1.4.7",
@@ -68,7 +68,7 @@
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsimp": "^2.0.11",
-    "typescript": "^5.5.4",
+    "typescript": "^5.6.2",
     "undici": "^6.19.8"
   },
   "dependencies": {
