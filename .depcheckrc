@@ -1,1 +1,1 @@
-ignores: ['concurrently', 'pino-colada', 'nodemon', 'multer', 'pg', 'tsimp', 'ts-node', 'undici', 'supertest']
+ignores: ['concurrently', 'pino-colada', 'nodemon', 'multer', 'pg', '@digicatapult/tsimp', 'ts-node', 'undici', 'supertest']
