@@ -1,5 +1,5 @@
 {
-  "exec": "node --import=tsimp/import src/index.ts",
+  "exec": "node --import=@digicatapult/tsimp/import src/index.ts",
   "watch": [
     "src"
   ],

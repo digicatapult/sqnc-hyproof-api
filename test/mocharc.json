@@ -6,6 +6,6 @@
     "test/init.ts"
   ],
   "node-option": [
-    "import=tsimp/import"
+    "import=@digicatapult/tsimp/import"
   ]
 }
