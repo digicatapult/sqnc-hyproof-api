@@ -40,6 +40,9 @@
   },
   "homepage": "https://github.com/digicatapult/sqnc-hyproof-api#readme",
   "devDependencies": {
+    "@digicatapult/tsimp": "^2.0.12",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.11.1",
     "@polkadot/types": "^13.2.1",
     "@types/chai": "^5.0.0",
     "@types/cors": "^2.8.17",
@@ -59,6 +62,7 @@
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
     "mocha": "^10.7.3",
     "nodemon": "^3.1.7",
     "pino-colada": "^2.2.2",
@@ -67,7 +71,6 @@
     "sinon": "^19.0.2",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
-    "@digicatapult/tsimp": "^2.0.12",
     "typescript": "^5.6.2",
     "undici": "^6.19.8"
   },
