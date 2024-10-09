@@ -1,5 +1,9 @@
 # sqnc-hyproof-api
 
+## Deprecation Notice
+This application was deprecated on October 9th 2024, there will be no further dependency or security updates.
+---
+
 ## Description
 
 An API service for issuing hydrogen certificates using the Sequence (SQNC) ledger-based infrastructure
